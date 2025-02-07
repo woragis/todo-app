@@ -27,7 +27,7 @@ jobs:
 
       - name: Run tests
         working-directory: ./frontend
-        run: npm echo linting...
+        run: echo linting...
 
   backend-lint:
     runs-on: ubuntu-latest
