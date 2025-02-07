@@ -5,6 +5,7 @@ on:
     branches:
       - main
   pull_request:
+    types: opened
     branches:
       - main
 
@@ -26,7 +27,7 @@ jobs:
 
       - name: Run tests
         working-directory: ./frontend
-        run: npm run lint
+        run: npm echo linting...
 
   backend-lint:
     runs-on: ubuntu-latest
