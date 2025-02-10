@@ -1,0 +1,23 @@
+services:
+  frontend:
+    container_name: todos-frontend
+    image: woragis/todos-frontend
+    build:
+      context: '../../../frontend/'
+      dockerfile: Dockerfile
+    ports:
+      - '5173:5173'
+    volumes:
+      - ../../../frontend:/app
+
+  backend:
+    container_name: todos-backend
+    image: woragis/todos-backend
+    build:
+      context: '../../../backend/'
+      dockerfile: Dockerfile
+    ports:
+      - '8080:8080'
+    environment:
+      - DATABASE_URL=postgres://postgres:password@localhost:5432/todos?sslmode=disable
+      - REDIS_URL=redis://localhost:6379
