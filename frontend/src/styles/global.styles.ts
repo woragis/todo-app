@@ -1,9 +1,9 @@
-import { css } from "@emotion/react";
-import { useSelector } from "react-redux";
-import { RootState } from "../features/store";
+import { css } from '@emotion/react'
+import { useSelector } from 'react-redux'
+import { RootState } from '../redux/store'
 
 export const GlobalStyles = () => {
-  const theme = useSelector((state: RootState) => state.theme);
+  const theme = useSelector((state: RootState) => state.theme)
 
   return css`
     * {
@@ -12,7 +12,7 @@ export const GlobalStyles = () => {
       box-sizing: border-box;
       text-decoration: none;
       list-style-type: none;
-      font-family: "Roboto", sans-serif;
+      font-family: 'Roboto', sans-serif;
       font-style: normal;
       color: ${theme.colors.background.contrast};
       transition: background-color 500ms;
@@ -38,5 +38,5 @@ export const GlobalStyles = () => {
     a {
       color: white;
     }
-  `;
-};
+  `
+}
