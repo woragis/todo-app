@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"log"
+	"os"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -10,8 +11,8 @@ import (
 var DB *pgxpool.Pool
 
 func Connect() {
-	dsn := "postgres://postgres:password@localhost:5432/todos?sslmode=disable"
-	// dsn := os.Getenv("DATABASE_URL")
+	// dsn := "postgres://postgres:password@localhost:5432/todos?sslmode=disable"
+	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
 		log.Fatal("DATABASE_URL environment variable is not set")
 	}
