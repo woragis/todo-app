@@ -1,0 +1,78 @@
+services:
+  frontend:
+    container_name: todos-frontend
+    # restart: on-failure:3
+    image: woragis/todos-frontend
+    build:
+      context: '../../../frontend/'
+      dockerfile: Dockerfile.dev
+    ports:
+      - '5173:5173'
+    volumes:
+      - .:/app
+    networks:
+      - todos-network
+
+  backend:
+    container_name: todos-backend
+    # restart: on-failure:3
+    image: woragis/todos-backend
+    build:
+      context: '../../../backend/'
+      dockerfile: Dockerfile
+    ports:
+      - '8080:8080'
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://postgres:password@todo-database:5432/todos?sslmode=disable
+      - REDIS_URL=redis://todo-cache:6379
+    networks:
+      - todos-network
+
+  db:
+    container_name: todos-db
+    image: postgres:16.6
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: todos
+    ports:
+      - '5432:5432'
+    volumes:
+      - todos_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres', '-d', 'todos']
+      interval: 10s
+      retries: 5
+      start_period: 5s
+      timeout: 5s
+    networks:
+      - todos-network
+
+  # cache:
+  #   image: redis:7.2.5
+  #   container_name: todos-cache
+  #   ports:
+  #     - '6379:6379'
+  #   volumes:
+  #     - todos_cache:/cache
+  #   healthcheck:
+  #     test: ['CMD', 'redis-cli', 'ping']
+  #     interval: 10s
+  #     retries: 5
+  #     start_period: 5s
+  #     timeout: 5s
+  #   networks:
+  #     - todos-network
+
+networks:
+  todos-network:
+    name: todos-network
+    driver: bridge
+
+volumes:
+  # todos_cache:
+  #   name: todos-cache
+  todos_data:
+    name: todos-data
