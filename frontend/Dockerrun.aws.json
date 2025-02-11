@@ -1,0 +1,23 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "containerDefinitions": [
+    {
+      "name": "todos-frontend",
+      "image": "woragis/todos-frontend:latest",
+      "essential": true,
+      "memory": 256,
+      "portMappings": [
+        {
+          "containerPort": 80,
+          "hostPort": 80
+        }
+      ],
+      "environment": [
+        {
+          "name": "REACT_APP_BACKEND_URL",
+          "value": "http://todos-backend-env.elasticbeanstalk.com"
+        }
+      ]
+    }
+  ]
+}
