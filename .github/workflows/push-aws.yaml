@@ -1,0 +1,44 @@
+name: Push to EC2
+on:
+  push:
+    branches: main
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the files
+        uses: actions/checkout@v3
+
+      - name: Copy files with SSH
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          ARGS: '-rltgoDzv0 --delete'
+
+          # PASTA A SER ENVIADA
+          SOURCE: './'
+
+          # URL AWS
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+
+          # USUARIOAWS
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+
+          # PASTA AWS
+          TARGET: '/home/${{ secrets.REMOTE_USER }}/app'
+
+          # PASTAS A SEREM IGNORADAS
+          EXCLUDE: '.git*,node_modules*,.github*,__pycache__*'
+
+      - name: Restart Application
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/${{ secrets.REMOTE_USER }}/app
+            docker-compose down
+            docker-compose up -d --build
