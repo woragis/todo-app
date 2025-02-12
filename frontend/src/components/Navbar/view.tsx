@@ -1,8 +1,8 @@
-import LanguageSwitcher from "../LanguageSwitcher";
-import Login from "../Login";
-import Register from "../Register";
-import ThemeButton from "../ThemeButton";
-import { useNavbarModel } from "./model";
+import LanguageSwitcher from '../LanguageSwitcher'
+import Login from '../Login'
+import Register from '../Register'
+import ThemeButton from '../ThemeButton'
+import { useNavbarModel } from './model'
 import {
   NavbarInvisibleContainer,
   NavbarLogo,
@@ -10,7 +10,7 @@ import {
   NavLinkItem,
   NavLinksContainer,
   StyledNavbar,
-} from "./styles";
+} from './styles'
 
 export const NavbarView = ({
   navLinks,
@@ -22,33 +22,40 @@ export const NavbarView = ({
 }: ReturnType<typeof useNavbarModel>) => {
   const navLinksComponent = navLinks.map(({ title, path, onClick }) => {
     return (
-      <NavLinkItem key={title + "_nav_link"}>
-        <NavLink to={path ? path : ""} onClick={onClick}>
+      <NavLinkItem key={title + '_nav_link'}>
+        <NavLink
+          to={path ? path : ''}
+          onClick={onClick}
+        >
           {title}
         </NavLink>
       </NavLinkItem>
-    );
-  });
+    )
+  })
 
   const authLinksComponent = authLinks.map(({ title, path, onClick }) => {
     return (
-      <NavLinkItem key={title + "_nav_link"}>
-        <NavLink to={path ? path : ""} onClick={onClick}>
+      <NavLinkItem key={title + '_nav_link'}>
+        <NavLink
+          to={path ? path : ''}
+          onClick={onClick}
+        >
           {title}
         </NavLink>
       </NavLinkItem>
-    );
-  });
+    )
+  })
 
-  window.addEventListener("scroll", () => {
-    let header = document.querySelector(".navbar");
-    header?.classList.toggle("sticky", window.scrollY > 0);
-  });
+  window.addEventListener('scroll', () => {
+    let header = document.querySelector('.navbar')
+    header?.classList.toggle('sticky', window.scrollY > 0)
+  })
 
   return (
     <NavbarInvisibleContainer>
       <StyledNavbar
-        className="navbar"
+        role='navigation'
+        className='navbar'
         color={themeColors.navbar.background}
         backgroundColor={themeColors.navbar.contrast}
         invertedColor={themeColors.navbar.contrast}
@@ -68,5 +75,5 @@ export const NavbarView = ({
       {loginVisible && <Login />}
       {registerVisible && <Register />}
     </NavbarInvisibleContainer>
-  );
-};
+  )
+}
