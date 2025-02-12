@@ -2,7 +2,7 @@ import { TodosResponseInterface } from './axios.types'
 import { ReduxStatus } from './redux.types'
 
 export interface Todo {
-  id: number
+  id: string
   name: string
   description: string
   author_id: string

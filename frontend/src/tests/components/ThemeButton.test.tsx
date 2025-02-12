@@ -4,6 +4,11 @@ import '@testing-library/jest-dom'
 import ThemeButton from '../../components/ThemeButton'
 
 test('Renders Footer', () => {
-  render(<ThemeButton />)
+  render(
+    <ThemeButton
+      navbarColor='#fff'
+      navbarBackgroundColor='#000'
+    />
+  )
   expect(screen.getByRole('button')).toBeInTheDocument()
 })
