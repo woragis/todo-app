@@ -9,3 +9,15 @@ jobs:
       - name: Start and deploy kubernetes
         working-directory: ./infra
         run: echo deploying
+      - name: Deploy Website
+        id: deploy
+        uses: ./.github/actions/deploy-aws-ec2
+        env:
+          AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        with:
+          bucket: gha-custom-action-hosting
+          dist-folder: ./frontend/dist
+      - name: Output information
+        run: |
+          echo "Live URL: ${{ steps.deploy.outputs.website-url }}"

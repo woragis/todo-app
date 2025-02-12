@@ -10,27 +10,67 @@ on:
       - main
 
 jobs:
-  frontend-test:
+  test-frontend:
+    name: Test Frontend
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set up Node.js
+      - name: Set up Node
         uses: actions/setup-node@v3
         with:
           node-version: 20.9.0
 
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm install
+        run: npm ci
 
       - name: Run tests
         working-directory: ./frontend
-        run: echo testing
+        run: npm test
 
-  backend-test:
+  test-backend:
+    name: Test Backend
     runs-on: ubuntu-latest
     steps:
-      - name: Test Golang Backend
-        run: echo Tested...
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23.4
+
+      - name: Install dependencies
+        run: go mod tidy
+
+      - name: Run tests
+        run: go test -v ./...
+
+      - name: Run tests with coverage
+        run: go test -cover ./...
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.out
+          flags: unittests
+
+  deploy-frontend:
+    name: Deploy Frontend
+    needs:
+      - test-frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connect to AWS
+        run: echo Connecting...
+
+  deploy-backend:
+    name: Deploy Backend
+    needs:
+      - test-backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connect to AWS
+        run: echo Connecting...
