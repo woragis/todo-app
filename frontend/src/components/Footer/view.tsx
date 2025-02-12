@@ -33,6 +33,7 @@ export const FooterView = ({
       backgroundColor={footerColors.background}
       weakColor={footerColors.weak}
       id='footer'
+      role='contentinfo'
     >
       <FooterContainer>
         <div className='col1'>
