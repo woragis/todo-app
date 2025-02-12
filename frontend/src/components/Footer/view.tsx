@@ -1,4 +1,4 @@
-import { useFooterModel } from "./model";
+import { useFooterModel } from './model'
 import {
   FooterBrand,
   FooterContainer,
@@ -7,7 +7,7 @@ import {
   FooterMediaIcons,
   FooterMenu,
   StyledFooter,
-} from "./styles";
+} from './styles'
 
 export const FooterView = ({
   footerColors,
@@ -20,32 +20,33 @@ export const FooterView = ({
       <FooterListItem>
         <FooterLink to={link.path}>{link.title}</FooterLink>
       </FooterListItem>
-    );
-  });
+    )
+  })
 
   const socialMediaComponent = mediaLinks.map((socialMedia) => {
-    return <FooterLink to={socialMedia.path}>{socialMedia.element}</FooterLink>;
-  });
+    return <FooterLink to={socialMedia.path}>{socialMedia.element}</FooterLink>
+  })
 
   return (
     <StyledFooter
       color={footerColors.contrast}
       backgroundColor={footerColors.background}
       weakColor={footerColors.weak}
+      id='footer'
     >
       <FooterContainer>
-        <div className="col1">
-          <FooterBrand to="">{brandName}</FooterBrand>
+        <div className='col1'>
+          <FooterBrand to=''>{brandName}</FooterBrand>
         </div>
-        <div className="col2">
-          <FooterMenu className="menu">{menuComponent}</FooterMenu>
+        <div className='col2'>
+          <FooterMenu className='menu'>{menuComponent}</FooterMenu>
         </div>
-        <div className="col3">
-          <FooterMediaIcons className="media-icons">
+        <div className='col3'>
+          <FooterMediaIcons className='media-icons'>
             {socialMediaComponent}
           </FooterMediaIcons>
         </div>
       </FooterContainer>
     </StyledFooter>
-  );
-};
+  )
+}
