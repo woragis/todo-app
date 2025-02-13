@@ -13,5 +13,5 @@ docker push woragis/todos-backend:$SHA
 docker push woragis/todos-frontend:$SHA
 
 # kubectl apply -f k8s
-# kubectl set image deployments/frontend frontend=woragis/todos-frontend:$SHA
-# kubectl set image deployments/backend backend=woragis/todos-backend:$SHA
+kubectl set image deployments/frontend-deployment todos-frontend=woragis/todos-frontend:$SHA
+kubectl set image deployments/backend-deployment todos-backend=woragis/todos-backend:$SHA
