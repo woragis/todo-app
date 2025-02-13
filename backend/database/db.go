@@ -13,8 +13,8 @@ var DB *pgxpool.Pool
 func Connect() {
 	dsn := os.Getenv("DATABASE_URL")
 	if dsn == "" {
-		dsn = "postgres://postgres:password@database-service:5432/todos?sslmode=disable"
-		// log.Fatal("DATABASE_URL environment variable is not set")
+		// dsn = "postgres://postgres:password@database-service:5432/todos?sslmode=disable"
+		log.Fatal("DATABASE_URL environment variable is not set")
 	}
 
 	var err error
