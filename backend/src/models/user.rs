@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use tokio_postgres::Row;
 use uuid::Uuid;
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -14,4 +15,15 @@ pub struct CreateUser {
     pub name: String,
     pub email: String,
     pub password: String,
+}
+
+impl User {
+    pub fn from_row(row: &Row) -> Self {
+        User {
+            id: row.get("id"),
+            name: row.get("name"),
+            email: row.get("email"),
+            password: row.get("password"),
+        }
+    }
 }
