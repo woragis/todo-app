@@ -2,11 +2,16 @@ mod database;
 mod handlers;
 mod models;
 
-use axum::{routing::{get, post, }, Router};
-use std::{net::SocketAddr, sync::Arc};
-use tokio::{net::TcpListener, sync::Mutex};
+use axum::{
+    routing::{get, post},
+    Router,
+};
 use database::db::connect;
-use handlers::user::{create_user, get_user, get_users, update_user, delete_user};
+use handlers::user::{create_user, delete_user, get_user, get_users, update_user};
+use std::sync::Arc;
+use tokio::{net::TcpListener, sync::Mutex};
+
+static HOST: &str = "0.0.0.0:8080";
 
 #[tokio::main]
 async fn main() {
@@ -16,12 +21,13 @@ async fn main() {
 
     let app = Router::new()
         .route("/users", post(create_user).get(get_users))
-        .route("/users/:id", get(get_user).put(update_user).delete(delete_user))
+        .route(
+            "/users/{id}",
+            get(get_user).put(update_user).delete(delete_user),
+        )
         .with_state(client);
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-    println!("Server running on {}", addr);
-    
-    let listener = TcpListener::bind("0.0.0.0:8080").await.unwrap();
+    let listener = TcpListener::bind(HOST).await.unwrap();
     axum::serve(listener, app).await.unwrap();
+    println!("Server running on {}", HOST)
 }
