@@ -19,6 +19,18 @@ pub async fn create_user(Json(payload): Json<CreateUser>) -> Result<StatusCode, 
     }
 }
 
+/// **Read User**
+pub async fn get_user(Path(id): Path<Uuid>) -> Result<Json<User>, StatusCode> {
+    let client = connect().await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let row = client.query_one("SELECT * FROM users WHERE id = $1;", &[&id]).await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    let user: User = User::from_row(&row);
+
+    Ok(Json(user))
+}
+
 /// **Read Users**
 pub async fn get_users() -> Result<Json<Vec<User>>, StatusCode> {
     let client = connect().await.map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
@@ -26,12 +38,7 @@ pub async fn get_users() -> Result<Json<Vec<User>>, StatusCode> {
     let rows = client.query("SELECT id, name, email FROM users", &[]).await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
-    let users = rows.iter().map(|row| User {
-        id: row.get(0),
-        name: row.get(1),
-        email: row.get(2),
-        password: row.get(3),
-    }).collect();
+    let users: Vec<User> = rows.iter().map(|row| User::from_row(row)).collect();
 
     Ok(Json(users))
 }
