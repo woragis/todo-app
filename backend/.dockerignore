@@ -1,5 +1,6 @@
 # Ignore the target directory (Rust build artifacts)
 target/
+tests/
 
 # Ignore temporary files and caches
 **/*.rs.bk
