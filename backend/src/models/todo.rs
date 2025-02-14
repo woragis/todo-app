@@ -16,13 +16,20 @@ pub struct CreateTodo {
     pub description: String,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct UpdateTodo {
+    pub title: String,
+    pub description: String,
+    pub completed: bool,
+}
+
 impl Todo {
     pub fn from_row(row: &Row) -> Self {
         Todo {
             id: row.get("id"),
-            title: row.get("name"),
-            description: row.get("email"),
-            completed: row.get("password"),
+            title: row.get("title"),
+            description: row.get("description"),
+            completed: row.get("completed"),
         }
     }
 }

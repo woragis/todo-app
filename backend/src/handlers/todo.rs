@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    models::todo::{CreateTodo, Todo},
+    models::todo::{CreateTodo, Todo, UpdateTodo},
     utils::response::ApiResponse,
 };
 use axum::{
@@ -18,7 +18,7 @@ static FIELDS: &str = "title, description, completed";
 static UPDATE_FIELDS: &str = "title = $1, description = $2, completed = $3";
 static FIELDS_INPUT: &str = "$1, $2, $3";
 
-/// **Create User**
+/// **Create Todo**
 pub async fn create_todo(
     State(db): State<Arc<Mutex<Client>>>,
     Json(payload): Json<CreateTodo>,
@@ -46,7 +46,7 @@ pub async fn create_todo(
     }
 }
 
-/// **Read User**
+/// **Read Todo**
 pub async fn get_todo(
     State(db): State<Arc<Mutex<Client>>>,
     Path(id): Path<Uuid>,
@@ -65,7 +65,7 @@ pub async fn get_todo(
     }
 }
 
-/// **Read Users**
+/// **Read Todos**
 pub async fn get_todos(
     State(db): State<Arc<Mutex<Client>>>,
 ) -> (StatusCode, Json<ApiResponse<Vec<Todo>>>) {
@@ -87,11 +87,11 @@ pub async fn get_todos(
     }
 }
 
-/// **Update User**
+/// **Update Todo**
 pub async fn update_todo(
     State(db): State<Arc<Mutex<Client>>>,
     Path(id): Path<Uuid>,
-    Json(payload): Json<Todo>,
+    Json(payload): Json<UpdateTodo>,
 ) -> (StatusCode, Json<ApiResponse<Todo>>) {
     let client = db.lock().await;
 
@@ -107,9 +107,16 @@ pub async fn update_todo(
             ],
         )
         .await;
+    
 
+    let updated_todo = Todo{
+        id: id,
+        title: payload.title,
+        description: payload.description,
+        completed: payload.completed,
+    };
     match result {
-        Ok(1) => ApiResponse::success(payload, "Todo updated successfully", StatusCode::OK),
+        Ok(1) => ApiResponse::success(updated_todo, "Todo updated successfully", StatusCode::OK),
         Ok(0) => ApiResponse::error("Todo not found", StatusCode::NOT_FOUND, 4),
         Ok(n) => ApiResponse::error(
             &format!("Unexpected update count: {}", n),
@@ -124,7 +131,7 @@ pub async fn update_todo(
     }
 }
 
-/// **Delete User**
+/// **Delete Todo**
 pub async fn delete_todo(
     State(db): State<Arc<Mutex<Client>>>,
     Path(id): Path<Uuid>,
