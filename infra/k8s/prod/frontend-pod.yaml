@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: todos-frontend-pod
+  labels:
+    todos: frontend
+  spec:
+    containers:
+      - name: frontend
+        image: woragis/todos-frontend
+        ports:
+          - containerPort: 5173

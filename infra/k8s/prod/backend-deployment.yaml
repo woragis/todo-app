@@ -1,19 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todos-backend-deployment
+  name: backend
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
-      component: backend
+      app: backend
   template:
     metadata:
       labels:
-        component: backend
+        app: backend
     spec:
       containers:
         - name: backend
-          image: woragis/todos-backend
+          image: <AWS_ECR_BACKEND_URL>:latest
           ports:
-            - containerPort: 8080
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: backend-config

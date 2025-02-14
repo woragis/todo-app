@@ -13,7 +13,7 @@ spec:
         component: frontend
     spec:
       containers:
-        - name: frontend
+        - name: todos-frontend
           image: woragis/todos-frontend
           ports:
             - containerPort: 80

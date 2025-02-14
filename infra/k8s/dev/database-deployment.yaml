@@ -29,9 +29,9 @@ spec:
             - name: POSTGRES_USER
               value: postgres
             - name: POSTGRES_DB
-              value: mydatabase
+              value: todos
             - name: POSTGRES_PASSWORD
-              value: postgrespassword
+              value: password
               # valueFrom:
               #   secretKeyRef:
               #     name: pgpassword

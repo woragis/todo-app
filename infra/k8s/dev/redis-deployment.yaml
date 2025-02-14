@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: todos-database-deployment
+  name: redis-deployment
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: database
+      component: redis
   template:
     metadata:
       labels:
-        component: database
+        component: redis
     spec:
       containers:
-        - name: database
-          image: postgres
+        - name: redis
+          image: redis
           ports:
-            - containerPort: 5432
+            - containerPort: 6379

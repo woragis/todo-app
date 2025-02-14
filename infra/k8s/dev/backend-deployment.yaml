@@ -17,3 +17,6 @@ spec:
           image: woragis/todos-backend
           ports:
             - containerPort: 8080
+          env:
+            - name: DATABASE_URL
+              value: 'postgres://postgres:password@database-service:5432/todos?sslmode=disable'
