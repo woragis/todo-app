@@ -107,9 +107,8 @@ pub async fn update_todo(
             ],
         )
         .await;
-    
 
-    let updated_todo = Todo{
+    let updated_todo = Todo {
         id: id,
         title: payload.title,
         description: payload.description,

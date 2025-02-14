@@ -103,11 +103,11 @@ pub async fn update_user(
         )
         .await;
 
-    let updated_user = User{
+    let updated_user = User {
         id: id,
         name: payload.name,
         email: payload.email,
-        password: payload.password
+        password: payload.password,
     };
     match result {
         Ok(1) => ApiResponse::success(updated_user, "User updated successfully", StatusCode::OK),
