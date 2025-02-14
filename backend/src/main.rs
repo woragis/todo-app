@@ -19,7 +19,7 @@ async fn main() {
 
     let app = Router::new()
         .nest("/users", user_routes())
-        .nest("todos/", todo_routes())
+        .nest("/todos", todo_routes())
         .with_state(client);
 
     let listener = TcpListener::bind(HOST).await.unwrap();
