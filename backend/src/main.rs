@@ -6,7 +6,7 @@ mod utils;
 
 use axum::Router;
 use database::db::connect;
-use routes::{todo::todo_routes, user::user_routes};
+use routes::{auth::auth_routes, todo::todo_routes, user::user_routes};
 use std::sync::Arc;
 use tokio::{net::TcpListener, sync::Mutex};
 
@@ -19,6 +19,7 @@ async fn main() {
     let client = Arc::new(Mutex::new(pool));
 
     let app = Router::new()
+        .nest("/auth", auth_routes())
         .nest("/users", user_routes())
         .nest("/todos", todo_routes())
         .with_state(client);
