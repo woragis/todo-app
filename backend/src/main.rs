@@ -1,6 +1,7 @@
 mod database;
 mod handlers;
 mod models;
+mod routes;
 
 use axum::{
     routing::{get, post},
@@ -8,6 +9,7 @@ use axum::{
 };
 use database::db::connect;
 use handlers::user::{create_user, delete_user, get_user, get_users, update_user};
+use routes::{todo::todo_routes, user::user_routes};
 use std::sync::Arc;
 use tokio::{net::TcpListener, sync::Mutex};
 
@@ -20,11 +22,8 @@ async fn main() {
     let client = Arc::new(Mutex::new(pool));
 
     let app = Router::new()
-        .route("/users", post(create_user).get(get_users))
-        .route(
-            "/users/{id}",
-            get(get_user).put(update_user).delete(delete_user),
-        )
+        .nest("/users", user_routes())
+        .nest("todos/", todo_routes())
         .with_state(client);
 
     let listener = TcpListener::bind(HOST).await.unwrap();
