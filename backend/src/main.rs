@@ -2,6 +2,7 @@ mod database;
 mod handlers;
 mod models;
 mod routes;
+mod utils;
 
 use axum::Router;
 use database::db::connect;

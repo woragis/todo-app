@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
-use crate::models::user::{CreateUser, User};
+use crate::{
+    models::user::{CreateUser, User},
+    utils::response::ApiResponse,
+};
 use axum::{
     extract::{Path, State},
     http::StatusCode,
@@ -19,20 +22,27 @@ static FIELDS_INPUT: &str = "$1, $2, $3";
 pub async fn create_user(
     State(db): State<Arc<Mutex<Client>>>,
     Json(payload): Json<CreateUser>,
-) -> Result<StatusCode, StatusCode> {
+) -> (StatusCode, Json<ApiResponse<User>>) {
     let client = db.lock().await;
 
-    let stmt = format!("INSERT INTO {} ({}) VALUES ({})", TABLE, FIELDS, FIELDS_INPUT);
+    let stmt = format!(
+        "INSERT INTO {} ({}) VALUES ({})",
+        TABLE, FIELDS, FIELDS_INPUT
+    );
     let result = client
-        .execute(
-            &stmt,
-            &[&payload.name, &payload.email, &payload.password],
-        )
+        .query_one(&stmt, &[&payload.name, &payload.email, &payload.password])
         .await;
 
     match result {
-        Ok(_) => Ok(StatusCode::CREATED),
-        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+        Ok(row) => {
+            let user = User::from_row(&row);
+            ApiResponse::success(user, "Todo created successfully", StatusCode::CREATED)
+        }
+        Err(_) => ApiResponse::error(
+            "Failed to create todo",
+            StatusCode::INTERNAL_SERVER_ERROR,
+            1,
+        ),
     }
 }
 
@@ -40,43 +50,49 @@ pub async fn create_user(
 pub async fn get_user(
     State(db): State<Arc<Mutex<Client>>>,
     Path(id): Path<Uuid>,
-) -> Result<Json<User>, StatusCode> {
+) -> (StatusCode, Json<ApiResponse<User>>) {
     let client = db.lock().await;
 
     let stmt = format!("SELECT * FROM {} WHERE id = $1", TABLE);
-    let row = client
-        .query_one(&stmt, &[&id])
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let row = client.query_one(&stmt, &[&id]).await;
 
-    let user = User::from_row(&row);
-
-    Ok(Json(user))
+    match row {
+        Ok(row) => {
+            let user = User::from_row(&row);
+            ApiResponse::success(user, "Todo retrieved successfully", StatusCode::OK)
+        }
+        Err(_) => ApiResponse::error("Todo not found", StatusCode::NOT_FOUND, 2),
+    }
 }
 
 /// **Read Users**
 pub async fn get_users(
     State(db): State<Arc<Mutex<Client>>>,
-) -> Result<Json<Vec<User>>, StatusCode> {
+) -> (StatusCode, Json<ApiResponse<Vec<User>>>) {
     let client = db.lock().await;
 
     let stmt = format!("SELECT * FROM {}", TABLE);
-    let rows = client
-        .query(&stmt, &[])
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
+    let rows = client.query(&stmt, &[]).await;
 
-    let users = rows.iter().map(|row| User::from_row(row)).collect();
-
-    Ok(Json(users))
+    match rows {
+        Ok(rows) => {
+            let users = rows.iter().map(|row| User::from_row(row)).collect();
+            ApiResponse::success(users, "Todos retrieved successfully", StatusCode::OK)
+        }
+        Err(_) => ApiResponse::error(
+            "Failed to retrieve todos",
+            StatusCode::INTERNAL_SERVER_ERROR,
+            3,
+        ),
+    }
 }
 
 /// **Update User**
 pub async fn update_user(
     State(db): State<Arc<Mutex<Client>>>,
     Path(id): Path<Uuid>,
-    Json(payload): Json<CreateUser>,
-) -> Result<StatusCode, StatusCode> {
+    Json(payload): Json<User>,
+) -> (StatusCode, Json<ApiResponse<User>>) {
     let client = db.lock().await;
 
     let stmt = format!("UPDATE {} SET {} WHERE id = $4", TABLE, UPDATE_FIELDS);
@@ -88,9 +104,18 @@ pub async fn update_user(
         .await;
 
     match result {
-        Ok(1) => Ok(StatusCode::OK),
-        Ok(_) => Err(StatusCode::NOT_FOUND),
-        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+        Ok(1) => ApiResponse::success(payload, "Todo updated successfully", StatusCode::OK),
+        Ok(0) => ApiResponse::error("Todo not found", StatusCode::NOT_FOUND, 4),
+        Ok(n) => ApiResponse::error(
+            &format!("Unexpected update count: {}", n),
+            StatusCode::INTERNAL_SERVER_ERROR,
+            6,
+        ), // Handles cases where more than 1 row is affected (shouldn't happen)
+        Err(_) => ApiResponse::error(
+            "Failed to update todo",
+            StatusCode::INTERNAL_SERVER_ERROR,
+            5,
+        ),
     }
 }
 
@@ -98,17 +123,19 @@ pub async fn update_user(
 pub async fn delete_user(
     State(db): State<Arc<Mutex<Client>>>,
     Path(id): Path<Uuid>,
-) -> Result<StatusCode, StatusCode> {
+) -> (StatusCode, Json<ApiResponse<String>>) {
     let client = db.lock().await;
 
     let stmt = format!("DELETE FROM {} WHERE id = $1", TABLE);
-    let result = client
-        .execute(&stmt, &[&id])
-        .await;
+    let result = client.execute(&stmt, &[&id]).await;
 
     match result {
-        Ok(1) => Ok(StatusCode::OK),
-        Ok(_) => Err(StatusCode::NOT_FOUND),
-        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+        Ok(1) => ApiResponse::success(id.to_string(), "Todo deleted successfully", StatusCode::OK),
+        Ok(_) => ApiResponse::error("Todo not found", StatusCode::NOT_FOUND, 6),
+        Err(_) => ApiResponse::error(
+            "Failed to delete todo",
+            StatusCode::INTERNAL_SERVER_ERROR,
+            7,
+        ),
     }
 }
