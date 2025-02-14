@@ -23,14 +23,15 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./frontend
-        run: npm install
+        run: npm ci
 
       - name: Run tests
         working-directory: ./frontend
-        run: echo linting...
+        run: npm run lint
 
   backend-lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Test Golang Backend
-        run: echo linting...
+      - name: Format Backend code
+        working-directory: ./backend
+        run: cargo fmt
