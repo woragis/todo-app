@@ -1,0 +1,19 @@
+name: 'Deploy to AWS EC2'
+description: 'Deploy the frontend to ec2'
+inputs:
+  bucket:
+    description: 'S3/EC2 bucket name.'
+    required: true
+  bucket-region:
+    description: 'S3/EC2 bucket region.'
+    required: false
+    default: 'sa-east-1'
+  dist-folder:
+    description: 'The folder containing the deployable files.'
+    required: true
+outputs:
+  website-url:
+    description: 'The url of the deployed website.'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
