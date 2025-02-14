@@ -9,9 +9,9 @@ import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from '@emotion/react'
 import { GlobalStyles } from '../styles/global.styles'
 import { Global } from '@emotion/react'
-import { RootState } from '../redux/store'
-import { useSelector } from 'react-redux'
-import light from '../styles/themes/light'
+// import { RootState } from '../redux/store'
+// import { useSelector } from 'react-redux'
+// import light from '../styles/themes/light'
 import dark from '../styles/themes/dark'
 
 const queryClient = new QueryClient()
@@ -43,3 +43,4 @@ const customRender = (ui: React.ReactElement, options = {}) =>
 
 export * from '@testing-library/react'
 export { customRender as render }
+export default AppWrapper

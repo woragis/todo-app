@@ -47,7 +47,7 @@ export const NavbarView = ({
   })
 
   window.addEventListener('scroll', () => {
-    let header = document.querySelector('.navbar')
+    const header = document.querySelector('.navbar')
     header?.classList.toggle('sticky', window.scrollY > 0)
   })
 

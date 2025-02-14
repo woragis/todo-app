@@ -1,5 +1,5 @@
-import { describe, expect, test } from 'vitest'
-import { render, screen } from '../test-utils'
+import { describe, test } from 'vitest'
+import { render } from '../test-utils'
 import '@testing-library/jest-dom'
 import Profile from '../../pages/Profile'
 

@@ -1,48 +1,47 @@
-import { AuthUser } from "./auth.types";
-import { Todo } from "./todos.types";
+import { AuthUser } from './auth.types'
+import { Todo } from './todos.types'
 
 export interface API_ENDPOINTS_INTERFACE {
-  USERS: string;
-  POSTS: string;
+  USERS: string
+  POSTS: string
   AUTH: {
-    LOGIN: string;
-    REGISTER: string;
-    RECOVER_PASSWORD: string;
-    VERIFY: string;
-  };
+    LOGIN: string
+    REGISTER: string
+    RECOVER_PASSWORD: string
+    VERIFY: string
+  }
 }
 
 export interface ResponseInterface {
-  status: number;
-  message: string;
-  error: null | string;
-  data: any;
+  status: number
+  message: string
+  error: null | string
 }
 
 export interface AuthResponseInterface extends ResponseInterface {
   data: {
-    user: AuthUser;
-    token: string;
-  };
+    user: AuthUser
+    token: string
+  }
 }
 
 export interface LoginRequestInterface {
-  email: AuthUser["email"];
-  password: AuthUser["password"];
+  email: AuthUser['email']
+  password: AuthUser['password']
 }
 
 export interface RegisterRequestInterface extends LoginRequestInterface {
-  name: AuthUser["name"];
+  name: AuthUser['name']
 }
 
 export interface TodosResponseInterface extends ResponseInterface {
-  data: Todo[];
+  data: Todo[]
 }
 
 export interface TodoResponseInterface extends ResponseInterface {
-  data: Todo;
+  data: Todo
 }
 
 export interface DeleteTodoResponseInterface extends ResponseInterface {
-  data: boolean;
+  data: boolean
 }

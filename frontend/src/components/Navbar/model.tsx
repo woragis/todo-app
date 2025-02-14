@@ -13,7 +13,7 @@ export const useNavbarModel = () => {
   const themeColors = useSelector((state: RootState) => state.theme.colors)
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
-  const useLogout = () => {
+  const handleClickLogout = () => {
     dispatch(logout())
     navigate('/')
   }
@@ -45,7 +45,7 @@ export const useNavbarModel = () => {
       title: t('logout.title'),
       path: '',
       onClick: () => {
-        useLogout()
+        handleClickLogout()
       },
     },
   ]
