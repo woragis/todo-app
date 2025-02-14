@@ -3,12 +3,8 @@ mod handlers;
 mod models;
 mod routes;
 
-use axum::{
-    routing::{get, post},
-    Router,
-};
+use axum::Router;
 use database::db::connect;
-use handlers::user::{create_user, delete_user, get_user, get_users, update_user};
 use routes::{todo::todo_routes, user::user_routes};
 use std::sync::Arc;
 use tokio::{net::TcpListener, sync::Mutex};

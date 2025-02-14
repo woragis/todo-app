@@ -22,9 +22,10 @@ pub async fn create_user(
 ) -> Result<StatusCode, StatusCode> {
     let client = db.lock().await;
 
+    let stmt = format!("INSERT INTO {} ({}) VALUES ({})", TABLE, FIELDS, FIELDS_INPUT);
     let result = client
         .execute(
-            "INSERT INTO users (name, email, password) VALUES ($1, $2, $3)",
+            &stmt,
             &[&payload.name, &payload.email, &payload.password],
         )
         .await;
@@ -42,8 +43,9 @@ pub async fn get_user(
 ) -> Result<Json<User>, StatusCode> {
     let client = db.lock().await;
 
+    let stmt = format!("SELECT * FROM {} WHERE id = $1", TABLE);
     let row = client
-        .query_one("SELECT * FROM users WHERE id = $1", &[&id])
+        .query_one(&stmt, &[&id])
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -58,8 +60,9 @@ pub async fn get_users(
 ) -> Result<Json<Vec<User>>, StatusCode> {
     let client = db.lock().await;
 
+    let stmt = format!("SELECT * FROM {}", TABLE);
     let rows = client
-        .query("SELECT * FROM users", &[])
+        .query(&stmt, &[])
         .await
         .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
 
@@ -76,9 +79,10 @@ pub async fn update_user(
 ) -> Result<StatusCode, StatusCode> {
     let client = db.lock().await;
 
+    let stmt = format!("UPDATE {} SET {} WHERE id = $4", TABLE, UPDATE_FIELDS);
     let result = client
         .execute(
-            "UPDATE users SET name = $1, email = $2, password = $3 WHERE id = $4",
+            &stmt,
             &[&payload.name, &payload.email, &payload.password, &id],
         )
         .await;
@@ -97,8 +101,9 @@ pub async fn delete_user(
 ) -> Result<StatusCode, StatusCode> {
     let client = db.lock().await;
 
+    let stmt = format!("DELETE FROM {} WHERE id = $1", TABLE);
     let result = client
-        .execute("DELETE FROM users WHERE id = $1", &[&id])
+        .execute(&stmt, &[&id])
         .await;
 
     match result {
