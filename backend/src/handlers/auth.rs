@@ -8,6 +8,10 @@ use axum::{extract::State, http::StatusCode, Json};
 use tokio::sync::Mutex;
 use tokio_postgres::Client;
 
+static TABLE: &str = "users";
+static FIELDS: &str = "email, password";
+static FIELDS_INPUT: &str = "$1, $2";
+
 /// **Login User**
 pub async fn login(
     State(db): State<Arc<Mutex<Client>>>,
@@ -15,7 +19,10 @@ pub async fn login(
 ) -> (StatusCode, Json<ApiResponse<AuthResponse>>) {
     let client = db.lock().await;
 
-    let stmt = format!("INSERT INTO user (email, password) VALUES ($1, $2) RETURNING *",);
+    let stmt = format!(
+        "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
+        TABLE, FIELDS, FIELDS_INPUT
+    );
     let result = client
         .query_one(&stmt, &[&payload.email, &payload.password])
         .await;
@@ -42,7 +49,10 @@ pub async fn register(
 ) -> (StatusCode, Json<ApiResponse<AuthResponse>>) {
     let client = db.lock().await;
 
-    let stmt = format!("INSERT INTO user (email, password) VALUES ($1, $2) RETURNING *",);
+    let stmt = format!(
+        "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
+        TABLE, FIELDS, FIELDS_INPUT
+    );
     let result = client
         .query_one(&stmt, &[&payload.email, &payload.password])
         .await;
