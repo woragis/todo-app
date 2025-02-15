@@ -1,3 +1,4 @@
+use axum::http::HeaderMap;
 use chrono::{Duration, Utc};
 use dotenvy::dotenv;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
@@ -30,6 +31,16 @@ pub fn generate_jwt(user_id: &str) -> Result<String, jsonwebtoken::errors::Error
         &claims,
         &EncodingKey::from_secret(SECRET_KEY.as_ref()),
     )
+}
+
+pub fn validate_auth(header: &HeaderMap) -> Result<String, ()> {
+    if let Some(auth_header) = header.get("Authorization") {
+        if let Ok(auth_str) = auth_header.to_str() {
+            println!("Authorization Header: {}", auth_str);
+            return Ok(auth_str.to_string());
+        }
+    }
+    Err(())
 }
 
 pub fn validate_jwt(token: &str) -> Result<Claims, jsonwebtoken::errors::Error> {
