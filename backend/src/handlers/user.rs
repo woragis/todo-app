@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     models::user::{CreateUser, UpdateUser, User},
-    utils::response::ApiResponse,
+    utils::response::{ApiError, ApiResponse},
 };
 use axum::{
     extract::{Path, State},
@@ -38,10 +38,11 @@ pub async fn create_user(
             let user = User::from_row(&row);
             ApiResponse::success(user, "User created successfully", StatusCode::CREATED)
         }
-        Err(_) => ApiResponse::error(
+        Err(error) => ApiResponse::error(
             "Failed to create user",
             StatusCode::INTERNAL_SERVER_ERROR,
             1,
+            ApiError::Database(error),
         ),
     }
 }
@@ -61,7 +62,12 @@ pub async fn get_user(
             let user = User::from_row(&row);
             ApiResponse::success(user, "User retrieved successfully", StatusCode::OK)
         }
-        Err(_) => ApiResponse::error("User not found", StatusCode::NOT_FOUND, 2),
+        Err(error) => ApiResponse::error(
+            "User not found",
+            StatusCode::NOT_FOUND,
+            2,
+            ApiError::Database(error),
+        ),
     }
 }
 
@@ -79,10 +85,11 @@ pub async fn get_users(
             let users = rows.iter().map(|row| User::from_row(row)).collect();
             ApiResponse::success(users, "Users retrieved successfully", StatusCode::OK)
         }
-        Err(_) => ApiResponse::error(
+        Err(error) => ApiResponse::error(
             "Failed to retrieve users",
             StatusCode::INTERNAL_SERVER_ERROR,
             3,
+            ApiError::Database(error),
         ),
     }
 }
@@ -111,16 +118,23 @@ pub async fn update_user(
     };
     match result {
         Ok(1) => ApiResponse::success(updated_user, "User updated successfully", StatusCode::OK),
-        Ok(0) => ApiResponse::error("User not found", StatusCode::NOT_FOUND, 4),
+        Ok(0) => ApiResponse::error(
+            "User not found",
+            StatusCode::NOT_FOUND,
+            4,
+            ApiError::Custom("User not found on update".to_string()),
+        ),
         Ok(n) => ApiResponse::error(
             &format!("Unexpected update count: {}", n),
             StatusCode::INTERNAL_SERVER_ERROR,
             6,
+            ApiError::Custom("Unexpected Error".to_string()),
         ), // Handles cases where more than 1 row is affected (shouldn't happen)
-        Err(_) => ApiResponse::error(
+        Err(error) => ApiResponse::error(
             "Failed to update user",
             StatusCode::INTERNAL_SERVER_ERROR,
             5,
+            ApiError::Database(error),
         ),
     }
 }
@@ -137,11 +151,23 @@ pub async fn delete_user(
 
     match result {
         Ok(1) => ApiResponse::success(id.to_string(), "User deleted successfully", StatusCode::OK),
-        Ok(_) => ApiResponse::error("User not found", StatusCode::NOT_FOUND, 6),
-        Err(_) => ApiResponse::error(
+        Ok(0) => ApiResponse::error(
+            "User not found",
+            StatusCode::NOT_FOUND,
+            4,
+            ApiError::Custom("User not found on delete".to_string()),
+        ),
+        Ok(n) => ApiResponse::error(
+            &format!("Unexpected delete count: {}", n),
+            StatusCode::INTERNAL_SERVER_ERROR,
+            6,
+            ApiError::Custom("Unexpected Error".to_string()),
+        ), // Handles cases where more than 1 row is affected (shouldn't happen)
+        Err(error) => ApiResponse::error(
             "Failed to delete user",
             StatusCode::INTERNAL_SERVER_ERROR,
-            7,
+            5,
+            ApiError::Database(error),
         ),
     }
 }

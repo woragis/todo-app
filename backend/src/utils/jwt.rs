@@ -1,12 +1,28 @@
+use crate::models::jwt::Claims;
 use axum::http::HeaderMap;
 use chrono::{Duration, Utc};
 use dotenvy::dotenv;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use once_cell::sync::Lazy;
-
 use std::env;
+use std::fmt;
 
-use crate::models::jwt::Claims;
+// Define a custom error type
+#[derive(Debug)]
+pub enum AuthError {
+    MissingHeader,
+    InvalidHeader,
+}
+
+// Implement `Display` for `AuthError`
+impl fmt::Display for AuthError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            AuthError::MissingHeader => write!(f, "Authorization header is missing"),
+            AuthError::InvalidHeader => write!(f, "Invalid authorization header format"),
+        }
+    }
+}
 
 static SECRET_KEY: Lazy<String> = Lazy::new(|| {
     dotenv().ok(); // Load .env file if available
@@ -14,8 +30,6 @@ static SECRET_KEY: Lazy<String> = Lazy::new(|| {
 });
 
 pub fn generate_jwt(user_id: &str) -> Result<String, jsonwebtoken::errors::Error> {
-    // let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
-
     let expiration = Utc::now()
         .checked_add_signed(Duration::minutes(60))
         .expect("Valid timestamp")
@@ -33,19 +47,20 @@ pub fn generate_jwt(user_id: &str) -> Result<String, jsonwebtoken::errors::Error
     )
 }
 
-pub fn validate_auth(header: &HeaderMap) -> Result<String, ()> {
-    if let Some(auth_header) = header.get("Authorization") {
-        if let Ok(auth_str) = auth_header.to_str() {
-            println!("Authorization Header: {}", auth_str);
-            return Ok(auth_str.to_string());
-        }
+pub fn validate_auth(header: &HeaderMap) -> Result<String, AuthError> {
+    match header.get("Authorization") {
+        Some(auth_header) => match auth_header.to_str() {
+            Ok(auth_str) => {
+                println!("Authorization Header: {}", auth_str);
+                Ok(auth_str.to_string())
+            }
+            Err(_) => Err(AuthError::InvalidHeader),
+        },
+        None => Err(AuthError::MissingHeader),
     }
-    Err(())
 }
 
 pub fn validate_jwt(token: &str) -> Result<Claims, jsonwebtoken::errors::Error> {
-    // let secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
-
     let token_data = decode::<Claims>(
         token,
         &DecodingKey::from_secret(SECRET_KEY.as_ref()),

@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     models::todo::{CreateTodo, Todo, UpdateTodo},
-    utils::response::ApiResponse,
+    utils::response::{ApiError, ApiResponse},
 };
 use axum::{
     extract::{Path, State},
@@ -38,10 +38,11 @@ pub async fn create_todo(
             let todo = Todo::from_row(&row);
             ApiResponse::success(todo, "Todo created successfully", StatusCode::CREATED)
         }
-        Err(_) => ApiResponse::error(
+        Err(error) => ApiResponse::error(
             "Failed to create todo",
             StatusCode::INTERNAL_SERVER_ERROR,
             1,
+            ApiError::Database(error),
         ),
     }
 }
@@ -61,7 +62,12 @@ pub async fn get_todo(
             let todo = Todo::from_row(&row);
             ApiResponse::success(todo, "Todo retrieved successfully", StatusCode::OK)
         }
-        Err(_) => ApiResponse::error("Todo not found", StatusCode::NOT_FOUND, 2),
+        Err(error) => ApiResponse::error(
+            "Todo not found",
+            StatusCode::NOT_FOUND,
+            2,
+            ApiError::Database(error),
+        ),
     }
 }
 
@@ -79,10 +85,11 @@ pub async fn get_todos(
             let todos = rows.iter().map(|row| Todo::from_row(row)).collect();
             ApiResponse::success(todos, "Todos retrieved successfully", StatusCode::OK)
         }
-        Err(_) => ApiResponse::error(
+        Err(error) => ApiResponse::error(
             "Failed to retrieve todos",
             StatusCode::INTERNAL_SERVER_ERROR,
             3,
+            ApiError::Database(error),
         ),
     }
 }
@@ -116,16 +123,23 @@ pub async fn update_todo(
     };
     match result {
         Ok(1) => ApiResponse::success(updated_todo, "Todo updated successfully", StatusCode::OK),
-        Ok(0) => ApiResponse::error("Todo not found", StatusCode::NOT_FOUND, 4),
+        Ok(0) => ApiResponse::error(
+            "Todo not found",
+            StatusCode::NOT_FOUND,
+            4,
+            ApiError::Custom("Todo not found on update".to_string()),
+        ),
         Ok(n) => ApiResponse::error(
             &format!("Unexpected update count: {}", n),
             StatusCode::INTERNAL_SERVER_ERROR,
             6,
+            ApiError::Custom("Unexpected Error".to_string()),
         ), // Handles cases where more than 1 row is affected (shouldn't happen)
-        Err(_) => ApiResponse::error(
+        Err(error) => ApiResponse::error(
             "Failed to update todo",
             StatusCode::INTERNAL_SERVER_ERROR,
             5,
+            ApiError::Database(error),
         ),
     }
 }
@@ -142,11 +156,23 @@ pub async fn delete_todo(
 
     match result {
         Ok(1) => ApiResponse::success(id.to_string(), "Todo deleted successfully", StatusCode::OK),
-        Ok(_) => ApiResponse::error("Todo not found", StatusCode::NOT_FOUND, 6),
-        Err(_) => ApiResponse::error(
-            "Failed to delete todo",
+        Ok(0) => ApiResponse::error(
+            "Todo not found",
+            StatusCode::NOT_FOUND,
+            4,
+            ApiError::Custom("Todo not found on update".to_string()),
+        ),
+        Ok(n) => ApiResponse::error(
+            &format!("Unexpected update count: {}", n),
             StatusCode::INTERNAL_SERVER_ERROR,
-            7,
+            6,
+            ApiError::Custom("Unexpected Error".to_string()),
+        ), // Handles cases where more than 1 row is affected (shouldn't happen)
+        Err(error) => ApiResponse::error(
+            "Failed to update todo",
+            StatusCode::INTERNAL_SERVER_ERROR,
+            5,
+            ApiError::Database(error),
         ),
     }
 }

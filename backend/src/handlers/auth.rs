@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     models::auth::{AuthRequest, AuthResponse},
-    utils::response::ApiResponse,
+    utils::response::{ApiError, ApiResponse},
 };
 use axum::{extract::State, http::StatusCode, Json};
 use tokio::sync::Mutex;
@@ -26,10 +26,11 @@ pub async fn login(
             "User registered successfully",
             StatusCode::CREATED,
         ),
-        Err(_) => ApiResponse::error(
-            "Failed to create user",
+        Err(error) => ApiResponse::error(
+            "Failed to login",
             StatusCode::INTERNAL_SERVER_ERROR,
             1,
+            ApiError::Database(error),
         ),
     }
 }
@@ -52,10 +53,11 @@ pub async fn register(
             "User logged in successfully",
             StatusCode::CREATED,
         ),
-        Err(_) => ApiResponse::error(
-            "Failed to create user",
+        Err(error) => ApiResponse::error(
+            "Failed to register",
             StatusCode::INTERNAL_SERVER_ERROR,
             1,
+            ApiError::Database(error),
         ),
     }
 }

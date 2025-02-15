@@ -4,7 +4,7 @@ use crate::{
     models::user::{UpdateUser, User},
     utils::{
         jwt::{validate_auth, validate_jwt},
-        response::ApiResponse,
+        response::{ApiError, ApiResponse},
     },
 };
 use axum::{
@@ -28,19 +28,25 @@ pub async fn get_user_profile(
 
     let auth_token = match validate_auth(&headers) {
         Ok(token) => token,
-        Err(_) => {
+        Err(error) => {
             return ApiResponse::<User>::error(
                 "Invalid authorization header",
                 StatusCode::UNAUTHORIZED,
                 2,
+                ApiError::Auth(error),
             )
         }
     };
 
     let validated_token = match validate_jwt(&auth_token) {
         Ok(token) => token,
-        Err(_) => {
-            return ApiResponse::<User>::error("Invalid JWT token", StatusCode::UNAUTHORIZED, 3)
+        Err(error) => {
+            return ApiResponse::<User>::error(
+                "Invalid JWT token",
+                StatusCode::UNAUTHORIZED,
+                3,
+                ApiError::Jwt(error),
+            )
         }
     };
 
@@ -54,7 +60,12 @@ pub async fn get_user_profile(
             let user = User::from_row(&row);
             ApiResponse::success(user, "User retrieved successfully", StatusCode::OK)
         }
-        Err(_) => ApiResponse::error("User not found", StatusCode::NOT_FOUND, 2),
+        Err(error) => ApiResponse::error(
+            "User not found",
+            StatusCode::NOT_FOUND,
+            2,
+            ApiError::Database(error),
+        ),
     }
 }
 
@@ -67,30 +78,37 @@ pub async fn update_user_profile(
     let client = db.lock().await;
     let auth_token = match validate_auth(&headers) {
         Ok(token) => token,
-        Err(_) => {
+        Err(error) => {
             return ApiResponse::<User>::error(
                 "Invalid authorization header",
                 StatusCode::UNAUTHORIZED,
                 2,
+                ApiError::Auth(error),
             )
         }
     };
 
     let validated_token = match validate_jwt(&auth_token) {
         Ok(token) => token,
-        Err(_) => {
-            return ApiResponse::<User>::error("Invalid JWT token", StatusCode::UNAUTHORIZED, 3)
+        Err(error) => {
+            return ApiResponse::<User>::error(
+                "Invalid JWT token",
+                StatusCode::UNAUTHORIZED,
+                3,
+                ApiError::Jwt(error),
+            )
         }
     };
 
     let id_str = validated_token.sub;
     let id = match Uuid::parse_str(&id_str) {
         Ok(id) => id,
-        Err(_) => {
+        Err(error) => {
             return ApiResponse::<User>::error(
                 "Error parsing uuid",
                 StatusCode::INTERNAL_SERVER_ERROR,
                 4,
+                ApiError::Uuid(error),
             )
         }
     };
@@ -111,16 +129,23 @@ pub async fn update_user_profile(
     };
     match result {
         Ok(1) => ApiResponse::success(updated_user, "User updated successfully", StatusCode::OK),
-        Ok(0) => ApiResponse::error("User not found", StatusCode::NOT_FOUND, 4),
+        Ok(0) => ApiResponse::error(
+            "User not found",
+            StatusCode::NOT_FOUND,
+            4,
+            ApiError::Custom("User not found on update".to_string()),
+        ),
         Ok(n) => ApiResponse::error(
             &format!("Unexpected update count: {}", n),
             StatusCode::INTERNAL_SERVER_ERROR,
             6,
+            ApiError::Custom("Unexpected Error".to_string()),
         ), // Handles cases where more than 1 row is affected (shouldn't happen)
-        Err(_) => ApiResponse::error(
+        Err(error) => ApiResponse::error(
             "Failed to update user",
             StatusCode::INTERNAL_SERVER_ERROR,
             5,
+            ApiError::Database(error),
         ),
     }
 }
@@ -134,19 +159,25 @@ pub async fn delete_user_profile(
 
     let auth_token = match validate_auth(&headers) {
         Ok(token) => token,
-        Err(_) => {
+        Err(error) => {
             return ApiResponse::<String>::error(
                 "Invalid authorization header",
                 StatusCode::UNAUTHORIZED,
                 2,
+                ApiError::Auth(error),
             )
         }
     };
 
     let validated_token = match validate_jwt(&auth_token) {
         Ok(token) => token,
-        Err(_) => {
-            return ApiResponse::<String>::error("Invalid JWT token", StatusCode::UNAUTHORIZED, 3)
+        Err(error) => {
+            return ApiResponse::<String>::error(
+                "Invalid JWT token",
+                StatusCode::UNAUTHORIZED,
+                3,
+                ApiError::Jwt(error),
+            )
         }
     };
 
@@ -157,11 +188,23 @@ pub async fn delete_user_profile(
 
     match result {
         Ok(1) => ApiResponse::success(id.to_string(), "User deleted successfully", StatusCode::OK),
-        Ok(_) => ApiResponse::error("User not found", StatusCode::NOT_FOUND, 6),
-        Err(_) => ApiResponse::error(
-            "Failed to delete user",
+        Ok(0) => ApiResponse::error(
+            "User not found",
+            StatusCode::NOT_FOUND,
+            4,
+            ApiError::Custom("User not found on update".to_string()),
+        ),
+        Ok(n) => ApiResponse::error(
+            &format!("Unexpected update count: {}", n),
             StatusCode::INTERNAL_SERVER_ERROR,
-            7,
+            6,
+            ApiError::Custom("Unexpected Error".to_string()),
+        ), // Handles cases where more than 1 row is affected (shouldn't happen)
+        Err(error) => ApiResponse::error(
+            "Failed to update user",
+            StatusCode::INTERNAL_SERVER_ERROR,
+            5,
+            ApiError::Database(error),
         ),
     }
 }
