@@ -1,11 +1,10 @@
-// import HeroSection from "../../components/HeroSection";
-import { useHomeModel } from "./model";
-import { HomeView } from "./view";
+import { useHomeModel } from './model'
+import { HomeView } from './view'
 
 const Home = () => {
-  const model = useHomeModel();
+  const model = useHomeModel()
 
-  return <HomeView {...model} />;
-};
+  return <HomeView {...model} />
+}
 
-export default Home;
+export default Home

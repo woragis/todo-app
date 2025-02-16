@@ -3,7 +3,7 @@ import { login } from '../../redux/slices/authSlice'
 import { useAppDispatch } from '../../redux/hooks'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { LoginRequestInterface } from '../../types/axios.types'
 
@@ -27,7 +27,7 @@ export const useLoginModel = () => {
   const handleLoginSubmit = (event: FormEvent) => {
     event.preventDefault()
     dispatch(login(loginData))
-    navigate('/profile')
+    navigate({ to: '/profile' })
   }
 
   const textData = {

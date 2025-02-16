@@ -3,7 +3,7 @@ import { useAppDispatch } from '../../redux/hooks'
 import { useSelector } from 'react-redux'
 import { RootState } from '../../redux/store'
 import { register } from '../../redux/slices/authSlice'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { RegisterRequestInterface } from '../../types/axios.types'
 
@@ -28,7 +28,7 @@ export const useRegisterModel = () => {
     event.preventDefault()
     console.log('Register data:', registerData)
     dispatch(register(registerData))
-    navigate('/profile')
+    navigate({ to: '/profile' })
   }
 
   const textData = {

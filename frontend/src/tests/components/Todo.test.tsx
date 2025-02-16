@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { render, screen } from '../test-utils'
 import '@testing-library/jest-dom'
-import { TodoView } from '../../components/Todo/view'
+import { TodoView } from '../../pages/Todo/view'
 import { Todo as TodoType } from '../../types/todos.types'
 
 describe('TodoView Component', () => {

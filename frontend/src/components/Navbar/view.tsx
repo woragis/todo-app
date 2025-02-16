@@ -1,6 +1,6 @@
 import LanguageSwitcher from '../LanguageSwitcher'
-import Login from '../Login'
-import Register from '../Register'
+import Login from '../../pages/Login'
+import Register from '../../pages/Register'
 import ThemeButton from '../ThemeButton'
 import { useNavbarModel } from './model'
 import {

@@ -23,7 +23,7 @@ export const HomeView = ({
   }
   const todosComponent = todos.data.data.map((todo) => {
     return (
-      <Link to={`todos/${todo.id}`}>
+      <Link to={'todos/' + todo.id}>
         <TodoCard key={`listed_todo_${todo.id}`}>
           <h3>{todo.name}</h3>
           <HomeDivider dividerColor={dividerColor} />
