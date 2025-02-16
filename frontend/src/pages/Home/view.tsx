@@ -1,11 +1,11 @@
-import { Link } from "react-router-dom";
-import { useHomeModel } from "./model";
+import { Link } from 'react-router-dom'
+import { useHomeModel } from './model'
 import {
   HomeDivider,
   HomeHeroSection,
   TodoCard,
   TodosContainer,
-} from "./styles";
+} from './styles'
 
 export const HomeView = ({
   todosTitle,
@@ -19,7 +19,7 @@ export const HomeView = ({
         <h1>{todosNotFound}</h1>
         <HomeDivider dividerColor={dividerColor} />
       </HomeHeroSection>
-    );
+    )
   }
   const todosComponent = todos.data.data.map((todo) => {
     return (
@@ -30,8 +30,8 @@ export const HomeView = ({
           {/* <p>{todo.completed}</p> */}
         </TodoCard>
       </Link>
-    );
-  });
+    )
+  })
 
   return (
     <HomeHeroSection>
@@ -41,5 +41,5 @@ export const HomeView = ({
       {todos.error && <h1>Error while loading todos...</h1>}
       <TodosContainer>{todosComponent}</TodosContainer>
     </HomeHeroSection>
-  );
-};
+  )
+}

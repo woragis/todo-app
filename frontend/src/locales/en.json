@@ -2,7 +2,7 @@
   "home": "Home",
   "login": {
     "title": "Login",
-    "message": "You logged in successfully",
+    "message": "Logged in Successfully",
     "inputs": {
       "email": "Email",
       "password": "Password",
@@ -11,7 +11,7 @@
   },
   "register": {
     "title": "Register",
-    "message": "You registered successfully",
+    "message": "Registered Successfully",
     "inputs": {
       "name": "Name",
       "email": "Email",
@@ -20,7 +20,7 @@
     }
   },
   "profile": {
-    "title": "Your Profile",
+    "title": "Profile",
     "user-fields": {
       "name": "Name",
       "email": "Email",
@@ -31,7 +31,7 @@
   },
   "logout": {
     "title": "Logout",
-    "message": "You logged out successfully"
+    "message": "Logged out successfully"
   },
   "about": {
     "title": "About",
