@@ -1,10 +1,10 @@
-import styled from "@emotion/styled";
-import { Link } from "react-router-dom";
-import { NavbarProps } from "../../types/navbar.types";
+import styled from '@emotion/styled'
+import { NavbarProps } from '../../types/navbar.types'
+import { Link } from '@tanstack/react-router'
 
 export const NavbarInvisibleContainer = styled.header`
   background-color: transparent;
-`;
+`
 
 export const StyledNavbar = styled.nav<NavbarProps>`
   --padding-vertical: 40px;
@@ -20,7 +20,7 @@ export const StyledNavbar = styled.nav<NavbarProps>`
   * {
     color: ${(_) => _.color};
   }
-  font-family: "Poppins", sans-serif;
+  font-family: 'Poppins', sans-serif;
   z-index: 2;
   position: fixed;
   top: 0;
@@ -31,7 +31,7 @@ export const StyledNavbar = styled.nav<NavbarProps>`
   align-items: center;
   transition: 600ms;
   padding: var(--padding-vertical) var(--padding-horizontal);
-`;
+`
 
 export const NavbarLogo = styled.img`
   height: 2em;
@@ -43,19 +43,19 @@ export const NavbarLogo = styled.img`
   text-transform: uppercase;
   letter-spacing: 2px;
   transition: 600ms;
-`;
+`
 
 export const NavLinksContainer = styled.ul`
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-`;
+`
 
 export const NavLinkItem = styled.li`
   position: relative;
   list-style: none;
-`;
+`
 
 export const NavLink = styled(Link)`
   position: relative;
@@ -64,4 +64,4 @@ export const NavLink = styled(Link)`
   letter-spacing: 2px;
   font-weight: 500;
   transition: 600ms;
-`;
+`

@@ -3,7 +3,7 @@ import { NavPages, Pages } from '../../types/router.types'
 import { RootState } from '../../redux/store'
 import { useTranslation } from 'react-i18next'
 import { useAppDispatch } from '../../redux/hooks'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from '@tanstack/react-router'
 import { logout } from '../../redux/slices/authSlice'
 import { useState } from 'react'
 
@@ -15,7 +15,9 @@ export const useNavbarModel = () => {
   const navigate = useNavigate()
   const handleClickLogout = () => {
     dispatch(logout())
-    navigate('/')
+    navigate({
+      to: '/',
+    })
   }
   const [loginVisible, setLoginVisible] = useState<boolean>(false)
   const [registerVisible, setRegisterVisible] = useState<boolean>(false)

@@ -1,10 +1,10 @@
-import styled from "@emotion/styled";
-import { Link } from "react-router-dom";
+import styled from '@emotion/styled'
+import { Link } from '@tanstack/react-router'
 
 interface FooterStyleProps {
-  color: string;
-  weakColor: string;
-  backgroundColor: string;
+  color: string
+  weakColor: string
+  backgroundColor: string
 }
 export const StyledFooter = styled.footer<FooterStyleProps>`
   --color: ${(_) => _.color};
@@ -24,7 +24,7 @@ export const StyledFooter = styled.footer<FooterStyleProps>`
     margin-bottom: 1em;
     text-transform: uppercase;
   }
-`;
+`
 
 export const FooterMediaIcons = styled.ul`
   margin: 1.5em 0;
@@ -52,7 +52,7 @@ export const FooterMediaIcons = styled.ul`
       border-color: var(--color);
     }
   }
-`;
+`
 
 export const FooterBrand = styled(Link)`
   display: block;
@@ -60,13 +60,13 @@ export const FooterBrand = styled(Link)`
   font-weight: 600;
   margin-bottom: 1em;
   margin: 0;
-`;
+`
 
 export const FooterListItem = styled.li`
   display: inline-block;
   margin: 1em;
   text-align: center;
-`;
+`
 
 export const FooterMenu = styled.ul`
   list-style-type: none;
@@ -79,7 +79,7 @@ export const FooterMenu = styled.ul`
       text-decoration: none;
     }
   }
-`;
+`
 
 export const FooterLink = styled(Link)`
   color: var(--weak-color);
@@ -93,12 +93,12 @@ export const FooterLink = styled(Link)`
     color: var(--color);
     text-decoration: underline;
   }
-`;
+`
 
 export const FooterTitle = styled.h4`
   margin-bottom: 1em;
   text-transform: uppercase;
-`;
+`
 
 export const FooterContainer = styled.div`
   display: flex;
@@ -109,4 +109,4 @@ export const FooterContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 2em;
-`;
+`
