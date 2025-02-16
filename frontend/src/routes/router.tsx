@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-router'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
-import * as pages from './'
+import * as pages from '../pages'
 
 const rootRoute = createRootRoute({
   notFoundComponent: () => {
