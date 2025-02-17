@@ -1,4 +1,4 @@
-import { useAppSelector } from '@/redux/hooks'
+import { useAppSelector } from '@/features/hooks'
 import { useTranslation } from 'react-i18next'
 
 export const useLanguageSwitcherModel = () => {

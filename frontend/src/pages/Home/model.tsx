@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
-import { useGetTodosQuery } from '@/redux/todos/apiSlice'
-import { useAppSelector } from '@/redux/hooks'
+import { useGetTodosQuery } from '@/features/todos/apiSlice'
+import { useAppSelector } from '@/features/hooks'
 
 export const useHomeModel = () => {
   const { t } = useTranslation()

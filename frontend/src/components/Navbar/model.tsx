@@ -2,7 +2,7 @@ import { NavPages, Pages } from '../../types/router.types'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { useAppDispatch, useAppSelector } from '@/redux/hooks'
+import { useAppDispatch, useAppSelector } from '@/features/hooks'
 
 export const useNavbarModel = () => {
   const { t } = useTranslation()

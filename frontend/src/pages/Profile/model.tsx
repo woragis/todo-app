@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { useAppSelector } from '@/redux/hooks'
+import { useAppSelector } from '@/features/hooks'
 
 export const useProfileModel = () => {
   const { t } = useTranslation()

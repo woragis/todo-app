@@ -2,7 +2,7 @@ import { ChangeEvent, FormEvent, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { LoginRequestInterface } from '../../types/axios.types'
-import { useAppDispatch, useAppSelector } from '@/redux/hooks'
+import { useAppDispatch, useAppSelector } from '@/features/hooks'
 
 export const useLoginModel = () => {
   const { t } = useTranslation()

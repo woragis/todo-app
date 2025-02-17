@@ -1,6 +1,6 @@
 import { ThemeButtonProps } from '../../types/themeButton.types'
-import { useAppDispatch, useAppSelector } from '@/redux/hooks'
-import { toggleTheme } from '@/redux/theme/slice'
+import { useAppDispatch, useAppSelector } from '@/features/hooks'
+import { toggleTheme } from '@/features/theme/slice'
 
 export const useThemeButtonModel = ({
   navbarColor,

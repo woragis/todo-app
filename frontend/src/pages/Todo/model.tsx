@@ -1,4 +1,4 @@
-import { useAppDispatch, useAppSelector } from '@/redux/hooks'
+import { useAppDispatch, useAppSelector } from '@/features/hooks'
 import { useParams } from '@tanstack/react-router'
 
 export const useTodoModel = () => {

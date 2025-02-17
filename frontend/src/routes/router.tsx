@@ -4,9 +4,9 @@ import {
   createRouter,
   Outlet,
 } from '@tanstack/react-router'
-import Navbar from '../components/Navbar'
-import Footer from '../components/Footer'
-import * as pages from '../pages'
+import { Navbar } from '@/components'
+import { Footer } from '@/components'
+import * as pages from '@/pages'
 
 const rootRoute = createRootRoute({
   notFoundComponent: () => {
