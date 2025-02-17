@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux'
-import { useAppDispatch } from '../../redux/hooks'
-import { toggleTheme } from '../../redux/slices/themeSlice'
-import { RootState } from '../../redux/store'
+import { useAppDispatch } from '../../redux_old/hooks'
+import { toggleTheme } from '../../redux_old/slices/themeSlice'
+import { RootState } from '../../redux_old/store'
 import { ThemeButtonProps } from '../../types/themeButton.types'
 
 export const useThemeButtonModel = ({

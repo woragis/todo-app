@@ -1,10 +1,10 @@
 import { useSelector } from 'react-redux'
 import { NavPages, Pages } from '../../types/router.types'
-import { RootState } from '../../redux/store'
+import { RootState } from '../../redux_old/store'
 import { useTranslation } from 'react-i18next'
-import { useAppDispatch } from '../../redux/hooks'
+import { useAppDispatch } from '../../redux_old/hooks'
 import { useNavigate } from '@tanstack/react-router'
-import { logout } from '../../redux/slices/authSlice'
+import { logout } from '../../redux_old/slices/authSlice'
 import { useState } from 'react'
 
 export const useNavbarModel = () => {

@@ -1,7 +1,7 @@
 import { useParams } from '@tanstack/react-router'
-import { useAppDispatch } from '../../redux/hooks'
-import { getTodo } from '../../redux/slices/todosSlice'
-import { RootState } from '../../redux/store'
+import { useAppDispatch } from '../../redux_old/hooks'
+import { getTodo } from '../../redux_old/slices/todosSlice'
+import { RootState } from '../../redux_old/store'
 import { useSelector } from 'react-redux'
 
 export const useTodoModel = () => {

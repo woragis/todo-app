@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux'
-import { RootState } from '../../redux/store'
+import { RootState } from '../../redux_old/store'
 import { useTranslation } from 'react-i18next'
 
 export const useProfileModel = () => {

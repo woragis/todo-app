@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react'
 import '@testing-library/react'
 import { Provider } from 'react-redux'
-import { store } from '../redux/store'
+import { store } from '../redux_old/store'
 import { I18nextProvider } from 'react-i18next'
 import i18n from '../locales/i18n'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'

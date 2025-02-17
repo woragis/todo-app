@@ -1,5 +1,5 @@
 import { useSelector } from 'react-redux'
-import { RootState } from '../../redux/store'
+import { RootState } from '../../redux_old/store'
 import { useTranslation } from 'react-i18next'
 import { FaGithub, FaInstagram, FaLinkedin, FaYoutube } from 'react-icons/fa6'
 import { FooterLinks, socialMediaLinks } from '../../types/footer.types'

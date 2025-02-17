@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import { useSelector } from 'react-redux'
-import { RootState } from '../redux/store'
+import { RootState } from '../redux_old/store'
 
 export const GlobalStyles = () => {
   const theme = useSelector((state: RootState) => state.theme)

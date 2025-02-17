@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
-import { RootState } from '../../redux/store'
+import { RootState } from '../../redux_old/store'
 
 export const useLanguageSwitcherModel = () => {
   const { i18n, t } = useTranslation()
