@@ -17,14 +17,21 @@ export const FooterView = ({
 }: ReturnType<typeof useFooterModel>) => {
   const menuComponent = menuLinks.map((link) => {
     return (
-      <FooterListItem>
+      <FooterListItem key={`footer_li_${link.path}`}>
         <FooterLink to={link.path}>{link.title}</FooterLink>
       </FooterListItem>
     )
   })
 
   const socialMediaComponent = mediaLinks.map((socialMedia) => {
-    return <FooterLink to={socialMedia.path}>{socialMedia.element}</FooterLink>
+    return (
+      <FooterLink
+        key={`footer_social_li_${socialMedia.path}`}
+        to={socialMedia.path}
+      >
+        {socialMedia.element}
+      </FooterLink>
+    )
   })
 
   return (
