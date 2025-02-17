@@ -1,9 +1,8 @@
+import { useAppSelector } from '@/features/hooks'
 import { css } from '@emotion/react'
-import { useSelector } from 'react-redux'
-import { RootState } from '../redux_old/store'
 
-export const GlobalStyles = () => {
-  const theme = useSelector((state: RootState) => state.theme)
+const styles = () => {
+  const theme = useAppSelector((state) => state.theme)
 
   return css`
     * {
@@ -40,3 +39,5 @@ export const GlobalStyles = () => {
     }
   `
 }
+
+export default styles

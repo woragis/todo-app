@@ -11,7 +11,7 @@ import {
 
 export const ThemeButtonView = ({
   toggleCurrentTheme,
-  isDarkMode,
+  theme,
   navbarColor,
   navbarBackgroundColor,
 }: ReturnType<typeof useThemeButtonModel>) => {
@@ -24,7 +24,7 @@ export const ThemeButtonView = ({
       <InvisibleInput
         type='checkbox'
         id='toggle'
-        defaultChecked={!isDarkMode}
+        defaultChecked={theme === 'dark'}
         onChange={toggleCurrentTheme}
       />
 

@@ -4,23 +4,27 @@ import {
   createRouter,
   Outlet,
 } from '@tanstack/react-router'
-import { Navbar } from '@/components'
-import { Footer } from '@/components'
+import { ThemeProvider } from '@emotion/react'
+import { useAppSelector } from '@/features/hooks'
 import * as pages from '@/pages'
+import { Footer } from '@/components'
+import { Navbar } from '@/components'
 
 const rootRoute = createRootRoute({
   notFoundComponent: () => {
     return <h1>Not found</h1>
   },
   component: () => {
+    const theme = useAppSelector((state) => state.theme.colors)
+
     return (
-      <>
+      <ThemeProvider theme={theme}>
         <Navbar />
         <main>
           <Outlet />
         </main>
         <Footer />
-      </>
+      </ThemeProvider>
     )
   },
 })
