@@ -1,10 +1,4 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import {
-  addAsyncBulider,
-  editAsyncBulider,
-  deleteAsyncBulider,
-  fetchAsyncBulider,
-} from './thunks'
 import { TodoInterface, TodosState } from './types'
 
 export const todosSlice = createSlice({
@@ -25,12 +19,6 @@ export const todosSlice = createSlice({
     deleteTodo: (state, action: PayloadAction<TodoInterface>) => {
       state.todos = state.todos.filter((todo) => todo.id !== action.payload.id)
     },
-  },
-  extraReducers: (builder) => {
-    fetchAsyncBulider(builder)
-    addAsyncBulider(builder)
-    editAsyncBulider(builder)
-    deleteAsyncBulider(builder)
   },
 })
 
