@@ -15,7 +15,7 @@ export const LoginView = ({
 }: ReturnType<typeof useLoginModel>) => {
   const formComponent = (
     <Form onSubmit={handleLoginSubmit}>
-      <h1>{textData.title}</h1>
+      {/* <h1>{textData.title}</h1> */}
       <Input
         type='text'
         name='email'

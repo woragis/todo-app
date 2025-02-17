@@ -43,7 +43,7 @@ const loginRoute = createRoute({
 
 const registerRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/auh/register',
+  path: '/auth/register',
   component: pages.Register,
 })
 

@@ -17,8 +17,6 @@ export const NavbarView = ({
   authLinks,
   themeColors,
   navLogo,
-  loginVisible,
-  registerVisible,
 }: ReturnType<typeof useNavbarModel>) => {
   const navLinksComponent = navLinks.map(({ title, path, onClick }) => {
     return (
@@ -72,8 +70,6 @@ export const NavbarView = ({
           />
         </NavLinksContainer>
       </StyledNavbar>
-      {loginVisible && <Login />}
-      {registerVisible && <Register />}
     </NavbarInvisibleContainer>
   )
 }

@@ -16,25 +16,19 @@ export const useNavbarModel = () => {
       to: '/',
     })
   }
-  const [loginVisible, setLoginVisible] = useState<boolean>(false)
-  const [registerVisible, setRegisterVisible] = useState<boolean>(false)
 
   const navLinks: NavPages[] = [{ title: t(Pages.Home), path: '' }]
 
   const unloggedLinks: NavPages[] = [
     {
       title: t('login.title'),
-      path: '',
-      onClick: () => {
-        setLoginVisible((prevState) => !prevState)
-      },
+      path: 'auth/login',
+      onClick: () => {},
     },
     {
       title: t('register.title'),
-      path: '',
-      onClick: () => {
-        setRegisterVisible((prevState) => !prevState)
-      },
+      path: 'auth/register',
+      onClick: () => {},
     },
   ]
 
@@ -58,7 +52,5 @@ export const useNavbarModel = () => {
     authLinks,
     themeColors,
     navLogo,
-    loginVisible,
-    registerVisible,
   }
 }
