@@ -1,20 +1,17 @@
-import { useSelector } from 'react-redux'
 import { NavPages, Pages } from '../../types/router.types'
-import { RootState } from '../../redux_old/store'
 import { useTranslation } from 'react-i18next'
-import { useAppDispatch } from '../../redux_old/hooks'
 import { useNavigate } from '@tanstack/react-router'
-import { logout } from '../../redux_old/slices/authSlice'
 import { useState } from 'react'
+import { useAppDispatch, useAppSelector } from '@/redux/hooks'
 
 export const useNavbarModel = () => {
   const { t } = useTranslation()
-  const auth = useSelector((state: RootState) => state.auth)
-  const themeColors = useSelector((state: RootState) => state.theme.colors)
+  const auth = useAppSelector((state) => state.auth)
+  const themeColors = useAppSelector((state) => state.theme.colors)
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const handleClickLogout = () => {
-    dispatch(logout())
+    // dispatch(logout())
     navigate({
       to: '/',
     })
@@ -52,7 +49,7 @@ export const useNavbarModel = () => {
     },
   ]
 
-  const authLinks = auth.loggedIn ? loggedLinks : unloggedLinks
+  const authLinks = auth.logged ? loggedLinks : unloggedLinks
 
   const navLogo = ''
 

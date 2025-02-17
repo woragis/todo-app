@@ -1,11 +1,11 @@
-import { useProfileModel } from "./model";
+import { useProfileModel } from './model'
 
 export const ProfileView = ({
   textData,
   user,
 }: ReturnType<typeof useProfileModel>) => {
   if (!user) {
-    return <h1>You are not logged in</h1>;
+    return <h1>You are not logged in</h1>
   }
   return (
     <div>
@@ -20,14 +20,10 @@ export const ProfileView = ({
       <p>
         {textData.passwordField}: {user.password}
       </p>
-      <p>
-        {textData.createdField}: {user.created_at}
-      </p>
-      <p>
-        {textData.updatedField}: {user.updated_at}
-      </p>
+      <p>{/* {textData.createdField}: {user.created_at} */}</p>
+      <p>{/* {textData.updatedField}: {user.updated_at} */}</p>
       <br />
       <small>Id: {user.id}</small>
     </div>
-  );
-};
+  )
+}

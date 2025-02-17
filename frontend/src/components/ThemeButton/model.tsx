@@ -1,8 +1,6 @@
-import { useSelector } from 'react-redux'
-import { useAppDispatch } from '../../redux_old/hooks'
-import { toggleTheme } from '../../redux_old/slices/themeSlice'
-import { RootState } from '../../redux_old/store'
 import { ThemeButtonProps } from '../../types/themeButton.types'
+import { useAppDispatch, useAppSelector } from '@/redux/hooks'
+import { toggleTheme } from '@/redux/theme/slice'
 
 export const useThemeButtonModel = ({
   navbarColor,
@@ -10,7 +8,7 @@ export const useThemeButtonModel = ({
 }: ThemeButtonProps) => {
   const dispatch = useAppDispatch()
   const toggleCurrentTheme = () => dispatch(toggleTheme())
-  const isDarkMode = useSelector((state: RootState) => state.theme.isDarkMode)
+  const isDarkMode = useAppSelector((state) => state.theme.mode)
 
   return { toggleCurrentTheme, isDarkMode, navbarColor, navbarBackgroundColor }
 }

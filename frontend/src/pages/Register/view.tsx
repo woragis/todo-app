@@ -45,7 +45,7 @@ export const RegisterView = ({
           onChange={handleRegisterChange}
         />
         <Button>{textData.formButton}</Button>
-        {auth.status === 'loading' && <p>Loading...</p>}
+        {auth.loading && <p>Loading...</p>}
         {auth.error && <p style={{ color: 'red' }}>{auth.error}</p>}
       </Form>
     </FormContainer>

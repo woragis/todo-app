@@ -1,10 +1,9 @@
 import { Global, ThemeProvider } from '@emotion/react'
 import { GlobalStyles } from './styles/global.styles'
-import { useSelector } from 'react-redux'
-import { RootState } from './redux_old/store'
+import { useAppSelector } from './redux/hooks'
 
 function App() {
-  const theme = useSelector((state: RootState) => state.theme)
+  const theme = useAppSelector((state) => state.theme.colors)
 
   return (
     <ThemeProvider theme={theme}>

@@ -1,10 +1,9 @@
-import { useSelector } from 'react-redux'
-import { RootState } from '../../redux_old/store'
 import { useTranslation } from 'react-i18next'
+import { useAppSelector } from '@/redux/hooks'
 
 export const useProfileModel = () => {
   const { t } = useTranslation()
-  const user = useSelector((state: RootState) => state.auth.user)
+  const user = useAppSelector((state) => state.auth.user)
 
   const textData = {
     title: t('profile.title'),

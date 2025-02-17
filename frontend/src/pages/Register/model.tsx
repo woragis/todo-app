@@ -1,17 +1,14 @@
 import { ChangeEvent, FormEvent, useState } from 'react'
-import { useAppDispatch } from '../../redux_old/hooks'
-import { useSelector } from 'react-redux'
-import { RootState } from '../../redux_old/store'
-import { register } from '../../redux_old/slices/authSlice'
 import { useNavigate } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { RegisterRequestInterface } from '../../types/axios.types'
+import { useAppDispatch, useAppSelector } from '@/redux/hooks'
 
 export const useRegisterModel = () => {
   const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
-  const auth = useSelector((state: RootState) => state.auth)
+  const auth = useAppSelector((state) => state.auth)
 
   const [registerData, setRegisterData] = useState<RegisterRequestInterface>(
     {} as RegisterRequestInterface
@@ -27,7 +24,7 @@ export const useRegisterModel = () => {
   const handleRegisterSubmit = (event: FormEvent) => {
     event.preventDefault()
     console.log('Register data:', registerData)
-    dispatch(register(registerData))
+    // dispatch(register(registerData))
     navigate({ to: '/profile' })
   }
 

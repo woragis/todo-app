@@ -11,9 +11,11 @@ export const HomeView = ({
   todosTitle,
   todosNotFound,
   todos,
+  isLoading,
+  isError,
   dividerColor,
 }: ReturnType<typeof useHomeModel>) => {
-  if (!todos.data?.data) {
+  if (!todos) {
     return (
       <HomeHeroSection>
         <h1>{todosNotFound}</h1>
@@ -21,11 +23,11 @@ export const HomeView = ({
       </HomeHeroSection>
     )
   }
-  const todosComponent = todos.data.data.map((todo) => {
+  const todosComponent = todos.map((todo) => {
     return (
       <Link to={'todos/' + todo.id}>
         <TodoCard key={`listed_todo_${todo.id}`}>
-          <h3>{todo.name}</h3>
+          <h3>{todo.title}</h3>
           <HomeDivider dividerColor={dividerColor} />
           {/* <p>{todo.completed}</p> */}
         </TodoCard>
@@ -37,8 +39,8 @@ export const HomeView = ({
     <HomeHeroSection>
       <h1>{todosTitle}</h1>
       <HomeDivider dividerColor={dividerColor} />
-      {todos.isLoading && <h1>Loading...</h1>}
-      {todos.error && <h1>Error while loading todos...</h1>}
+      {isLoading && <h1>Loading...</h1>}
+      {isError && <h1>Error while loading todos...</h1>}
       <TodosContainer>{todosComponent}</TodosContainer>
     </HomeHeroSection>
   )
