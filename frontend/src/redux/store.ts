@@ -1,15 +1,22 @@
-import { configureStore } from "@reduxjs/toolkit";
-import authReducer from "./slices/authSlice";
-import todosReducer from "./slices/todosSlice";
-import themeReducer from "./slices/themeSlice";
+import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit'
+import todosSlice from './todos/slice'
+import todosApi from './todos/apiSlice'
 
-export const store = configureStore({
+const store = configureStore({
   reducer: {
-    auth: authReducer,
-    theme: themeReducer,
-    todos: todosReducer,
+    todos: todosSlice.reducer,
+    [todosApi.reducerPath]: todosApi.reducer,
   },
-});
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(todosApi.middleware),
+})
 
-export type RootState = ReturnType<typeof store.getState>;
-export type AppDispatch = typeof store.dispatch;
+export type AppDispatch = typeof store.dispatch
+export type RootState = ReturnType<typeof store.getState>
+export type AppThunk<ReturnType = void> = ThunkAction<
+  ReturnType,
+  RootState,
+  unknown,
+  Action<string>
+>
+export default store
