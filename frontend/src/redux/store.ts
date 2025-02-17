@@ -1,9 +1,11 @@
 import { Action, configureStore, ThunkAction } from '@reduxjs/toolkit'
 import todosSlice from './todos/slice'
 import todosApi from './todos/apiSlice'
+import themeSlice from './theme/slice'
 
 const store = configureStore({
   reducer: {
+    theme: themeSlice.reducer,
     todos: todosSlice.reducer,
     [todosApi.reducerPath]: todosApi.reducer,
   },
