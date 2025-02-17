@@ -15,6 +15,7 @@ const todosApi = createApi({
     }),
     getTodoById: builder.query<TodoInterface, TodoInterface['id']>({
       query: (id) => `/${id}`,
+      providesTags: ['todos'],
     }),
     postTodo: builder.mutation<TodoInterface, TodoInterface>({
       query: (todo) => ({
