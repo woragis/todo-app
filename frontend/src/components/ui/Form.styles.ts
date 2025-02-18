@@ -51,3 +51,8 @@ export const Button = styled.button`
   border: none;
   border-radius: 1rem;
 `
+
+export const ImgButton = styled.img`
+  width: 30px;
+  height: 30px;
+`
