@@ -3,8 +3,9 @@ import { useProfileModel } from './model'
 export const ProfileView = ({
   textData,
   user,
+  logged,
 }: ReturnType<typeof useProfileModel>) => {
-  if (!user) {
+  if (!logged) {
     return <h1>You are not logged in</h1>
   }
   return (

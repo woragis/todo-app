@@ -3,7 +3,7 @@ import { useAppSelector } from '@/features/hooks'
 
 export const useProfileModel = () => {
   const { t } = useTranslation()
-  const user = useAppSelector((state) => state.auth.user)
+  const { user, logged } = useAppSelector((state) => state.auth)
 
   const textData = {
     title: t('profile.title'),
@@ -13,5 +13,5 @@ export const useProfileModel = () => {
     createdField: t('profile.user-fields.created-at'),
     updatedField: t('profile.user-fields.updated-at'),
   }
-  return { textData, user }
+  return { textData, user, logged }
 }
