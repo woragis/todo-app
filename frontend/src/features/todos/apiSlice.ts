@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { TodoInterface, TodosResponse } from './types'
+import { TodoInterface, TodoResponse, TodosResponse } from './types'
 
 const todosApi = createApi({
   reducerPath: 'todosApi',
@@ -13,11 +13,11 @@ const todosApi = createApi({
         return response.data
       },
     }),
-    getTodoById: builder.query<TodoInterface, TodoInterface['id']>({
+    getTodoById: builder.query<TodoResponse, TodoInterface['id']>({
       query: (id) => `/${id}`,
       providesTags: ['todos'],
     }),
-    postTodo: builder.mutation<TodoInterface, TodoInterface>({
+    postTodo: builder.mutation<TodoResponse, TodoInterface>({
       query: (todo) => ({
         url: '/',
         body: todo,
@@ -25,7 +25,7 @@ const todosApi = createApi({
       }),
       invalidatesTags: ['todos'],
     }),
-    putTodo: builder.mutation<TodoInterface, TodoInterface>({
+    putTodo: builder.mutation<TodoResponse, TodoInterface>({
       query: (todo) => ({
         url: `/${todo.id}`,
         body: todo,

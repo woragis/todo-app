@@ -1,9 +1,14 @@
 import { useTodoModel } from './model'
 
-export const TodoView = ({ todo }: ReturnType<typeof useTodoModel>) => {
-  if (!todo) {
-    return <h1>Did not find todo</h1>
+export const TodoView = ({
+  todo,
+  isLoading,
+  isSuccess,
+}: ReturnType<typeof useTodoModel>) => {
+  if (isLoading) {
+    return <h1>Loading..</h1>
   }
+  if (!isSuccess || !todo) return <h1>did not find todo</h1>
 
   return (
     <div>
