@@ -1,3 +1,3 @@
 import todoSlice from './slice'
 
-export const { reset, set } = todoSlice.actions
+export const { reset: resetTodo, set: setTodo } = todoSlice.actions

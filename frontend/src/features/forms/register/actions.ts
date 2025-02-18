@@ -1,3 +1,3 @@
 import registerSlice from './slice'
 
-export const { reset, set } = registerSlice.actions
+export const { reset: resetRegister, set: setRegister } = registerSlice.actions

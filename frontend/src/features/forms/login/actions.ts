@@ -1,3 +1,3 @@
 import loginSlice from './slice'
 
-export const { reset, set } = loginSlice.actions
+export const { reset: resetLogin, set: setLogin } = loginSlice.actions
