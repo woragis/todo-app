@@ -12,7 +12,7 @@ export interface UserInterface extends RegisterRequest {
 }
 
 export interface AuthState {
-  user: UserInterface
+  user: UserInterface | null
   token: string
   logged: boolean
 }

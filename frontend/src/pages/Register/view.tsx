@@ -8,12 +8,13 @@ import { useRegisterModel } from './model'
 
 export const RegisterView = ({
   textData,
-  auth,
+  logged,
+  isLoading,
   registerData,
   handleRegisterChange,
   handleRegisterSubmit,
 }: ReturnType<typeof useRegisterModel>) => {
-  if (auth.user) {
+  if (logged) {
     return <h1>You are already logged in</h1>
   }
   return (
@@ -45,8 +46,7 @@ export const RegisterView = ({
           onChange={handleRegisterChange}
         />
         <Button>{textData.formButton}</Button>
-        {auth.loading && <p>Loading...</p>}
-        {auth.error && <p style={{ color: 'red' }}>{auth.error}</p>}
+        {isLoading && <p>Loading...</p>}
       </Form>
     </FormContainer>
   )

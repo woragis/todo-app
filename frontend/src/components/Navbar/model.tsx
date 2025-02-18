@@ -1,8 +1,8 @@
 import { NavPages, Pages } from '../../types/router.types'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/features/hooks'
+import { logout } from '@/features/auth/actions'
 
 export const useNavbarModel = () => {
   const { t } = useTranslation()
@@ -11,7 +11,7 @@ export const useNavbarModel = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const handleClickLogout = () => {
-    // dispatch(logout())
+    dispatch(logout())
     navigate({
       to: '/',
     })

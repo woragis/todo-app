@@ -9,7 +9,7 @@ import { useLoginModel } from './model'
 
 export const LoginView = ({
   textData,
-  auth,
+  logged,
   loginData,
   handleLoginChange,
   handleLoginSubmit,
@@ -43,8 +43,8 @@ export const LoginView = ({
   if (isLoading) return <h1>Loading</h1>
   return (
     <FormContainer>
-      {auth.user && <h1>You are already logged in</h1>}
-      {!auth.user && formComponent}
+      {logged && <h1>You are already logged in</h1>}
+      {!logged && formComponent}
     </FormContainer>
   )
 }

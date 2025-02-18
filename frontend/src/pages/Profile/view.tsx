@@ -5,7 +5,7 @@ export const ProfileView = ({
   user,
   logged,
 }: ReturnType<typeof useProfileModel>) => {
-  if (!logged) {
+  if (!logged || !user) {
     return <h1>You are not logged in</h1>
   }
   return (

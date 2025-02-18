@@ -10,7 +10,7 @@ export const useRegisterModel = () => {
   const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
-  const auth = useAppSelector((state) => state.auth)
+  const { logged } = useAppSelector((state) => state.auth)
 
   const [registerData, setRegisterData] = useState<RegisterRequestInterface>({
     name: '',
@@ -18,7 +18,7 @@ export const useRegisterModel = () => {
     password: '',
   })
 
-  const [registerMutation, { data, isSuccess }] = useRegisterMutation()
+  const [registerMutation, { isLoading }] = useRegisterMutation()
 
   const handleRegisterChange = (event: ChangeEvent<HTMLInputElement>) => {
     setRegisterData((prevState) => ({
@@ -27,12 +27,12 @@ export const useRegisterModel = () => {
     }))
   }
 
-  const handleRegisterSubmit = (event: FormEvent) => {
+  const handleRegisterSubmit = async (event: FormEvent) => {
     event.preventDefault()
-    console.log('Register data:', registerData)
-    registerMutation(registerData).then(() => {
-      if (data && isSuccess) dispatch(register(data.data))
-    })
+    const responseUser = await (
+      await registerMutation(registerData).unwrap()
+    ).data
+    dispatch(register(responseUser))
     navigate({ to: '/profile' })
   }
 
@@ -45,10 +45,11 @@ export const useRegisterModel = () => {
   }
 
   return {
-    textData,
-    auth,
-    registerData,
+    logged,
     handleRegisterChange,
     handleRegisterSubmit,
+    isLoading,
+    registerData,
+    textData,
   }
 }

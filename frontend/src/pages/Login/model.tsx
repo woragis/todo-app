@@ -5,13 +5,12 @@ import { LoginRequestInterface } from '../../types/axios.types'
 import { useAppDispatch, useAppSelector } from '@/features/hooks'
 import { useLoginMutation } from '@/features/auth/apiSlice'
 import { login } from '@/features/auth/actions'
-import { UserInterface } from '@/features/auth/types'
 
 export const useLoginModel = () => {
   const { t } = useTranslation()
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
-  const auth = useAppSelector((state) => state.auth)
+  const { logged } = useAppSelector((state) => state.auth)
 
   const [loginData, setLoginData] = useState<LoginRequestInterface>({
     email: '',
@@ -25,14 +24,12 @@ export const useLoginModel = () => {
     )
   }
 
-  const [loginMutation, { data, isSuccess, isLoading }] = useLoginMutation()
+  const [loginMutation, { isLoading }] = useLoginMutation()
 
-  const handleLoginSubmit = (event: FormEvent) => {
+  const handleLoginSubmit = async (event: FormEvent) => {
     event.preventDefault()
-    loginMutation(loginData).then(() => {
-      if (data && isSuccess) dispatch(login(data.data))
-    })
-
+    const responseUser = await (await loginMutation(loginData).unwrap()).data
+    dispatch(login(responseUser))
     navigate({ to: '/profile' })
   }
 
@@ -45,7 +42,7 @@ export const useLoginModel = () => {
 
   return {
     textData,
-    auth,
+    logged,
     loginData,
     handleLoginChange,
     handleLoginSubmit,
