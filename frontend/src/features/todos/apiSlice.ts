@@ -3,11 +3,11 @@ import { TodoInterface, TodosResponse } from './types'
 
 const todosApi = createApi({
   reducerPath: 'todosApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://10.0.2.2:8080/todos' }),
+  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8080/todos' }),
   tagTypes: ['todos'],
   endpoints: (builder) => ({
     getTodos: builder.query<TodoInterface[], void>({
-      query: () => '/',
+      query: () => '',
       providesTags: ['todos'],
       transformResponse: (response: TodosResponse) => {
         return response.data

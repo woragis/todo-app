@@ -13,9 +13,8 @@ export interface UserInterface extends RegisterRequest {
 
 export interface AuthState {
   user: UserInterface
+  token: string
   logged: boolean
-  loading: boolean
-  error: number
 }
 
 export interface Response {

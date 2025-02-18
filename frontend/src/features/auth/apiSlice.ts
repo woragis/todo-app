@@ -3,7 +3,7 @@ import { AuthResponse, LoginRequest, RegisterRequest } from './types'
 
 const authApi = createApi({
   reducerPath: 'authApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://10.0.2.2:8080/auth' }),
+  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8080/auth' }),
   tagTypes: ['auth'],
   endpoints: (builder) => ({
     login: builder.mutation<AuthResponse, LoginRequest>({
