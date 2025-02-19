@@ -11,9 +11,7 @@ import { Footer } from '@/components'
 import { Navbar } from '@/components'
 
 const rootRoute = createRootRoute({
-  notFoundComponent: () => {
-    return <h1>Not found</h1>
-  },
+  notFoundComponent: pages.NotFound,
   component: () => {
     const theme = useAppSelector((state) => state.theme.colors)
 
