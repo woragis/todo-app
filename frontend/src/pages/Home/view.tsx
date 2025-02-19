@@ -5,7 +5,11 @@ import {
   HomeDivider,
   HomeHeroSection,
   TodoCard,
+  TodoCompleted,
+  TodoDataContainer,
+  TodoDescription,
   TodosContainer,
+  TodoTitle,
 } from './styles'
 
 export const HomeView = ({
@@ -28,9 +32,11 @@ export const HomeView = ({
     return (
       <Link to={'todos/' + todo.id}>
         <TodoCard key={`listed_todo_${todo.id}`}>
-          <h3>{todo.title}</h3>
-          <HomeDivider dividerColor={dividerColor} />
-          {/* <p>{todo.completed}</p> */}
+          <TodoDataContainer>
+            <TodoTitle>{todo.title}</TodoTitle>
+            <TodoDescription>{todo.description}</TodoDescription>
+          </TodoDataContainer>
+          <TodoCompleted />
         </TodoCard>
       </Link>
     )
