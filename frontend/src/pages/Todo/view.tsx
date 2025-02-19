@@ -1,4 +1,10 @@
 import { useTodoModel } from './model'
+import {
+  StyledTodo,
+  StyledTodoBody,
+  StyledTodoId,
+  StyledTodoTitle,
+} from './styles'
 
 export const TodoView = ({
   todo,
@@ -11,13 +17,13 @@ export const TodoView = ({
   if (!isSuccess || !todo) return <h1>did not find todo</h1>
 
   return (
-    <div>
-      <p>id: {todo.id}</p>
-      <br />
-      <h1>Title: {todo.title}</h1>
-      <hr />
-      <br />
-      <p>{todo.description}</p>
-    </div>
+    <StyledTodo>
+      <StyledTodoId>id: {todo.id}</StyledTodoId>
+      <StyledTodoTitle
+        type='text'
+        value={todo.title}
+      />
+      <StyledTodoBody value={todo.description} />
+    </StyledTodo>
   )
 }

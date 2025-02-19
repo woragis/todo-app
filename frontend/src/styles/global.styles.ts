@@ -18,6 +18,7 @@ const styles = () => {
       transition: color 500ms;
       transition: fill 500ms;
       transition: border 500ms;
+      outline: none;
     }
 
     body {
