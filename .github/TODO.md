@@ -1,5 +1,8 @@
 # CI/CD
 
-- [ ] - Criar testes para o backend
-- [ ] - Implementar **Cache** na instalacao de **dependecies**
-- [ ] - Usar **Artifacts** para salvar conteudo de **Tests**
+- [ ] - Create Backend tests workflow
+- [ ] - Implement **Cache** on **dependecies** installation
+- [ ] - Implement **Artifacts** to save **Tests** output
+- [ ] - Implement Backend Deploy workflow
+- [ ] - Implement Frontend Deploy workflow
+- [ ] - Implement Mobile Deploy workflow
