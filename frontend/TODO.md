@@ -1,7 +1,10 @@
 # Frontend
 
+## Features
+
 - [x] - Tanstack Router
-- [x] - Reimplementar conexao com o Backend usando redux toolkit query
+- [x] - Redo implementation of Backend connection with RTK Query
+- [ ] - Use Tanstack Form for form handling
 
 ## UI
 
