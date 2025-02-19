@@ -1,10 +1,6 @@
-import {
-  Button,
-  Form,
-  FormContainer,
-  Input,
-} from '../../components/ui/Form.styles'
 import { useRegisterModel } from './model'
+
+import { Button, Form, FormContainer, Input } from '@/components/ui/Form.styles'
 
 export const RegisterView = ({
   textData,

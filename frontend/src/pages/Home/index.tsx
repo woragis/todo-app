@@ -1,5 +1,5 @@
-import { useHomeModel } from './model'
 import { HomeView } from './view'
+import { useHomeModel } from './model'
 
 const Home = () => {
   const model = useHomeModel()

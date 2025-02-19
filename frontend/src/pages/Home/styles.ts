@@ -1,4 +1,4 @@
-import styled from "@emotion/styled";
+import styled from '@emotion/styled'
 
 export const HomeHeroSection = styled.section`
   display: flex;
@@ -7,17 +7,17 @@ export const HomeHeroSection = styled.section`
   flex-direction: column;
   gap: 20px;
   margin: 0 30px 50px;
-`;
+`
 
 interface HomeDividerInterface {
-  dividerColor: string;
+  dividerColor: string
 }
 
 export const HomeDivider = styled.hr<HomeDividerInterface>`
   width: clamp(300px, 80vw, 800px);
   height: 3px;
   background-color: ${(_) => _.dividerColor};
-`;
+`
 
 // export const MainTodos = styled.article`
 //   display: flex;
@@ -42,7 +42,7 @@ export const TodoCard = styled.div`
   width: 300px;
   display: inline-block;
   overflow: hidden;
-`;
+`
 
 export const TodosContainer = styled.article`
   display: flex;
@@ -51,4 +51,4 @@ export const TodosContainer = styled.article`
   flex-wrap: wrap;
   gap: 10px;
   column-count: 4;
-`;
+`

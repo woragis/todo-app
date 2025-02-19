@@ -1,10 +1,10 @@
-import { useProfileModel } from "./model";
-import { ProfileView } from "./view";
+import { ProfileView } from './view'
+import { useProfileModel } from './model'
 
 const Profile = () => {
-  const model = useProfileModel();
+  const model = useProfileModel()
 
-  return <ProfileView {...model} />;
-};
+  return <ProfileView {...model} />
+}
 
-export default Profile;
+export default Profile

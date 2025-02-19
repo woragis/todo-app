@@ -1,10 +1,10 @@
-import { useRegisterModel } from "./model";
-import { RegisterView } from "./view";
+import { RegisterView } from './view'
+import { useRegisterModel } from './model'
 
 const Register = () => {
-  const model = useRegisterModel();
+  const model = useRegisterModel()
 
-  return <RegisterView {...model} />;
-};
+  return <RegisterView {...model} />
+}
 
-export default Register;
+export default Register

@@ -1,10 +1,10 @@
-import { useTodoModel } from "./model";
-import { TodoView } from "./view";
+import { useTodoModel } from './model'
+import { TodoView } from './view'
 
 const Todo = () => {
-  const model = useTodoModel();
+  const model = useTodoModel()
 
-  return <TodoView {...model} />;
-};
+  return <TodoView {...model} />
+}
 
-export default Todo;
+export default Todo

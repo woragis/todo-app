@@ -1,9 +1,10 @@
 import { ChangeEvent, FormEvent, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
-import { RegisterRequestInterface } from '../../types/axios.types'
-import { useAppDispatch, useAppSelector } from '@/features/hooks'
+
 import { register } from '@/features/auth/actions'
+import { RegisterBody } from '@/features/forms/register/types'
+import { useAppDispatch, useAppSelector } from '@/features/hooks'
 import { useRegisterMutation } from '@/features/auth/apiSlice'
 
 export const useRegisterModel = () => {
@@ -12,7 +13,7 @@ export const useRegisterModel = () => {
   const navigate = useNavigate()
   const { logged } = useAppSelector((state) => state.auth)
 
-  const [registerData, setRegisterData] = useState<RegisterRequestInterface>({
+  const [registerData, setRegisterData] = useState<RegisterBody>({
     name: '',
     email: '',
     password: '',

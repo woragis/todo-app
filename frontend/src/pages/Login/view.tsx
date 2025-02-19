@@ -1,3 +1,7 @@
+import { useForm } from '@tanstack/react-form'
+import type { FieldApi } from '@tanstack/react-form'
+
+import { useLoginModel } from './model'
 import {
   Button,
   Form,
@@ -5,9 +9,6 @@ import {
   ImgButton,
   Input,
 } from '@/components/ui/Form.styles'
-import { useLoginModel } from './model'
-import { useForm } from '@tanstack/react-form'
-import type { FieldApi } from '@tanstack/react-form'
 
 function FieldInfo({ field }: { field: FieldApi<any, any, any, any> }) {
   return (

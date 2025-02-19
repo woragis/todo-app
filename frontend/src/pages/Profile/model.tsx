@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+
 import { useAppSelector } from '@/features/hooks'
 
 export const useProfileModel = () => {
@@ -13,5 +14,6 @@ export const useProfileModel = () => {
     createdField: t('profile.user-fields.created-at'),
     updatedField: t('profile.user-fields.updated-at'),
   }
+
   return { textData, user, logged }
 }

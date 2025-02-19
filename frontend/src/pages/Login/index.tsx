@@ -1,10 +1,10 @@
-import { useLoginModel } from "./model";
-import { LoginView } from "./view";
+import { LoginView } from './view'
+import { useLoginModel } from './model'
 
 const Login = () => {
-  const model = useLoginModel();
+  const model = useLoginModel()
 
-  return <LoginView {...model} />;
-};
+  return <LoginView {...model} />
+}
 
-export default Login;
+export default Login
