@@ -12,5 +12,5 @@
 - [ ] - Register Page
 - [ ] - About Page
 - [ ] - Profile Page
-- [ ] - Home Page
-- [ ] - Todo Page
+- [x] - Home Page
+- [x] - Todo Page
