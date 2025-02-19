@@ -1,8 +1,9 @@
-import { NavPages, Pages } from '../../types/router.types'
-import { useTranslation } from 'react-i18next'
 import { useNavigate } from '@tanstack/react-router'
-import { useAppDispatch, useAppSelector } from '@/features/hooks'
+import { useTranslation } from 'react-i18next'
+
 import { logout } from '@/features/auth/actions'
+import { NavPages, Pages } from '@/types/router.types'
+import { useAppDispatch, useAppSelector } from '@/features/hooks'
 
 export const useNavbarModel = () => {
   const { t } = useTranslation()

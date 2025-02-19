@@ -1,11 +1,12 @@
-import { ThemeButtonProps } from "../../types/themeButton.types";
-import { useThemeButtonModel } from "./model";
-import { ThemeButtonView } from "./view";
+import { ThemeButtonView } from './view'
+import { useThemeButtonModel } from './model'
+
+import { ThemeButtonProps } from '@/types/themeButton.types'
 
 const ThemeButton = (props: ThemeButtonProps) => {
-  const model = useThemeButtonModel(props);
+  const model = useThemeButtonModel(props)
 
-  return <ThemeButtonView {...model} />;
-};
+  return <ThemeButtonView {...model} />
+}
 
-export default ThemeButton;
+export default ThemeButton

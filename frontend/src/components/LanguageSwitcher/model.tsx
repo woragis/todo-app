@@ -1,5 +1,6 @@
-import { useAppSelector } from '@/features/hooks'
 import { useTranslation } from 'react-i18next'
+
+import { useAppSelector } from '@/features/hooks'
 
 export const useLanguageSwitcherModel = () => {
   const { i18n, t } = useTranslation()

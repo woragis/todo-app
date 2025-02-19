@@ -1,5 +1,5 @@
-import styled from '@emotion/styled'
 import { Link } from '@tanstack/react-router'
+import styled from '@emotion/styled'
 
 interface FooterStyleProps {
   color: string

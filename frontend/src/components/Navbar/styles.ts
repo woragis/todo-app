@@ -1,6 +1,7 @@
-import styled from '@emotion/styled'
-import { NavbarProps } from '../../types/navbar.types'
 import { Link } from '@tanstack/react-router'
+import styled from '@emotion/styled'
+
+import { NavbarProps } from '@/types/navbar.types'
 
 export const NavbarInvisibleContainer = styled.header`
   background-color: transparent;

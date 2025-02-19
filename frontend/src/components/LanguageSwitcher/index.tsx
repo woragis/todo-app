@@ -1,10 +1,10 @@
-import { useLanguageSwitcherModel } from "./model";
-import { LanguageSwitcherView } from "./view";
+import { LanguageSwitcherView } from './view'
+import { useLanguageSwitcherModel } from './model'
 
 const LanguageSwitcher = () => {
-  const model = useLanguageSwitcherModel();
+  const model = useLanguageSwitcherModel()
 
-  return <LanguageSwitcherView {...model} />;
-};
+  return <LanguageSwitcherView {...model} />
+}
 
-export default LanguageSwitcher;
+export default LanguageSwitcher

@@ -1,10 +1,10 @@
-import { useFooterModel } from "./model";
-import { FooterView } from "./view";
+import { FooterView } from './view'
+import { useFooterModel } from './model'
 
 const Footer = () => {
-  const model = useFooterModel();
+  const model = useFooterModel()
 
-  return <FooterView {...model} />;
-};
+  return <FooterView {...model} />
+}
 
-export default Footer;
+export default Footer

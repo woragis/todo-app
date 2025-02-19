@@ -1,5 +1,6 @@
-import styled from "@emotion/styled";
-import { LanguageOptionsContainerProps } from "../../types/languageSwitcher.types";
+import styled from '@emotion/styled'
+
+import { LanguageOptionsContainerProps } from '@/types/languageSwitcher.types'
 
 export const LanguageOptionsContainer = styled.details<LanguageOptionsContainerProps>`
   --color: ${(_) => _.color};
@@ -15,13 +16,13 @@ export const LanguageOptionsContainer = styled.details<LanguageOptionsContainerP
   flex-direction: column;
   gap: 5px;
   position: relative;
-`;
+`
 
 export const LanguageButton = styled.summary`
   font-size: 20px;
   padding: 10px 15px;
   position: relative;
-`;
+`
 
 export const OptionsContainer = styled.div`
   position: absolute;
@@ -29,7 +30,7 @@ export const OptionsContainer = styled.div`
   background-color: black;
   overflow: visible;
   height: max-content;
-`;
+`
 
 export const StyledLanguageOption = styled.div`
   display: flex;
@@ -46,7 +47,7 @@ export const StyledLanguageOption = styled.div`
   }
 
   &::before {
-    content: "";
+    content: '';
     position: absolute;
     top: -4px;
     left: 0;
@@ -54,4 +55,4 @@ export const StyledLanguageOption = styled.div`
     height: 2px;
     background-color: var(--color);
   }
-`;
+`

@@ -1,5 +1,6 @@
-import styled from "@emotion/styled";
-import { ThemeButtonProps } from "../../types/themeButton.types";
+import styled from '@emotion/styled'
+
+import { ThemeButtonProps } from '@/types/themeButton.types'
 
 export const ThemeButtonContainer = styled.div<ThemeButtonProps>`
   --ball-radius: 30px;
@@ -8,35 +9,35 @@ export const ThemeButtonContainer = styled.div<ThemeButtonProps>`
   --shaded-color: ${(_) => _.navbarColor};
   --shaded-background-color: ${(_) => _.navbarBackgroundColor};
   background-color: none;
-`;
+`
 
 export const InvisibleInput = styled.input`
   transition: 500ms;
   display: none;
 
-  &[type="checkbox"]:checked + .display {
+  &[type='checkbox']:checked + .display {
     /* background: #2c2c2f; */
   }
-  &[type="checkbox"]:checked + .display label {
+  &[type='checkbox']:checked + .display label {
     /* background: #1f1f21; */
     box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.5) inset;
   }
-  &[type="checkbox"]:checked + .display label .circle {
+  &[type='checkbox']:checked + .display label .circle {
     left: 100%;
     transform: translate(-110%, -50%);
     /* background: #2c2c2f; */
     box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.5),
       -10px -10px 30px rgba(0, 0, 0, 0.5) inset;
   }
-  &[type="checkbox"]:checked + .display label .circle .sun {
+  &[type='checkbox']:checked + .display label .circle .sun {
     margin-top: 150%;
     opacity: 0;
   }
-  &[type="checkbox"]:checked + .display label .circle .moon {
+  &[type='checkbox']:checked + .display label .circle .moon {
     margin-top: 0%;
     opacity: 1;
   }
-`;
+`
 
 export const DisplayedDiv = styled.div`
   * {
@@ -50,7 +51,7 @@ export const DisplayedDiv = styled.div`
   justify-content: center;
   /* background-color: var(--background-color); */
   background-color: none;
-`;
+`
 
 export const ThemeLabel = styled.label`
   width: 70px;
@@ -64,7 +65,7 @@ export const ThemeLabel = styled.label`
   &:active .circle {
     width: 100px;
   }
-`;
+`
 
 export const ThemeCircle = styled.div`
   width: 30px;
@@ -81,7 +82,7 @@ export const ThemeCircle = styled.div`
   align-items: center;
   justify-content: center;
   overflow: hidden;
-`;
+`
 
 export const SunSvg = styled.svg`
   width: 18px;
@@ -89,7 +90,7 @@ export const SunSvg = styled.svg`
   color: #ffd600;
   margin-top: 0%;
   opacity: 1;
-`;
+`
 
 export const MoonSvg = styled.svg`
   width: 16px;
@@ -97,4 +98,4 @@ export const MoonSvg = styled.svg`
   margin-top: -150%;
   color: white;
   opacity: 0;
-`;
+`

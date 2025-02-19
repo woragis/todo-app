@@ -1,6 +1,6 @@
 import { ThemeButtonProps } from '@/types/themeButton.types'
-import { useAppDispatch, useAppSelector } from '@/features/hooks'
 import { toggleTheme } from '@/features/theme/slice'
+import { useAppDispatch, useAppSelector } from '@/features/hooks'
 
 export const useThemeButtonModel = ({
   navbarColor,

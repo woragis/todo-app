@@ -1,10 +1,10 @@
-import { useNavbarModel } from "./model";
-import { NavbarView } from "./view";
+import { NavbarView } from './view'
+import { useNavbarModel } from './model'
 
 const Navbar = () => {
-  const model = useNavbarModel();
+  const model = useNavbarModel()
 
-  return <NavbarView {...model} />;
-};
+  return <NavbarView {...model} />
+}
 
-export default Navbar;
+export default Navbar

@@ -1,7 +1,3 @@
-import LanguageSwitcher from '../LanguageSwitcher'
-import Login from '../../pages/Login'
-import Register from '../../pages/Register'
-import ThemeButton from '../ThemeButton'
 import { useNavbarModel } from './model'
 import {
   NavbarInvisibleContainer,
@@ -11,6 +7,9 @@ import {
   NavLinksContainer,
   StyledNavbar,
 } from './styles'
+
+import LanguageSwitcher from '../LanguageSwitcher'
+import ThemeButton from '../ThemeButton'
 
 export const NavbarView = ({
   navLinks,
