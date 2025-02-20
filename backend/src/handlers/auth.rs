@@ -45,7 +45,6 @@ pub async fn login(
     }
 }
 
-
 /// **Register User**
 pub async fn register(
     State(db): State<Arc<Mutex<Client>>>,
@@ -60,7 +59,7 @@ pub async fn register(
         TABLE, FIELDS, FIELDS_INPUT
     );
     let result = client
-        .query_one(&stmt, &[&"_",&payload.email, &payload.password])
+        .query_one(&stmt, &[&"_", &payload.email, &payload.password])
         .await;
 
     match result {
