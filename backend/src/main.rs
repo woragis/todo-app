@@ -5,11 +5,11 @@ mod routes;
 mod utils;
 
 use axum::Router;
-use database::db::connect;
+use database::{db::connect, tables::create_tables};
 use routes::{auth::auth_routes, profile::profile_routes, todo::todo_routes, user::user_routes};
-use tower_http::cors::{Any, CorsLayer};
 use std::sync::Arc;
 use tokio::{net::TcpListener, sync::Mutex};
+use tower_http::cors::{Any, CorsLayer};
 
 static HOST: &str = "0.0.0.0:8080";
 
@@ -18,6 +18,9 @@ async fn main() {
     dotenvy::dotenv().ok();
     let pool = connect().await.expect("Error in database connection");
     let client = Arc::new(Mutex::new(pool));
+    create_tables(&client)
+        .await
+        .expect("Failed to create tables");
 
     let cors = CorsLayer::new()
         .allow_origin(Any)
