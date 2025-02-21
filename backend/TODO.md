@@ -9,6 +9,7 @@
   - [ ] - Add Bcrypt to LOGIN/REGISTER handlers
   - [ ] - Separate params
   - [ ] - Format Imports
+    - [ ] - Reimport everything
 - [ ] - Format Imports
 - [x] - Implement **JWT** on Login & Register
 - [x] - Implement **JWT** on todos CRUD
