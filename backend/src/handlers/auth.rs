@@ -150,6 +150,6 @@ async fn test_email(client: &Arc<Mutex<Client>>, email: String) -> Result<Option
     match client.query_opt(&stmt, &[&email]).await {
         Ok(Some(row)) => Ok(Some(User::from_row(&row))),
         Ok(None) => Ok(None),
-        Err(_) => Err(ApiError::Auth(AuthError::InvalidHeader)),
+        Err(_) => Err(ApiError::Custom("Error testing email existance".to_string())),
     }
 }
