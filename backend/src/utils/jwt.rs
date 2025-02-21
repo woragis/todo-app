@@ -12,6 +12,7 @@ use std::fmt;
 pub enum AuthError {
     MissingHeader,
     InvalidHeader,
+    MissingBearer,
 }
 
 // Implement `Display` for `AuthError`
@@ -20,6 +21,7 @@ impl fmt::Display for AuthError {
         match self {
             AuthError::MissingHeader => write!(f, "Authorization header is missing"),
             AuthError::InvalidHeader => write!(f, "Invalid authorization header format"),
+            AuthError::MissingBearer => write!(f, "Error striping 'Bearer '"),
         }
     }
 }
@@ -47,12 +49,15 @@ pub fn generate_jwt(user_id: &str) -> Result<String, jsonwebtoken::errors::Error
     )
 }
 
-pub fn validate_auth(header: &HeaderMap) -> Result<String, AuthError> {
+pub fn extract_token(header: &HeaderMap) -> Result<String, AuthError> {
     match header.get("Authorization") {
         Some(auth_header) => match auth_header.to_str() {
             Ok(auth_str) => {
                 println!("Authorization Header: {}", auth_str);
-                Ok(auth_str.to_string())
+                match auth_str.strip_prefix("Bearer ") {
+                    Some(token) => Ok(token.to_string()),
+                    None => Err(AuthError::MissingBearer),
+                }
             }
             Err(_) => Err(AuthError::InvalidHeader),
         },

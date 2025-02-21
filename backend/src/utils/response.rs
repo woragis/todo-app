@@ -1,4 +1,7 @@
-use axum::{http::StatusCode, Json};
+use axum::{
+    http::StatusCode,
+    response::{IntoResponse, Json},
+};
 use jsonwebtoken::errors::Error as JwtError;
 use serde::Serialize;
 use std::fmt;
@@ -39,7 +42,24 @@ impl fmt::Display for ApiError {
     }
 }
 
-// Implement `From<T>` to convert other errors into `ApiError`
+// Map `ApiError` to HTTP status codes
+impl ApiError {
+    pub fn status_code(&self) -> StatusCode {
+        match self {
+            ApiError::Jwt(_) => StatusCode::UNAUTHORIZED, // 401
+            ApiError::Database(_) => StatusCode::INTERNAL_SERVER_ERROR, // 500
+            ApiError::Uuid(_) => StatusCode::BAD_REQUEST, // 400
+            ApiError::Auth(auth_error) => match auth_error {
+                AuthError::MissingHeader => StatusCode::UNAUTHORIZED, // 401
+                AuthError::InvalidHeader => StatusCode::BAD_REQUEST,  // 400
+                AuthError::MissingBearer => StatusCode::BAD_REQUEST,  // 400
+            },
+            ApiError::Custom(_) => StatusCode::BAD_REQUEST, // 400
+        }
+    }
+}
+
+// Convert other errors into `ApiError`
 impl From<JwtError> for ApiError {
     fn from(err: JwtError) -> Self {
         ApiError::Jwt(err)
@@ -64,6 +84,33 @@ impl From<AuthError> for ApiError {
     }
 }
 
+// Implement `IntoResponse` for `ApiError` to return JSON responses
+impl IntoResponse for ApiError {
+    fn into_response(self) -> axum::response::Response {
+        let status = self.status_code();
+
+        let error_number = match self {
+            ApiError::Auth(AuthError::MissingHeader) => 1001,
+            ApiError::Auth(AuthError::InvalidHeader) => 1002,
+            ApiError::Auth(AuthError::MissingBearer) => 1003,
+            ApiError::Jwt(_) => 2001,
+            ApiError::Database(_) => 3001,
+            ApiError::Uuid(_) => 4001,
+            ApiError::Custom(_) => 5001,
+        };
+
+        let response = ApiResponse::<()> {
+            status_code: status.as_u16(),
+            data: None,
+            message: self.to_string(),
+            error: error_number,
+        };
+
+        (status, Json(response)).into_response()
+    }
+}
+
+// Success response method for API responses
 impl<T> ApiResponse<T> {
     pub fn success(data: T, message: &str, status: StatusCode) -> (StatusCode, Json<Self>) {
         (
@@ -73,25 +120,6 @@ impl<T> ApiResponse<T> {
                 data: Some(data),
                 message: message.to_string(),
                 error: 0,
-            }),
-        )
-    }
-
-    pub fn error(
-        message: &str,
-        status: StatusCode,
-        error_number: u16,
-        error: ApiError,
-    ) -> (StatusCode, Json<Self>) {
-        println!("Error: {}", error); // Log the error
-
-        (
-            status,
-            Json(Self {
-                status_code: status.as_u16(),
-                data: None,
-                message: format!("{}: {}", message, error), // Include error details in response
-                error: error_number,
             }),
         )
     }
