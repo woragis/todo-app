@@ -1,16 +1,14 @@
-use std::sync::Arc;
 
-use axum::{
-    routing::{get, post},
-    Router,
-};
-use tokio::sync::Mutex;
-use tokio_postgres::Client;
+
+use actix_web::{web::{get, post, put, delete, scope}, Scope};
 
 use crate::handlers::user::{create_user, delete_user, get_user, get_users, update_user};
 
-pub fn user_routes() -> Router<Arc<Mutex<Client>>> {
-    Router::new()
-        .route("/", post(create_user).get(get_users))
-        .route("/{id}", get(get_user).put(update_user).delete(delete_user))
+pub fn user_routes() -> Scope{
+    scope("/users")
+        .route("/", get().to(get_users))
+        .route("/", post().to(create_user))
+        .route("/{id}", get().to(get_user))
+        .route("/{id}", put().to(update_user))
+        .route("/{id}", delete().to(delete_user))
 }
