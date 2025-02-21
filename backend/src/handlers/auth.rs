@@ -24,7 +24,7 @@ pub async fn login(
             // test if password is right
             // with bcrypt
             match payload.password == user.password {
-                false => Err(ApiError::Auth(AuthError::InvalidHeader)),
+                false => Err(ApiError::Auth(AuthError::PasswordWrong)),
                 true => {
                     // generate token
                     Ok(
@@ -37,7 +37,7 @@ pub async fn login(
                 },
             }
         },
-        Ok(None) => return Err(ApiError::Auth(AuthError::InvalidHeader)),
+        Ok(None) => return Err(ApiError::Auth(AuthError::EmailWrong)),
         Err(err) => return Err(err)
     }
 

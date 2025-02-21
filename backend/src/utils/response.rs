@@ -49,6 +49,9 @@ impl ResponseError for ApiError {
                 AuthError::MissingHeader => StatusCode::UNAUTHORIZED, // 401
                 AuthError::InvalidHeader => StatusCode::BAD_REQUEST,  // 400
                 AuthError::MissingBearer => StatusCode::BAD_REQUEST,  // 400
+                AuthError::PasswordWrong => StatusCode::BAD_REQUEST,  // 400
+                AuthError::EmailTaken => StatusCode::BAD_REQUEST,  // 400
+                AuthError::EmailWrong => StatusCode::BAD_REQUEST,  // 400
             },
             ApiError::Custom(_) => StatusCode::BAD_REQUEST, // 400
         }
@@ -59,6 +62,9 @@ impl ResponseError for ApiError {
             ApiError::Auth(AuthError::MissingHeader) => 1001,
             ApiError::Auth(AuthError::InvalidHeader) => 1002,
             ApiError::Auth(AuthError::MissingBearer) => 1003,
+            ApiError::Auth(AuthError::PasswordWrong) => 1004,
+            ApiError::Auth(AuthError::EmailTaken) => 1005,
+            ApiError::Auth(AuthError::EmailWrong) => 1006,
             ApiError::Jwt(_) => 2001,
             ApiError::Database(_) => 3001,
             ApiError::Uuid(_) => 4001,

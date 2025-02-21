@@ -4,6 +4,7 @@ use chrono::{Duration, Utc};
 use dotenvy::dotenv;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use once_cell::sync::Lazy;
+use uuid::Uuid;
 use std::env;
 use std::fmt;
 
@@ -13,6 +14,9 @@ pub enum AuthError {
     MissingHeader,
     InvalidHeader,
     MissingBearer,
+    PasswordWrong,
+    EmailTaken,
+    EmailWrong,
 }
 
 // Implement `Display` for `AuthError`
@@ -22,6 +26,9 @@ impl fmt::Display for AuthError {
             AuthError::MissingHeader => write!(f, "Authorization header is missing"),
             AuthError::InvalidHeader => write!(f, "Invalid authorization header format"),
             AuthError::MissingBearer => write!(f, "Error striping 'Bearer '"),
+            AuthError::PasswordWrong => write!(f, "Password wrong"),
+            AuthError::EmailTaken => write!(f, "Email is already taken"),
+            AuthError::EmailWrong => write!(f, "Email wrong"),
         }
     }
 }
@@ -31,7 +38,7 @@ static SECRET_KEY: Lazy<String> = Lazy::new(|| {
     env::var("SECRET_KEY").expect("SECRET_KEY must be set")
 });
 
-pub fn generate_jwt(user_id: &str) -> Result<String, jsonwebtoken::errors::Error> {
+pub fn generate_jwt(user_id: Uuid) -> Result<String, jsonwebtoken::errors::Error> {
     let expiration = Utc::now()
         .checked_add_signed(Duration::minutes(60))
         .expect("Valid timestamp")
