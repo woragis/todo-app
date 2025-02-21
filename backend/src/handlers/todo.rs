@@ -3,17 +3,10 @@ use std::{str::FromStr, sync::Arc};
 use crate::{
     models::todo::{CreateTodo, Todo, UpdateTodo},
     utils::{
-        jwt::{extract_token, validate_jwt},
-        response::{ApiError, ApiResponse},
+        jwt::{extract_token, validate_jwt}, response::{ApiError, ApiResponse}
     },
 };
-use axum::{
-    extract::{Path, State},
-    http::{HeaderMap, StatusCode},
-    response::IntoResponse,
-    Json,
-};
-use axum_extra::{headers::{authorization::Bearer, Authorization}, TypedHeader};
+use actix_web::{http::StatusCode, web::{Data, Json, Path}, HttpRequest, HttpResponse};
 use tokio::sync::Mutex;
 use tokio_postgres::Client;
 use uuid::Uuid;
@@ -25,21 +18,15 @@ static FIELDS_INPUT: &str = "$1, $2, $3, $4";
 
 /// **Create Todo**
 pub async fn create_todo(
-    State(db): State<Arc<Mutex<Client>>>,
-    Json(payload): Json<CreateTodo>,
-    // TypedHeader(authorization): TypedHeader<Authorization<Bearer>>,
-) -> Result<impl IntoResponse, ApiError> {
-    let client = db.lock().await;
+    client: Data<Arc<Mutex<Client>>>,
+    payload: Json<CreateTodo>,
+    request: HttpRequest,
+) -> Result<HttpResponse, ApiError> {
+    let client = client.lock().await;
 
-    // Extract token, returning an error if extraction fails
-    // let token = extract_token(&headers).map_err(ApiError::from)?;
-    // println!("authorization header: '{}'", authorization.token());
-
-    // Extract token claims, returning an error if extraction fails
-    // let claims = validate_jwt(&token).map_err(ApiError::from)?;
-
-    // let user_id = claims.sub;
-    let user_id = "oi".to_owned();
+    let token = extract_token(&request.headers()).map_err(ApiError::from)?;
+    let claims = validate_jwt(&token).map_err(ApiError::from)?;
+    let user_id = claims.sub;
 
     let stmt = format!(
         "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
@@ -64,24 +51,19 @@ pub async fn create_todo(
 
 /// **Read Todo**
 pub async fn get_todo(
-    State(db): State<Arc<Mutex<Client>>>,
-    Path(id): Path<Uuid>,
-    TypedHeader(authorization): TypedHeader<Authorization<Bearer>>,
-) -> Result<impl IntoResponse, ApiError> {
-    let client = db.lock().await;
+    client: Data<Arc<Mutex<Client>>>,
+    request: HttpRequest,
+    id: Path<Uuid>,
+) -> Result<HttpResponse, ApiError> {
+    let client = client.lock().await;
 
-    // Extract token, returning an error if extraction fails
-    // let token = extract_token(&headers).map_err(ApiError::from)?;
-    println!("authorization header: '{}'", authorization.token());
-
-    // Extract token claims, returning an error if extraction fails
-    // let claims = validate_jwt(&token).map_err(ApiError::from)?;
-
-    let user_id = "oi".to_owned();
+    let token = extract_token(&request.headers()).map_err(ApiError::from)?;
+    let claims = validate_jwt(&token).map_err(ApiError::from)?;
+    let user_id = claims.sub;
 
     let stmt = format!("SELECT * FROM {} WHERE id = $1 AND author_id = $2", TABLE);
     let row = client
-        .query_one(&stmt, &[&id, &user_id])
+        .query_one(&stmt, &[&*id, &user_id])
         .await
         .map_err(ApiError::from)?;
 
@@ -95,20 +77,14 @@ pub async fn get_todo(
 
 /// **Read Todos**
 pub async fn get_todos(
-    State(db): State<Arc<Mutex<Client>>>,
-    TypedHeader(authorization): TypedHeader<Authorization<Bearer>>,
-) -> Result<impl IntoResponse, ApiError> {
-    let client = db.lock().await;
+    client: Data<Arc<Mutex<Client>>>,
+    request: HttpRequest,
+) -> Result<HttpResponse, ApiError> {
+    let client = client.lock().await;
 
-
-    // // Extract token, returning an error if extraction fails
-    // let token = extract_token(&headers).map_err(ApiError::from)?;
-    println!("authorization header: '{}'", authorization.token());
-
-    // // Extract token claims, returning an error if extraction fails
-    // let claims = validate_jwt(&token).map_err(ApiError::from)?;
-
-    let user_id = "oi".to_owned();
+    let token = extract_token(&request.headers()).map_err(ApiError::from)?;
+    let claims = validate_jwt(&token).map_err(ApiError::from)?;
+    let user_id = claims.sub;
 
     let stmt = format!("SELECT * FROM {} WHERE author_id = $1", TABLE);
     let rows = client
@@ -126,20 +102,16 @@ pub async fn get_todos(
 
 /// **Update Todo**
 pub async fn update_todo(
-    State(db): State<Arc<Mutex<Client>>>,
-    Path(id): Path<Uuid>,
-    Json(payload): Json<UpdateTodo>,
-    // TypedHeader(authorization): TypedHeader<Authorization<Bearer>>,
-) -> Result<impl IntoResponse, ApiError> {
-    let client = db.lock().await;
+    client: Data<Arc<Mutex<Client>>>,
+    payload: Json<UpdateTodo>,
+    request: HttpRequest,
+    id: Path<Uuid>,
+) -> Result<HttpResponse, ApiError> {
+    let client = client.lock().await;
 
-    // // Extract token, returning an error if extraction fails
-    // let token = extract_token(&headers).map_err(ApiError::from)?;
-
-    // // Extract token claims, returning an error if extraction fails
-    // let claims = validate_jwt(&token).map_err(ApiError::from)?;
-
-    let user_id = "oi".to_owned();
+    let token = extract_token(&request.headers()).map_err(ApiError::from)?;
+    let claims = validate_jwt(&token).map_err(ApiError::from)?;
+    let user_id = claims.sub;
 
     let stmt = format!(
         "UPDATE {} SET {} WHERE id = $5 AND author_id = $4",
@@ -153,7 +125,7 @@ pub async fn update_todo(
                 &payload.description,
                 &payload.completed,
                 &user_id,
-                &id,
+                &*id,
             ],
         )
         .await
@@ -161,9 +133,9 @@ pub async fn update_todo(
 
     if result == 1 {
         let updated_todo = Todo {
-            id,
-            title: payload.title,
-            description: payload.description,
+            id: *id,
+            title: payload.title.to_owned(),
+            description: payload.description.to_owned(),
             completed: payload.completed,
             author_id: Uuid::from_str(&user_id).map_err(ApiError::from)?,
         };
@@ -181,24 +153,19 @@ pub async fn update_todo(
 
 /// **Delete Todo**
 pub async fn delete_todo(
-    State(db): State<Arc<Mutex<Client>>>,
-    Path(id): Path<Uuid>,
-    TypedHeader(authorization): TypedHeader<Authorization<Bearer>>,
-) -> Result<impl IntoResponse, ApiError> {
-    let client = db.lock().await;
+    client: Data<Arc<Mutex<Client>>>,
+    request: HttpRequest,
+    id: Path<Uuid>
+) -> Result<HttpResponse, ApiError> {
+    let client = client.lock().await;
 
-    // Extract token, returning an error if extraction fails
-    // let token = extract_token(&headers).map_err(ApiError::from)?;
-
-    // Extract token claims, returning an error if extraction fails
-    // let claims = validate_jwt(&token).map_err(ApiError::from)?;
-
-    // let user_id = claims.sub;
-    let user_id = "oi".to_owned();
+    let token = extract_token(&request.headers()).map_err(ApiError::from)?;
+    let claims = validate_jwt(&token).map_err(ApiError::from)?;
+    let user_id = claims.sub;
 
     let stmt = format!("DELETE FROM {} WHERE id = $1 AND author_id = $2", TABLE);
     let result = client
-        .execute(&stmt, &[&id, &user_id])
+        .execute(&stmt, &[&*id, &user_id])
         .await
         .map_err(ApiError::from)?;
 
