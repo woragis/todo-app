@@ -8,6 +8,7 @@ use super::user::User;
 
 #[derive(Debug, Deserialize)]
 pub struct AuthRequest {
+    pub name: Option<String>,
     pub email: String,
     pub password: String,
 }

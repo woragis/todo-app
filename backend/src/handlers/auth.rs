@@ -51,7 +51,7 @@ pub async fn register(
         TABLE, FIELDS, FIELDS_INPUT
     );
     let row = client
-        .query_one(&stmt, &[&"_", &payload.email, &payload.password])
+        .query_one(&stmt, &[&payload.name, &payload.email, &payload.password])
         .await
         .map_err(ApiError::from)?;
 

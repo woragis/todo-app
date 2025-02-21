@@ -7,10 +7,12 @@ pub async fn create_tables(client: &Arc<Mutex<Client>>) -> Result<(), Error> {
     const USERS_TABLE: &str = "users";
     const TODOS_TABLE: &str = "todos";
 
+    let extension = "CREATE EXTENSION IF NOT EXISTS pgcrypto;";
+
     let create_users_table = format!(
         "
     CREATE TABLE IF NOT EXISTS {} (
-        id UUID PRIMARY KEY,
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         name TEXT NOT NULL,
         email TEXT NOT NULL,
         password TEXT NOT NULL
@@ -22,7 +24,7 @@ pub async fn create_tables(client: &Arc<Mutex<Client>>) -> Result<(), Error> {
     let create_todos_table = format!(
         "
     CREATE TABLE IF NOT EXISTS {} (
-        id UUID PRIMARY KEY,
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         title TEXT NOT NULL,
         description TEXT,
         completed BOOLEAN NOT NULL DEFAULT false,
@@ -34,6 +36,10 @@ pub async fn create_tables(client: &Arc<Mutex<Client>>) -> Result<(), Error> {
     );
 
     let client = client.lock().await;
+    client
+        .batch_execute(&extension)
+        .await
+        .expect("Could not pgcrypto create extension");
     client
         .batch_execute(&create_users_table)
         .await
