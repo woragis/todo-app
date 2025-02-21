@@ -1,5 +1,5 @@
 use crate::models::jwt::Claims;
-use axum::http::HeaderMap;
+use actix_web::http::header::HeaderMap;
 use chrono::{Duration, Utc};
 use dotenvy::dotenv;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
