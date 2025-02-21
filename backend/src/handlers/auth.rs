@@ -4,7 +4,7 @@ use crate::{
     models::auth::{AuthRequest, AuthResponse},
     utils::response::{ApiError, ApiResponse},
 };
-use axum::{extract::State, http::StatusCode, Json};
+use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
 use tokio::sync::Mutex;
 use tokio_postgres::Client;
 
@@ -16,40 +16,32 @@ static FIELDS_INPUT: &str = "$1, $2, $3";
 pub async fn login(
     State(db): State<Arc<Mutex<Client>>>,
     Json(payload): Json<AuthRequest>,
-) -> (StatusCode, Json<ApiResponse<AuthResponse>>) {
+) -> Result<impl IntoResponse, ApiError> {
     println!("Login request received for email: {}", payload.email);
 
     let client = db.lock().await;
 
     let stmt = format!("SELECT * FROM {} WHERE email = $1", TABLE);
-    let result = client.query_one(&stmt, &[&payload.email]).await;
+    let row = client
+        .query_one(&stmt, &[&payload.email])
+        .await
+        .map_err(ApiError::from)?;
 
-    match result {
-        Ok(row) => {
-            println!("User found in database");
-            ApiResponse::success(
-                AuthResponse::row_to_response(row),
-                "User logged in successfully",
-                StatusCode::OK,
-            )
-        }
-        Err(error) => {
-            println!("Database query error: {:?}", error);
-            ApiResponse::error(
-                "Failed to login",
-                StatusCode::INTERNAL_SERVER_ERROR,
-                1,
-                ApiError::Database(error),
-            )
-        }
-    }
+    println!("User found in database");
+
+    let response = AuthResponse::row_to_response(row);
+    Ok(ApiResponse::success(
+        response,
+        "User logged in successfully",
+        StatusCode::OK,
+    ))
 }
 
 /// **Register User**
 pub async fn register(
     State(db): State<Arc<Mutex<Client>>>,
     Json(payload): Json<AuthRequest>,
-) -> (StatusCode, Json<ApiResponse<AuthResponse>>) {
+) -> Result<impl IntoResponse, ApiError> {
     println!("Register request received for email: {}", payload.email);
 
     let client = db.lock().await;
@@ -58,27 +50,17 @@ pub async fn register(
         "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
         TABLE, FIELDS, FIELDS_INPUT
     );
-    let result = client
+    let row = client
         .query_one(&stmt, &[&"_", &payload.email, &payload.password])
-        .await;
+        .await
+        .map_err(ApiError::from)?;
 
-    match result {
-        Ok(row) => {
-            println!("User registered successfully");
-            ApiResponse::success(
-                AuthResponse::row_to_response(row),
-                "User registered successfully",
-                StatusCode::CREATED,
-            )
-        }
-        Err(error) => {
-            println!("Database insertion error: {:?}", error);
-            ApiResponse::error(
-                "Failed to register",
-                StatusCode::INTERNAL_SERVER_ERROR,
-                1,
-                ApiError::Database(error),
-            )
-        }
-    }
+    println!("User registered successfully");
+
+    let response = AuthResponse::row_to_response(row);
+    Ok(ApiResponse::success(
+        response,
+        "User registered successfully",
+        StatusCode::CREATED,
+    ))
 }
