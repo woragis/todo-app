@@ -3,13 +3,14 @@ use std::sync::Arc;
 use crate::{
     models::user::{UpdateUser, User},
     utils::{
-        jwt::{validate_auth, validate_jwt},
+        jwt::{extract_token, validate_jwt},
         response::{ApiError, ApiResponse},
     },
 };
 use axum::{
     extract::State,
     http::{HeaderMap, StatusCode},
+    response::IntoResponse,
     Json,
 };
 use tokio::sync::Mutex;
@@ -19,192 +20,97 @@ use uuid::Uuid;
 static TABLE: &str = "users";
 static UPDATE_FIELDS: &str = "name = $1, email = $2, password = $3";
 
-/// **Read User**
+/// **Read User Profile**
 pub async fn get_user_profile(
     State(db): State<Arc<Mutex<Client>>>,
     headers: HeaderMap,
-) -> (StatusCode, Json<ApiResponse<User>>) {
+) -> Result<impl IntoResponse, ApiError> {
     let client = db.lock().await;
 
-    let auth_token = match validate_auth(&headers) {
-        Ok(token) => token,
-        Err(error) => {
-            return ApiResponse::<User>::error(
-                "Invalid authorization header",
-                StatusCode::UNAUTHORIZED,
-                2,
-                ApiError::Auth(error),
-            )
-        }
-    };
-
-    let validated_token = match validate_jwt(&auth_token) {
-        Ok(token) => token,
-        Err(error) => {
-            return ApiResponse::<User>::error(
-                "Invalid JWT token",
-                StatusCode::UNAUTHORIZED,
-                3,
-                ApiError::Jwt(error),
-            )
-        }
-    };
-
+    let auth_token = extract_token(&headers).map_err(ApiError::Auth)?;
+    let validated_token = validate_jwt(&auth_token).map_err(ApiError::Jwt)?;
     let id = validated_token.sub;
 
     let stmt = format!("SELECT * FROM {} WHERE id = $1", TABLE);
-    let row = client.query_one(&stmt, &[&id]).await;
+    let row = client
+        .query_one(&stmt, &[&id])
+        .await
+        .map_err(ApiError::from)?;
 
-    match row {
-        Ok(row) => {
-            let user = User::from_row(&row);
-            ApiResponse::success(user, "User retrieved successfully", StatusCode::OK)
-        }
-        Err(error) => ApiResponse::error(
-            "User not found",
-            StatusCode::NOT_FOUND,
-            2,
-            ApiError::Database(error),
-        ),
-    }
+    let user = User::from_row(&row);
+    Ok(ApiResponse::success(
+        user,
+        "User retrieved successfully",
+        StatusCode::OK,
+    ))
 }
 
-/// **Update User**
+/// **Update User Profile**
 pub async fn update_user_profile(
     State(db): State<Arc<Mutex<Client>>>,
     headers: HeaderMap,
     Json(payload): Json<UpdateUser>,
-) -> (StatusCode, Json<ApiResponse<User>>) {
+) -> Result<impl IntoResponse, ApiError> {
     let client = db.lock().await;
-    let auth_token = match validate_auth(&headers) {
-        Ok(token) => token,
-        Err(error) => {
-            return ApiResponse::<User>::error(
-                "Invalid authorization header",
-                StatusCode::UNAUTHORIZED,
-                2,
-                ApiError::Auth(error),
-            )
-        }
-    };
 
-    let validated_token = match validate_jwt(&auth_token) {
-        Ok(token) => token,
-        Err(error) => {
-            return ApiResponse::<User>::error(
-                "Invalid JWT token",
-                StatusCode::UNAUTHORIZED,
-                3,
-                ApiError::Jwt(error),
-            )
-        }
-    };
-
-    let id_str = validated_token.sub;
-    let id = match Uuid::parse_str(&id_str) {
-        Ok(id) => id,
-        Err(error) => {
-            return ApiResponse::<User>::error(
-                "Error parsing uuid",
-                StatusCode::INTERNAL_SERVER_ERROR,
-                4,
-                ApiError::Uuid(error),
-            )
-        }
-    };
+    let auth_token = extract_token(&headers).map_err(ApiError::Auth)?;
+    let validated_token = validate_jwt(&auth_token).map_err(ApiError::Jwt)?;
+    let id = Uuid::parse_str(&validated_token.sub).map_err(ApiError::Uuid)?;
 
     let stmt = format!("UPDATE {} SET {} WHERE id = $4", TABLE, UPDATE_FIELDS);
     let result = client
         .execute(
             &stmt,
-            &[&payload.name, &payload.email, &payload.password, &id_str],
+            &[&payload.name, &payload.email, &payload.password, &id],
         )
-        .await;
+        .await
+        .map_err(ApiError::from)?;
 
-    let updated_user = User {
-        id: id,
-        name: payload.name,
-        email: payload.email,
-        password: payload.password,
-    };
-    match result {
-        Ok(1) => ApiResponse::success(updated_user, "User updated successfully", StatusCode::OK),
-        Ok(0) => ApiResponse::error(
-            "User not found",
-            StatusCode::NOT_FOUND,
-            4,
-            ApiError::Custom("User not found on update".to_string()),
-        ),
-        Ok(n) => ApiResponse::error(
-            &format!("Unexpected update count: {}", n),
-            StatusCode::INTERNAL_SERVER_ERROR,
-            6,
-            ApiError::Custom("Unexpected Error".to_string()),
-        ), // Handles cases where more than 1 row is affected (shouldn't happen)
-        Err(error) => ApiResponse::error(
-            "Failed to update user",
-            StatusCode::INTERNAL_SERVER_ERROR,
-            5,
-            ApiError::Database(error),
-        ),
+    if result == 1 {
+        let updated_user = User {
+            id,
+            name: payload.name,
+            email: payload.email,
+            password: payload.password,
+        };
+        return Ok(ApiResponse::success(
+            updated_user,
+            "User updated successfully",
+            StatusCode::OK,
+        ));
+    } else if result == 0 {
+        return Err(ApiError::Custom("User not found".to_string()));
     }
+
+    Err(ApiError::Custom("Unexpected update count".to_string()))
 }
 
-/// **Delete User**
+/// **Delete User Profile**
 pub async fn delete_user_profile(
     State(db): State<Arc<Mutex<Client>>>,
     headers: HeaderMap,
-) -> (StatusCode, Json<ApiResponse<String>>) {
+) -> Result<impl IntoResponse, ApiError> {
     let client = db.lock().await;
 
-    let auth_token = match validate_auth(&headers) {
-        Ok(token) => token,
-        Err(error) => {
-            return ApiResponse::<String>::error(
-                "Invalid authorization header",
-                StatusCode::UNAUTHORIZED,
-                2,
-                ApiError::Auth(error),
-            )
-        }
-    };
-
-    let validated_token = match validate_jwt(&auth_token) {
-        Ok(token) => token,
-        Err(error) => {
-            return ApiResponse::<String>::error(
-                "Invalid JWT token",
-                StatusCode::UNAUTHORIZED,
-                3,
-                ApiError::Jwt(error),
-            )
-        }
-    };
-
+    let auth_token = extract_token(&headers).map_err(ApiError::Auth)?;
+    let validated_token = validate_jwt(&auth_token).map_err(ApiError::Jwt)?;
     let id = validated_token.sub;
 
     let stmt = format!("DELETE FROM {} WHERE id = $1", TABLE);
-    let result = client.execute(&stmt, &[&id]).await;
+    let result = client
+        .execute(&stmt, &[&id])
+        .await
+        .map_err(ApiError::from)?;
 
-    match result {
-        Ok(1) => ApiResponse::success(id.to_string(), "User deleted successfully", StatusCode::OK),
-        Ok(0) => ApiResponse::error(
-            "User not found",
-            StatusCode::NOT_FOUND,
-            4,
-            ApiError::Custom("User not found on update".to_string()),
-        ),
-        Ok(n) => ApiResponse::error(
-            &format!("Unexpected update count: {}", n),
-            StatusCode::INTERNAL_SERVER_ERROR,
-            6,
-            ApiError::Custom("Unexpected Error".to_string()),
-        ), // Handles cases where more than 1 row is affected (shouldn't happen)
-        Err(error) => ApiResponse::error(
-            "Failed to update user",
-            StatusCode::INTERNAL_SERVER_ERROR,
-            5,
-            ApiError::Database(error),
-        ),
+    if result == 1 {
+        return Ok(ApiResponse::success(
+            id.to_string(),
+            "User deleted successfully",
+            StatusCode::OK,
+        ));
+    } else if result == 0 {
+        return Err(ApiError::Custom("User not found".to_string()));
     }
+
+    Err(ApiError::Custom("Unexpected delete count".to_string()))
 }
