@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{str::FromStr, sync::Arc};
 
 use crate::{
     models::user::{UpdateUser, User},
@@ -7,12 +7,7 @@ use crate::{
         response::{ApiError, ApiResponse},
     },
 };
-use axum::{
-    extract::State,
-    http::{HeaderMap, StatusCode},
-    response::IntoResponse,
-    Json,
-};
+use actix_web::{http::StatusCode, web::{Data, Json}, HttpRequest, HttpResponse};
 use tokio::sync::Mutex;
 use tokio_postgres::Client;
 use uuid::Uuid;
@@ -22,14 +17,14 @@ static UPDATE_FIELDS: &str = "name = $1, email = $2, password = $3";
 
 /// **Read User Profile**
 pub async fn get_user_profile(
-    State(db): State<Arc<Mutex<Client>>>,
-    headers: HeaderMap,
-) -> Result<impl IntoResponse, ApiError> {
-    let client = db.lock().await;
+    client: Data<Arc<Mutex<Client>>>,
+    request: HttpRequest,
+) -> Result<HttpResponse, ApiError> {
+    let client = client.lock().await;
 
-    let auth_token = extract_token(&headers).map_err(ApiError::Auth)?;
-    let validated_token = validate_jwt(&auth_token).map_err(ApiError::Jwt)?;
-    let id = validated_token.sub;
+    let token = extract_token(&request.headers()).map_err(ApiError::from)?;
+    let claims = validate_jwt(&token).map_err(ApiError::from)?;
+    let id = claims.sub;
 
     let stmt = format!("SELECT * FROM {} WHERE id = $1", TABLE);
     let row = client
@@ -47,15 +42,15 @@ pub async fn get_user_profile(
 
 /// **Update User Profile**
 pub async fn update_user_profile(
-    State(db): State<Arc<Mutex<Client>>>,
-    headers: HeaderMap,
-    Json(payload): Json<UpdateUser>,
-) -> Result<impl IntoResponse, ApiError> {
-    let client = db.lock().await;
+    client: Data<Arc<Mutex<Client>>>,
+    request: HttpRequest,
+    payload: Json<UpdateUser>
+) -> Result<HttpResponse, ApiError> {
+    let client = client.lock().await;
 
-    let auth_token = extract_token(&headers).map_err(ApiError::Auth)?;
-    let validated_token = validate_jwt(&auth_token).map_err(ApiError::Jwt)?;
-    let id = Uuid::parse_str(&validated_token.sub).map_err(ApiError::Uuid)?;
+    let token = extract_token(&request.headers()).map_err(ApiError::from)?;
+    let claims = validate_jwt(&token).map_err(ApiError::from)?;
+    let id = claims.sub;
 
     let stmt = format!("UPDATE {} SET {} WHERE id = $4", TABLE, UPDATE_FIELDS);
     let result = client
@@ -68,10 +63,10 @@ pub async fn update_user_profile(
 
     if result == 1 {
         let updated_user = User {
-            id,
-            name: payload.name,
-            email: payload.email,
-            password: payload.password,
+            id: Uuid::from_str(&id).map_err(ApiError::from)?,
+            name: payload.name.to_owned(),
+            email: payload.email.to_owned(),
+            password: payload.password.to_owned(),
         };
         return Ok(ApiResponse::success(
             updated_user,
@@ -87,14 +82,14 @@ pub async fn update_user_profile(
 
 /// **Delete User Profile**
 pub async fn delete_user_profile(
-    State(db): State<Arc<Mutex<Client>>>,
-    headers: HeaderMap,
-) -> Result<impl IntoResponse, ApiError> {
-    let client = db.lock().await;
+    client: Data<Arc<Mutex<Client>>>,
+    request: HttpRequest,
+) -> Result<HttpResponse, ApiError> {
+    let client = client.lock().await;
 
-    let auth_token = extract_token(&headers).map_err(ApiError::Auth)?;
-    let validated_token = validate_jwt(&auth_token).map_err(ApiError::Jwt)?;
-    let id = validated_token.sub;
+    let token = extract_token(&request.headers()).map_err(ApiError::from)?;
+    let claims = validate_jwt(&token).map_err(ApiError::from)?;
+    let id = claims.sub;
 
     let stmt = format!("DELETE FROM {} WHERE id = $1", TABLE);
     let result = client
