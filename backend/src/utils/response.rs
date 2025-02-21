@@ -124,3 +124,13 @@ impl<T> ApiResponse<T> {
         )
     }
 }
+
+// Implement IntoResponse for ApiResponse<T> to convert the success response to JSON
+impl<T> IntoResponse for ApiResponse<T> 
+where
+    T: Serialize,
+{
+    fn into_response(self) -> axum::response::Response {
+        (StatusCode::from_u16(self.status_code).unwrap_or(StatusCode::OK), Json(self)).into_response()
+    }
+}
