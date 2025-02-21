@@ -3,8 +3,12 @@
 ## Business Logic
 
 - [x] - Change framework from axum to actix
+- [ ] - Add roles to users model/table
+- [ ] - Handlers
+  - [ ] - Add admin permission to CRUD TODOS and USERS
+  - [ ] - Add Bcrypt to LOGIN/REGISTER handlers
 - [x] - Implement **JWT** on Login & Register
-- [ ] - Implement **JWT** on todos CRUD
+- [x] - Implement **JWT** on todos CRUD
 - [ ] - Implement **Cache** _with **REDIS** or **MEM CACHED**_
 - [ ] - Implement Cache for recent requests and DB queries
 - [ ] - Implement Cache for Login/Register Limit
