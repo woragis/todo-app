@@ -7,6 +7,7 @@ use crate::{
 use axum::{
     extract::{Path, State},
     http::StatusCode,
+    response::IntoResponse,
     Json,
 };
 use tokio::sync::Mutex;
@@ -22,76 +23,63 @@ static FIELDS_INPUT: &str = "$1, $2, $3";
 pub async fn create_user(
     State(db): State<Arc<Mutex<Client>>>,
     Json(payload): Json<CreateUser>,
-) -> (StatusCode, Json<ApiResponse<User>>) {
+) -> Result<impl IntoResponse, ApiError> {
     let client = db.lock().await;
 
     let stmt = format!(
         "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
         TABLE, FIELDS, FIELDS_INPUT
     );
-    let result = client
-        .query_one(&stmt, &[&payload.name, &payload.email, &payload.password])
-        .await;
 
-    match result {
-        Ok(row) => {
-            let user = User::from_row(&row);
-            ApiResponse::success(user, "User created successfully", StatusCode::CREATED)
-        }
-        Err(error) => ApiResponse::error(
-            "Failed to create user",
-            StatusCode::INTERNAL_SERVER_ERROR,
-            1,
-            ApiError::Database(error),
-        ),
-    }
+    let row = client
+        .query_one(&stmt, &[&payload.name, &payload.email, &payload.password])
+        .await
+        .map_err(ApiError::from)?;
+
+    let user = User::from_row(&row);
+    Ok(ApiResponse::success(
+        user,
+        "User created successfully",
+        StatusCode::CREATED,
+    ))
 }
 
 /// **Read User**
 pub async fn get_user(
     State(db): State<Arc<Mutex<Client>>>,
     Path(id): Path<Uuid>,
-) -> (StatusCode, Json<ApiResponse<User>>) {
+) -> Result<impl IntoResponse, ApiError> {
     let client = db.lock().await;
 
     let stmt = format!("SELECT * FROM {} WHERE id = $1", TABLE);
-    let row = client.query_one(&stmt, &[&id]).await;
+    let row = client
+        .query_one(&stmt, &[&id])
+        .await
+        .map_err(ApiError::from)?;
 
-    match row {
-        Ok(row) => {
-            let user = User::from_row(&row);
-            ApiResponse::success(user, "User retrieved successfully", StatusCode::OK)
-        }
-        Err(error) => ApiResponse::error(
-            "User not found",
-            StatusCode::NOT_FOUND,
-            2,
-            ApiError::Database(error),
-        ),
-    }
+    let user = User::from_row(&row);
+    Ok(ApiResponse::success(
+        user,
+        "User retrieved successfully",
+        StatusCode::OK,
+    ))
 }
 
 /// **Read Users**
 pub async fn get_users(
     State(db): State<Arc<Mutex<Client>>>,
-) -> (StatusCode, Json<ApiResponse<Vec<User>>>) {
+) -> Result<impl IntoResponse, ApiError> {
     let client = db.lock().await;
 
     let stmt = format!("SELECT * FROM {}", TABLE);
-    let rows = client.query(&stmt, &[]).await;
+    let rows = client.query(&stmt, &[]).await.map_err(ApiError::from)?;
 
-    match rows {
-        Ok(rows) => {
-            let users = rows.iter().map(|row| User::from_row(row)).collect();
-            ApiResponse::success(users, "Users retrieved successfully", StatusCode::OK)
-        }
-        Err(error) => ApiResponse::error(
-            "Failed to retrieve users",
-            StatusCode::INTERNAL_SERVER_ERROR,
-            3,
-            ApiError::Database(error),
-        ),
-    }
+    let users: Vec<User> = rows.iter().map(User::from_row).collect();
+    Ok(ApiResponse::success(
+        users,
+        "Users retrieved successfully",
+        StatusCode::OK,
+    ))
 }
 
 /// **Update User**
@@ -99,7 +87,7 @@ pub async fn update_user(
     State(db): State<Arc<Mutex<Client>>>,
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdateUser>,
-) -> (StatusCode, Json<ApiResponse<User>>) {
+) -> Result<impl IntoResponse, ApiError> {
     let client = db.lock().await;
 
     let stmt = format!("UPDATE {} SET {} WHERE id = $4", TABLE, UPDATE_FIELDS);
@@ -108,66 +96,50 @@ pub async fn update_user(
             &stmt,
             &[&payload.name, &payload.email, &payload.password, &id],
         )
-        .await;
+        .await
+        .map_err(ApiError::from)?;
 
-    let updated_user = User {
-        id: id,
-        name: payload.name,
-        email: payload.email,
-        password: payload.password,
-    };
-    match result {
-        Ok(1) => ApiResponse::success(updated_user, "User updated successfully", StatusCode::OK),
-        Ok(0) => ApiResponse::error(
-            "User not found",
-            StatusCode::NOT_FOUND,
-            4,
-            ApiError::Custom("User not found on update".to_string()),
-        ),
-        Ok(n) => ApiResponse::error(
-            &format!("Unexpected update count: {}", n),
-            StatusCode::INTERNAL_SERVER_ERROR,
-            6,
-            ApiError::Custom("Unexpected Error".to_string()),
-        ), // Handles cases where more than 1 row is affected (shouldn't happen)
-        Err(error) => ApiResponse::error(
-            "Failed to update user",
-            StatusCode::INTERNAL_SERVER_ERROR,
-            5,
-            ApiError::Database(error),
-        ),
+    if result == 1 {
+        let updated_user = User {
+            id,
+            name: payload.name,
+            email: payload.email,
+            password: payload.password,
+        };
+        return Ok(ApiResponse::success(
+            updated_user,
+            "User updated successfully",
+            StatusCode::OK,
+        ));
+    } else if result == 0 {
+        return Err(ApiError::Custom("User not found on update".to_string()));
     }
+
+    Err(ApiError::Custom("Unexpected update count".to_string()))
 }
 
 /// **Delete User**
 pub async fn delete_user(
     State(db): State<Arc<Mutex<Client>>>,
     Path(id): Path<Uuid>,
-) -> (StatusCode, Json<ApiResponse<String>>) {
+) -> Result<impl IntoResponse, ApiError> {
     let client = db.lock().await;
 
     let stmt = format!("DELETE FROM {} WHERE id = $1", TABLE);
-    let result = client.execute(&stmt, &[&id]).await;
+    let result = client
+        .execute(&stmt, &[&id])
+        .await
+        .map_err(ApiError::from)?;
 
-    match result {
-        Ok(1) => ApiResponse::success(id.to_string(), "User deleted successfully", StatusCode::OK),
-        Ok(0) => ApiResponse::error(
-            "User not found",
-            StatusCode::NOT_FOUND,
-            4,
-            ApiError::Custom("User not found on delete".to_string()),
-        ),
-        Ok(n) => ApiResponse::error(
-            &format!("Unexpected delete count: {}", n),
-            StatusCode::INTERNAL_SERVER_ERROR,
-            6,
-            ApiError::Custom("Unexpected Error".to_string()),
-        ), // Handles cases where more than 1 row is affected (shouldn't happen)
-        Err(error) => ApiResponse::error(
-            "Failed to delete user",
-            StatusCode::INTERNAL_SERVER_ERROR,
-            5,
-            ApiError::Database(error),
-        ),
+    if result == 1 {
+        return Ok(ApiResponse::success(
+            id.to_string(),
+            "User deleted successfully",
+            StatusCode::OK,
+        ));
+    } else if result == 0 {
+        return Err(ApiError::Custom("User not found".to_string()));
     }
+
+    Err(ApiError::Custom("Unexpected delete count".to_string()))
 }
