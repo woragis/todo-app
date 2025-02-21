@@ -1,97 +1,127 @@
-use std::sync::Arc;
+use std::{str::FromStr, sync::Arc};
 
 use crate::{
     models::todo::{CreateTodo, Todo, UpdateTodo},
-    utils::response::{ApiError, ApiResponse},
+    utils::{
+        jwt::{extract_token, validate_jwt},
+        response::{ApiError, ApiResponse},
+    },
 };
 use axum::{
     extract::{Path, State},
-    http::StatusCode,
+    http::{HeaderMap, StatusCode},
+    response::IntoResponse,
     Json,
 };
+use axum_extra::{headers::{authorization::Bearer, Authorization}, TypedHeader};
 use tokio::sync::Mutex;
 use tokio_postgres::Client;
 use uuid::Uuid;
 
 static TABLE: &str = "todos";
-static FIELDS: &str = "title, description, completed";
-static UPDATE_FIELDS: &str = "title = $1, description = $2, completed = $3";
-static FIELDS_INPUT: &str = "$1, $2, $3";
+static FIELDS: &str = "title, description, completed, author_id";
+static UPDATE_FIELDS: &str = "title = $1, description = $2, completed = $3, author_id = $4";
+static FIELDS_INPUT: &str = "$1, $2, $3, $4";
 
 /// **Create Todo**
 pub async fn create_todo(
     State(db): State<Arc<Mutex<Client>>>,
     Json(payload): Json<CreateTodo>,
-) -> (StatusCode, Json<ApiResponse<Todo>>) {
+    // TypedHeader(authorization): TypedHeader<Authorization<Bearer>>,
+) -> Result<impl IntoResponse, ApiError> {
     let client = db.lock().await;
+
+    // Extract token, returning an error if extraction fails
+    // let token = extract_token(&headers).map_err(ApiError::from)?;
+    // println!("authorization header: '{}'", authorization.token());
+
+    // Extract token claims, returning an error if extraction fails
+    // let claims = validate_jwt(&token).map_err(ApiError::from)?;
+
+    // let user_id = claims.sub;
+    let user_id = "oi".to_owned();
 
     let stmt = format!(
         "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
         TABLE, FIELDS, FIELDS_INPUT
     );
-    let result = client
-        .query_one(&stmt, &[&payload.title, &payload.description, &false])
-        .await;
 
-    match result {
-        Ok(row) => {
-            let todo = Todo::from_row(&row);
-            ApiResponse::success(todo, "Todo created successfully", StatusCode::CREATED)
-        }
-        Err(error) => ApiResponse::error(
-            "Failed to create todo",
-            StatusCode::INTERNAL_SERVER_ERROR,
-            1,
-            ApiError::Database(error),
-        ),
-    }
+    let row = client
+        .query_one(
+            &stmt,
+            &[&payload.title, &payload.description, &false, &user_id],
+        )
+        .await
+        .map_err(ApiError::from)?;
+
+    let todo = Todo::from_row(&row);
+    Ok(ApiResponse::success(
+        todo,
+        "Todo created successfully",
+        StatusCode::CREATED,
+    ))
 }
 
 /// **Read Todo**
 pub async fn get_todo(
     State(db): State<Arc<Mutex<Client>>>,
     Path(id): Path<Uuid>,
-) -> (StatusCode, Json<ApiResponse<Todo>>) {
+    TypedHeader(authorization): TypedHeader<Authorization<Bearer>>,
+) -> Result<impl IntoResponse, ApiError> {
     let client = db.lock().await;
 
-    let stmt = format!("SELECT * FROM {} WHERE id = $1", TABLE);
-    let row = client.query_one(&stmt, &[&id]).await;
+    // Extract token, returning an error if extraction fails
+    // let token = extract_token(&headers).map_err(ApiError::from)?;
+    println!("authorization header: '{}'", authorization.token());
 
-    match row {
-        Ok(row) => {
-            let todo = Todo::from_row(&row);
-            ApiResponse::success(todo, "Todo retrieved successfully", StatusCode::OK)
-        }
-        Err(error) => ApiResponse::error(
-            "Todo not found",
-            StatusCode::NOT_FOUND,
-            2,
-            ApiError::Database(error),
-        ),
-    }
+    // Extract token claims, returning an error if extraction fails
+    // let claims = validate_jwt(&token).map_err(ApiError::from)?;
+
+    let user_id = "oi".to_owned();
+
+    let stmt = format!("SELECT * FROM {} WHERE id = $1 AND author_id = $2", TABLE);
+    let row = client
+        .query_one(&stmt, &[&id, &user_id])
+        .await
+        .map_err(ApiError::from)?;
+
+    let todo = Todo::from_row(&row);
+    Ok(ApiResponse::success(
+        todo,
+        "Todo retrieved successfully",
+        StatusCode::OK,
+    ))
 }
 
 /// **Read Todos**
 pub async fn get_todos(
     State(db): State<Arc<Mutex<Client>>>,
-) -> (StatusCode, Json<ApiResponse<Vec<Todo>>>) {
+    TypedHeader(authorization): TypedHeader<Authorization<Bearer>>,
+) -> Result<impl IntoResponse, ApiError> {
     let client = db.lock().await;
 
-    let stmt = format!("SELECT * FROM {}", TABLE);
-    let rows = client.query(&stmt, &[]).await;
 
-    match rows {
-        Ok(rows) => {
-            let todos = rows.iter().map(|row| Todo::from_row(row)).collect();
-            ApiResponse::success(todos, "Todos retrieved successfully", StatusCode::OK)
-        }
-        Err(error) => ApiResponse::error(
-            "Failed to retrieve todos",
-            StatusCode::INTERNAL_SERVER_ERROR,
-            3,
-            ApiError::Database(error),
-        ),
-    }
+    // // Extract token, returning an error if extraction fails
+    // let token = extract_token(&headers).map_err(ApiError::from)?;
+    println!("authorization header: '{}'", authorization.token());
+
+    // // Extract token claims, returning an error if extraction fails
+    // let claims = validate_jwt(&token).map_err(ApiError::from)?;
+
+    let user_id = "oi".to_owned();
+
+    let stmt = format!("SELECT * FROM {} WHERE author_id = $1", TABLE);
+    let rows = client
+        .query(&stmt, &[&user_id])
+        .await
+        .map_err(ApiError::from)?;
+
+    let todos: Vec<Todo> = rows.iter().map(|row| Todo::from_row(row)).collect();
+    Ok(ApiResponse::success(
+        todos,
+        "Todos retrieved successfully",
+        StatusCode::OK,
+    ))
 }
 
 /// **Update Todo**
@@ -99,10 +129,22 @@ pub async fn update_todo(
     State(db): State<Arc<Mutex<Client>>>,
     Path(id): Path<Uuid>,
     Json(payload): Json<UpdateTodo>,
-) -> (StatusCode, Json<ApiResponse<Todo>>) {
+    // TypedHeader(authorization): TypedHeader<Authorization<Bearer>>,
+) -> Result<impl IntoResponse, ApiError> {
     let client = db.lock().await;
 
-    let stmt = format!("UPDATE {} SET {} WHERE id = $4", TABLE, UPDATE_FIELDS);
+    // // Extract token, returning an error if extraction fails
+    // let token = extract_token(&headers).map_err(ApiError::from)?;
+
+    // // Extract token claims, returning an error if extraction fails
+    // let claims = validate_jwt(&token).map_err(ApiError::from)?;
+
+    let user_id = "oi".to_owned();
+
+    let stmt = format!(
+        "UPDATE {} SET {} WHERE id = $5 AND author_id = $4",
+        TABLE, UPDATE_FIELDS
+    );
     let result = client
         .execute(
             &stmt,
@@ -110,69 +152,65 @@ pub async fn update_todo(
                 &payload.title,
                 &payload.description,
                 &payload.completed,
+                &user_id,
                 &id,
             ],
         )
-        .await;
+        .await
+        .map_err(ApiError::from)?;
 
-    let updated_todo = Todo {
-        id: id,
-        title: payload.title,
-        description: payload.description,
-        completed: payload.completed,
-    };
-    match result {
-        Ok(1) => ApiResponse::success(updated_todo, "Todo updated successfully", StatusCode::OK),
-        Ok(0) => ApiResponse::error(
-            "Todo not found",
-            StatusCode::NOT_FOUND,
-            4,
-            ApiError::Custom("Todo not found on update".to_string()),
-        ),
-        Ok(n) => ApiResponse::error(
-            &format!("Unexpected update count: {}", n),
-            StatusCode::INTERNAL_SERVER_ERROR,
-            6,
-            ApiError::Custom("Unexpected Error".to_string()),
-        ), // Handles cases where more than 1 row is affected (shouldn't happen)
-        Err(error) => ApiResponse::error(
-            "Failed to update todo",
-            StatusCode::INTERNAL_SERVER_ERROR,
-            5,
-            ApiError::Database(error),
-        ),
+    if result == 1 {
+        let updated_todo = Todo {
+            id,
+            title: payload.title,
+            description: payload.description,
+            completed: payload.completed,
+            author_id: Uuid::from_str(&user_id).map_err(ApiError::from)?,
+        };
+        return Ok(ApiResponse::success(
+            updated_todo,
+            "Todo updated successfully",
+            StatusCode::OK,
+        ));
+    } else if result == 0 {
+        return Err(ApiError::Custom("Todo not found on update".to_string()));
     }
+
+    Err(ApiError::Custom("Unexpected update count".to_string()))
 }
 
 /// **Delete Todo**
 pub async fn delete_todo(
     State(db): State<Arc<Mutex<Client>>>,
     Path(id): Path<Uuid>,
-) -> (StatusCode, Json<ApiResponse<String>>) {
+    TypedHeader(authorization): TypedHeader<Authorization<Bearer>>,
+) -> Result<impl IntoResponse, ApiError> {
     let client = db.lock().await;
 
-    let stmt = format!("DELETE FROM {} WHERE id = $1", TABLE);
-    let result = client.execute(&stmt, &[&id]).await;
+    // Extract token, returning an error if extraction fails
+    // let token = extract_token(&headers).map_err(ApiError::from)?;
 
-    match result {
-        Ok(1) => ApiResponse::success(id.to_string(), "Todo deleted successfully", StatusCode::OK),
-        Ok(0) => ApiResponse::error(
-            "Todo not found",
-            StatusCode::NOT_FOUND,
-            4,
-            ApiError::Custom("Todo not found on update".to_string()),
-        ),
-        Ok(n) => ApiResponse::error(
-            &format!("Unexpected update count: {}", n),
-            StatusCode::INTERNAL_SERVER_ERROR,
-            6,
-            ApiError::Custom("Unexpected Error".to_string()),
-        ), // Handles cases where more than 1 row is affected (shouldn't happen)
-        Err(error) => ApiResponse::error(
-            "Failed to update todo",
-            StatusCode::INTERNAL_SERVER_ERROR,
-            5,
-            ApiError::Database(error),
-        ),
+    // Extract token claims, returning an error if extraction fails
+    // let claims = validate_jwt(&token).map_err(ApiError::from)?;
+
+    // let user_id = claims.sub;
+    let user_id = "oi".to_owned();
+
+    let stmt = format!("DELETE FROM {} WHERE id = $1 AND author_id = $2", TABLE);
+    let result = client
+        .execute(&stmt, &[&id, &user_id])
+        .await
+        .map_err(ApiError::from)?;
+
+    if result == 1 {
+        return Ok(ApiResponse::success(
+            id.to_string(),
+            "Todo deleted successfully",
+            StatusCode::OK,
+        ));
+    } else if result == 0 {
+        return Err(ApiError::Custom("Todo not found".to_string()));
     }
+
+    Err(ApiError::Custom("Unexpected delete count".to_string()))
 }
