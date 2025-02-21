@@ -72,7 +72,48 @@ pub async fn register(
 ) -> Result<HttpResponse, ApiError> {
     println!("Register request received for email: {}", payload.email);
 
-    let email_exists = test_email(&client, payload.email.clone()).await;
+    match test_email(&client, payload.email.clone()).await {
+        Ok(None) => {
+            // test if password is right
+            // with bcrypt
+            let client = client.lock().await;
+
+            let stmt = format!(
+                "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
+                TABLE, FIELDS, FIELDS_INPUT
+            );
+
+            let row = client
+                .query_one(&stmt, &[&payload.name, &payload.email, &payload.password])
+                .await
+                .map_err(ApiError::from)?;
+
+            let response = AuthResponse::row_to_response(row);
+            Ok(ApiResponse::success(
+                response,
+                "User registered successfully",
+                StatusCode::CREATED,
+            ))
+            // match payload.password == user.password {
+            //     false => Err(ApiError::Auth(AuthError::PasswordWrong)),
+            //     true => {
+            //         // generate token
+            //         Ok(
+            //             ApiResponse::success(
+            //                 AuthResponse::user_to_response(user),
+            //                 "Successfully logged in",
+            //                 StatusCode::OK
+            //             )
+            //         )
+            //     },
+            // }
+        },
+        Ok(Some(_)) => {
+            Err(ApiError::Auth(AuthError::EmailTaken))
+        },
+        Err(err) => return Err(err)
+    }
+
 
     // if email_exists {
     //     return Ok(ApiResponse::success(
@@ -80,25 +121,25 @@ pub async fn register(
     //     ));
     // }
 
-    let client = client.lock().await;
+    // let client = client.lock().await;
 
-    let stmt = format!(
-        "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
-        TABLE, FIELDS, FIELDS_INPUT
-    );
-    let row = client
-        .query_one(&stmt, &[&payload.name, &payload.email, &payload.password])
-        .await
-        .map_err(ApiError::from)?;
+    // let stmt = format!(
+    //     "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
+    //     TABLE, FIELDS, FIELDS_INPUT
+    // );
+    // let row = client
+    //     .query_one(&stmt, &[&payload.name, &payload.email, &payload.password])
+    //     .await
+    //     .map_err(ApiError::from)?;
 
-    println!("User registered successfully");
+    // println!("User registered successfully");
 
-    let response = AuthResponse::row_to_response(row);
-    Ok(ApiResponse::success(
-        response,
-        "User registered successfully",
-        StatusCode::CREATED,
-    ))
+    // let response = AuthResponse::row_to_response(row);
+    // Ok(ApiResponse::success(
+    //     response,
+    //     "User registered successfully",
+    //     StatusCode::CREATED,
+    // ))
 }
 
 async fn test_email(client: &Arc<Mutex<Client>>, email: String) -> Result<Option<User>, ApiError> {
