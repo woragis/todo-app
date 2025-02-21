@@ -1,14 +1,11 @@
-use axum::{
-    http::StatusCode,
-    response::{IntoResponse, Json},
-};
+use actix_web::{error::ResponseError, http::StatusCode, HttpResponse, Responder};
 use jsonwebtoken::errors::Error as JwtError;
 use serde::Serialize;
 use std::fmt;
 use tokio_postgres::Error as PgError;
 use uuid::Error as UuidError;
 
-use super::jwt::AuthError;
+use crate::utils::jwt::AuthError;
 
 // API Response
 #[derive(Serialize)]
@@ -19,7 +16,7 @@ pub struct ApiResponse<T> {
     error: u16,
 }
 
-// Define a custom error type manually
+// Define a custom error type
 #[derive(Debug)]
 pub enum ApiError {
     Jwt(JwtError),
@@ -42,9 +39,9 @@ impl fmt::Display for ApiError {
     }
 }
 
-// Map `ApiError` to HTTP status codes
-impl ApiError {
-    pub fn status_code(&self) -> StatusCode {
+// Implement Actix's `ResponseError` for `ApiError`
+impl ResponseError for ApiError {
+    fn status_code(&self) -> StatusCode {
         match self {
             ApiError::Jwt(_) => StatusCode::UNAUTHORIZED, // 401
             ApiError::Database(_) => StatusCode::INTERNAL_SERVER_ERROR, // 500
@@ -56,6 +53,27 @@ impl ApiError {
             },
             ApiError::Custom(_) => StatusCode::BAD_REQUEST, // 400
         }
+    }
+
+    fn error_response(&self) -> HttpResponse {
+        let error_number = match self {
+            ApiError::Auth(AuthError::MissingHeader) => 1001,
+            ApiError::Auth(AuthError::InvalidHeader) => 1002,
+            ApiError::Auth(AuthError::MissingBearer) => 1003,
+            ApiError::Jwt(_) => 2001,
+            ApiError::Database(_) => 3001,
+            ApiError::Uuid(_) => 4001,
+            ApiError::Custom(_) => 5001,
+        };
+
+        let response = ApiResponse::<()> {
+            status_code: self.status_code().as_u16(),
+            data: None,
+            message: self.to_string(),
+            error: error_number,
+        };
+
+        HttpResponse::build(self.status_code()).json(response)
     }
 }
 
@@ -84,53 +102,30 @@ impl From<AuthError> for ApiError {
     }
 }
 
-// Implement `IntoResponse` for `ApiError` to return JSON responses
-impl IntoResponse for ApiError {
-    fn into_response(self) -> axum::response::Response {
-        let status = self.status_code();
-
-        let error_number = match self {
-            ApiError::Auth(AuthError::MissingHeader) => 1001,
-            ApiError::Auth(AuthError::InvalidHeader) => 1002,
-            ApiError::Auth(AuthError::MissingBearer) => 1003,
-            ApiError::Jwt(_) => 2001,
-            ApiError::Database(_) => 3001,
-            ApiError::Uuid(_) => 4001,
-            ApiError::Custom(_) => 5001,
-        };
-
-        let response = ApiResponse::<()> {
-            status_code: status.as_u16(),
-            data: None,
-            message: self.to_string(),
-            error: error_number,
-        };
-
-        (status, Json(response)).into_response()
-    }
-}
-
 // Success response method for API responses
 impl<T> ApiResponse<T> {
-    pub fn success(data: T, message: &str, status: StatusCode) -> (StatusCode, Json<Self>) {
-        (
-            status,
-            Json(Self {
-                status_code: status.as_u16(),
-                data: Some(data),
-                message: message.to_string(),
-                error: 0,
-            }),
-        )
+    pub fn success(data: T, message: &str, status: StatusCode) -> HttpResponse
+    where
+        T: Serialize,
+    {
+        HttpResponse::build(status).json(Self {
+            status_code: status.as_u16(),
+            data: Some(data),
+            message: message.to_string(),
+            error: 0,
+        })
     }
 }
 
-// Implement IntoResponse for ApiResponse<T> to convert the success response to JSON
-impl<T> IntoResponse for ApiResponse<T> 
+// Implement `Responder` for `ApiResponse<T>` to convert the success response to JSON
+impl<T> Responder for ApiResponse<T>
 where
     T: Serialize,
 {
-    fn into_response(self) -> axum::response::Response {
-        (StatusCode::from_u16(self.status_code).unwrap_or(StatusCode::OK), Json(self)).into_response()
+    type Body = actix_web::body::BoxBody;
+
+    fn respond_to(self, _: &actix_web::HttpRequest) -> HttpResponse<Self::Body> {
+        HttpResponse::build(StatusCode::from_u16(self.status_code).unwrap_or(StatusCode::OK))
+            .json(self)
     }
 }
