@@ -10,7 +10,6 @@ use crate::utils::jwt::AuthError;
 // API Response
 #[derive(Serialize)]
 pub struct ApiResponse<T> {
-    status_code: u16,
     data: Option<T>,
     message: String,
     error: u16,
@@ -67,7 +66,6 @@ impl ResponseError for ApiError {
         };
 
         let response = ApiResponse::<()> {
-            status_code: self.status_code().as_u16(),
             data: None,
             message: self.to_string(),
             error: error_number,
@@ -109,7 +107,6 @@ impl<T> ApiResponse<T> {
         T: Serialize,
     {
         HttpResponse::build(status).json(Self {
-            status_code: status.as_u16(),
             data: Some(data),
             message: message.to_string(),
             error: 0,
@@ -125,7 +122,6 @@ where
     type Body = actix_web::body::BoxBody;
 
     fn respond_to(self, _: &actix_web::HttpRequest) -> HttpResponse<Self::Body> {
-        HttpResponse::build(StatusCode::from_u16(self.status_code).unwrap_or(StatusCode::OK))
-            .json(self)
+        HttpResponse::Ok().json(self)
     }
 }
