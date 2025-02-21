@@ -20,6 +20,12 @@ pub struct AuthResponse {
 }
 
 impl AuthResponse {
+    pub fn user_to_response(user: User) -> Self {
+        let user_id = user.id;
+        let token = generate_jwt(&user_id.to_string()).expect("Token error");
+        AuthResponse {user, token}
+    }
+
     pub fn row_to_response(row: Row) -> Self {
         let user_id: Uuid = row.get("id");
         let token = generate_jwt(&user_id.to_string()).expect("Token error");

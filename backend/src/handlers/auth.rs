@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use crate::{
-    models::auth::{AuthRequest, AuthResponse},
-    utils::response::{ApiError, ApiResponse},
+    models::{auth::{AuthRequest, AuthResponse}, user::User},
+    utils::{jwt::AuthError, response::{ApiError, ApiResponse}},
 };
 use actix_web::{http::StatusCode, web::{Data, Json}, HttpResponse};
 use tokio::sync::Mutex;
@@ -19,22 +19,50 @@ pub async fn login(
 ) -> Result<HttpResponse, ApiError> {
     println!("Login request received for email: {}", payload.email);
 
-    let client = client.lock().await;
+    match test_email(&client, payload.email.clone()).await {
+        Ok(Some(user)) => {
+            // test if password is right
+            // with bcrypt
+            match payload.password == user.password {
+                false => Err(ApiError::Auth(AuthError::InvalidHeader)),
+                true => {
+                    // generate token
+                    Ok(
+                        ApiResponse::success(
+                            AuthResponse::user_to_response(user),
+                            "Successfully logged in",
+                            StatusCode::OK
+                        )
+                    )
+                },
+            }
+        },
+        Ok(None) => return Err(ApiError::Auth(AuthError::InvalidHeader)),
+        Err(err) => return Err(err)
+    }
 
-    let stmt = format!("SELECT * FROM {} WHERE email = $1", TABLE);
-    let row = client
-        .query_one(&stmt, &[&payload.email])
-        .await
-        .map_err(ApiError::from)?;
+    // if !email_exists {
+    //     return Ok(ApiResponse::success(
+    //         (), "email not found", StatusCode::BAD_REQUEST
+    //     ));
+    // }
 
-    println!("User found in database");
+    // let client = client.lock().await;
 
-    let response = AuthResponse::row_to_response(row);
-    Ok(ApiResponse::success(
-        response,
-        "User logged in successfully",
-        StatusCode::OK,
-    ))
+    // let stmt = format!("SELECT * FROM {} WHERE email = $1", TABLE);
+    // let row = client
+    //     .query_one(&stmt, &[&payload.email])
+    //     .await
+    //     .map_err(ApiError::from)?;
+
+    // println!("User found in database");
+
+    // let response = AuthResponse::row_to_response(row);
+    // Ok(ApiResponse::success(
+    //     response,
+    //     "User logged in successfully",
+    //     StatusCode::OK,
+    // ))
 }
 
 /// **Register User**
@@ -43,6 +71,14 @@ pub async fn register(
     payload: Json<AuthRequest>,
 ) -> Result<HttpResponse, ApiError> {
     println!("Register request received for email: {}", payload.email);
+
+    let email_exists = test_email(&client, payload.email.clone()).await;
+
+    // if email_exists {
+    //     return Ok(ApiResponse::success(
+    //         (), "email already taken", StatusCode::BAD_REQUEST
+    //     ));
+    // }
 
     let client = client.lock().await;
 
@@ -63,4 +99,16 @@ pub async fn register(
         "User registered successfully",
         StatusCode::CREATED,
     ))
+}
+
+async fn test_email(client: &Arc<Mutex<Client>>, email: String) -> Result<Option<User>, ApiError> {
+    let client = client.lock().await;
+
+    let stmt = format!("SELECT * FROM {} WHERE email = $1", TABLE);
+
+    match client.query_opt(&stmt, &[&email]).await {
+        Ok(Some(row)) => Ok(Some(User::from_row(&row))),
+        Ok(None) => Ok(None),
+        Err(_) => Err(ApiError::Auth(AuthError::InvalidHeader)),
+    }
 }
