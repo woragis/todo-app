@@ -4,38 +4,37 @@ mod models;
 mod routes;
 mod utils;
 
-use axum::Router;
+use actix_cors::Cors;
+use actix_web::{http::header::{AUTHORIZATION, CONTENT_TYPE}, web::Data, App, HttpServer};
 use database::{db::connect, tables::create_tables};
 use routes::{auth::auth_routes, profile::profile_routes, todo::todo_routes, user::user_routes};
-use std::sync::Arc;
-use tokio::{net::TcpListener, sync::Mutex};
-use tower_http::cors::{Any, CorsLayer};
+use utils::response::ApiError;
 
 static HOST: &str = "0.0.0.0:8080";
 
-#[tokio::main]
-async fn main() {
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
     dotenvy::dotenv().ok();
-    let pool = connect().await.expect("Error in database connection");
-    let client = Arc::new(Mutex::new(pool));
-    create_tables(&client)
-        .await
-        .expect("Failed to create tables");
 
-    let cors = CorsLayer::new()
-        .allow_origin(Any)
-        .allow_methods(Any)
-        .allow_headers(Any);
+    let client = connect().await.map_err(ApiError::from)?;
+    create_tables(&client);
 
-    let app = Router::new()
-        .nest("/auth", auth_routes())
-        .nest("/profile", profile_routes())
-        .nest("/users", user_routes())
-        .nest("/todos", todo_routes())
-        .with_state(client)
-        .layer(cors);
-
-    let listener = TcpListener::bind(HOST).await.unwrap();
-    axum::serve(listener, app).await.unwrap();
-    println!("Server running on {}", HOST)
+    HttpServer::new(move || {
+        App::new()
+            .app_data(Data::new(client.clone()))
+            .wrap(
+                Cors::default()
+                    .allow_any_origin()
+                    .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
+                    .allowed_headers(vec![AUTHORIZATION, CONTENT_TYPE])
+                    .max_age(3600)
+            )
+            .service(auth_routes())
+            .service(profile_routes())
+            .service(todo_routes())
+            .service(user_routes())
+    })
+    .bind(("0.0.0.0", 8080))
+    .run()
+    .await
 }
