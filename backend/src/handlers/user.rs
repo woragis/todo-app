@@ -23,7 +23,8 @@ pub async fn create_user(
     let client = client.lock().await;
 
     let stmt = format!(
-        "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email"
+        "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
+        TABLE, FIELDS, FIELDS_INPUT
     );
 
     let row = client
@@ -54,9 +55,9 @@ pub async fn get_user(
 
     let user_id = user_id.to_string();
 
-    let stmt = "SELECT id, name, email FROM users WHERE id = $1";
+    let stmt = format!("SELECT * FROM {} WHERE id = $1", TABLE);
     let row = client
-        .query_one(stmt, &[&user_id])
+        .query_one(&stmt, &[&user_id])
         .await
         .map_err(ApiError::from)?;
 
@@ -79,9 +80,9 @@ pub async fn get_user(
 pub async fn get_users(client: web::Data<Arc<Mutex<Client>>>) -> Result<HttpResponse, ApiError> {
     let client = client.lock().await;
 
-    let stmt = "SELECT id, name, email FROM users";
+    let stmt = format!("SELECT * FROM {}", TABLE);
     let rows = client
-        .query(stmt, &[])
+        .query(&stmt, &[])
         .await
         .map_err(ApiError::from)?;
 
