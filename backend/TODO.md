@@ -2,6 +2,7 @@
 
 ## Business Logic
 
+- [x] - Change framework from axum to actix
 - [x] - Implement **JWT** on Login & Register
 - [ ] - Implement **JWT** on todos CRUD
 - [ ] - Implement **Cache** _with **REDIS** or **MEM CACHED**_
