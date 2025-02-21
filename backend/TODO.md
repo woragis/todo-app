@@ -7,6 +7,9 @@
 - [ ] - Handlers
   - [ ] - Add admin permission to CRUD TODOS and USERS
   - [ ] - Add Bcrypt to LOGIN/REGISTER handlers
+  - [ ] - Separate params
+  - [ ] - Format Imports
+- [ ] - Format Imports
 - [x] - Implement **JWT** on Login & Register
 - [x] - Implement **JWT** on todos CRUD
 - [ ] - Implement **Cache** _with **REDIS** or **MEM CACHED**_
