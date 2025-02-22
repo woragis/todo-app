@@ -39,10 +39,19 @@
 - [ ] - Format Imports
 - [x] - Implement **JWT** on Login & Register
 - [x] - Implement **JWT** on todos CRUD
-- [ ] - Implement **Cache** _with **REDIS** or **MEM CACHED**_
-- [ ] - Implement Cache for recent requests and DB queries
-- [ ] - Implement Cache for Login/Register Limit
 - [x] - Padronize **Responses**
+- [ ] - Implement **Cache** _with_ **REDIS**
+
+### Cache
+
+- [ ] - Implement Cache for recent requests and DB queries
+  - [x] - Implement cache for Todos
+    - [x] - Create
+    - [x] - GetById
+    - [x] - GetMany
+    - [x] - Update
+    - [x] - Delete
+- [ ] - Implement Cache for Login/Register Limit
 
 ## Infra
 
