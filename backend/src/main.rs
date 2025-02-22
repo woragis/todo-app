@@ -4,12 +4,12 @@ mod models;
 mod routes;
 mod utils;
 
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 use actix_cors::Cors;
-use actix_web::{http::header::{AUTHORIZATION, CONTENT_TYPE}, web::Data, App, HttpServer};
-use database::{db::connect, tables::create_tables};
-use deadpool_redis::Config;
+use actix_web::{http::header::{AUTHORIZATION, CONTENT_TYPE}, web::{get, Data}, App, HttpServer};
+use database::{cache::pool, db::connect, tables::create_tables};
+use models::rate_limiter::{index, RateLimiter};
 use routes::{auth::auth_routes, profile::profile_routes, todo::todo_routes, user::user_routes};
 use tokio::sync::Mutex;
 
@@ -20,9 +20,7 @@ static PORT: u16 = 8080;
 async fn main() -> std::io::Result<()> {
     dotenvy::dotenv().ok();
 
-    let redis_config = Config::from_url("redis://127.0.0.1");
-    let redis_pool = redis_config.create_pool(None).expect("Failed to create redis pool");
-    let redis_pool = Arc::new(redis_pool);
+    let redis_pool = Arc::new(pool());
 
     let client = connect().await.expect("Error connecting to client");
     let client = Arc::from(Mutex::from(client));
@@ -33,6 +31,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(Data::new(client.clone()))
             .app_data(Data::new(redis_pool.clone()))
+            // .app_data(Data::new(RateLimiter::new(5, Duration::from_secs(60))))
             .wrap(
                 Cors::default()
                     .allow_any_origin()
@@ -40,6 +39,7 @@ async fn main() -> std::io::Result<()> {
                     .allowed_headers(vec![AUTHORIZATION, CONTENT_TYPE])
                     .max_age(3600)
             )
+            // .route("/", get().to(index))
             .service(auth_routes())
             .service(profile_routes())
             .service(todo_routes())

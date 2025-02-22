@@ -30,7 +30,7 @@ services:
     environment:
       - DATABASE_URL=postgres://postgres:password@db:5432/todos?sslmode=disable
       - SECRET_KEY=banana
-      - REDIS_URL=redis://todos-cache:6379
+      - REDIS_URL=redis://cache:6379
     networks:
       - todos-network
 
