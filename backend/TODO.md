@@ -52,6 +52,10 @@
     - [x] - GetMany
     - [x] - Update
     - [x] - Delete
+- [x] - Implement Rate Limit
+  - [ ] - Add to all Todos handlers
+  - [ ] - Add to all Users handlers
+  - [ ] - Add to all Auth handlers
 - [ ] - Implement Cache for Login/Register Limit
 
 ## Infra
