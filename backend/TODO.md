@@ -40,6 +40,7 @@
 - [x] - Implement **JWT** on Login & Register
 - [x] - Implement **JWT** on todos CRUD
 - [x] - Padronize **Responses**
+- [ ] - Implement Logging
 - [ ] - Implement **Cache** _with_ **REDIS**
 
 ### Cache
