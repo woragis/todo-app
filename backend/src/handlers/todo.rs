@@ -60,8 +60,7 @@ pub async fn get_todo(
     let token = extract_token(&request.headers()).map_err(ApiError::from)?;
     let claims = validate_jwt(&token).map_err(ApiError::from)?;
     let id = *id;
-    let user_id_str = claims.sub;
-    let user_id = Uuid::from_str(&user_id_str).map_err(ApiError::from)?;
+    let user_id = Uuid::from_str(&claims.sub).map_err(ApiError::from)?;
 
     if let Some(todo) = Todo::from_redis(&redis_pool, id, user_id).await? {
         return Ok(ApiResponse::success(todo, "Todo retrieved from cache", StatusCode::OK));
@@ -70,7 +69,7 @@ pub async fn get_todo(
     let client = client.lock().await;
     let stmt = format!("SELECT * FROM {} WHERE id = $1 AND author_id = $2", TABLE);
     let row = client
-        .query_one(&stmt, &[&id, &user_id_str])
+        .query_one(&stmt, &[&id, &user_id])
         .await
         .map_err(ApiError::from)?;
 
@@ -88,21 +87,28 @@ pub async fn get_todo(
 /// **Read Todos**
 pub async fn get_todos(
     client: Data<Arc<Mutex<Client>>>,
+    redis_pool: Data<Arc<Pool>>,
     request: HttpRequest,
 ) -> Result<HttpResponse, ApiError> {
-    let client = client.lock().await;
-
     let token = extract_token(&request.headers()).map_err(ApiError::from)?;
     let claims = validate_jwt(&token).map_err(ApiError::from)?;
-    let user_id = claims.sub;
+    let user_id = Uuid::from_str(&claims.sub).map_err(ApiError::from)?;
 
+    let client = client.lock().await;
     let stmt = format!("SELECT * FROM {} WHERE author_id = $1", TABLE);
     let rows = client
         .query(&stmt, &[&user_id])
         .await
         .map_err(ApiError::from)?;
 
-    let todos: Vec<Todo> = rows.iter().map(|row| Todo::from_row(row)).collect();
+    let mut todos = Vec::new();
+
+    for row in rows {
+        let todo = Todo::from_row(&row);
+        todo.to_redis(&redis_pool, user_id).await?;
+        todos.push(todo);
+    }
+
     Ok(ApiResponse::success(
         todos,
         "Todos retrieved successfully",
