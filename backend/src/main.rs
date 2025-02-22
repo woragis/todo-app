@@ -22,6 +22,7 @@ async fn main() -> std::io::Result<()> {
 
     let redis_config = Config::from_url("redis://127.0.0.1");
     let redis_pool = redis_config.create_pool(None).expect("Failed to create redis pool");
+    let redis_pool = Arc::new(redis_pool);
 
     let client = connect().await.expect("Error connecting to client");
     let client = Arc::from(Mutex::from(client));
