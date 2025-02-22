@@ -1,9 +1,11 @@
 use actix_web::{error::ResponseError, http::StatusCode, HttpResponse, Responder};
 use jsonwebtoken::errors::Error as JwtError;
 use serde::Serialize;
+use serde_json::Error as SerdeJsonError;
 use std::fmt;
 use tokio_postgres::Error as PgError;
 use uuid::Error as UuidError;
+use deadpool_redis::redis::RedisError;
 
 use crate::utils::jwt::AuthError;
 
@@ -20,6 +22,8 @@ pub struct ApiResponse<T> {
 pub enum ApiError {
     Jwt(JwtError),
     Database(PgError),
+    Redis(RedisError),
+    SerdeJson(SerdeJsonError),
     Uuid(UuidError),
     Auth(AuthError),
     Custom(String),
@@ -31,6 +35,8 @@ impl fmt::Display for ApiError {
         match self {
             ApiError::Jwt(e) => write!(f, "JWT error: {}", e),
             ApiError::Database(e) => write!(f, "Database error: {}", e),
+            ApiError::Redis(e) => write!(f, "Redis error: {}", e),
+            ApiError::SerdeJson(e) => write!(f, "Serialization error: {}", e),
             ApiError::Uuid(e) => write!(f, "UUID error: {}", e),
             ApiError::Auth(e) => write!(f, "Auth error: {}", e),
             ApiError::Custom(msg) => write!(f, "Custom error: {}", msg),
@@ -44,6 +50,8 @@ impl ResponseError for ApiError {
         match self {
             ApiError::Jwt(_) => StatusCode::UNAUTHORIZED, // 401
             ApiError::Database(_) => StatusCode::INTERNAL_SERVER_ERROR, // 500
+            ApiError::Redis(_) => StatusCode::INTERNAL_SERVER_ERROR, // 500
+            ApiError::SerdeJson(_) => StatusCode::BAD_REQUEST, // 400
             ApiError::Uuid(_) => StatusCode::BAD_REQUEST, // 400
             ApiError::Auth(auth_error) => match auth_error {
                 AuthError::MissingHeader => StatusCode::UNAUTHORIZED, // 401
@@ -67,6 +75,8 @@ impl ResponseError for ApiError {
             ApiError::Auth(AuthError::EmailWrong) => 1006,
             ApiError::Jwt(_) => 2001,
             ApiError::Database(_) => 3001,
+            ApiError::Redis(_) => 3002,
+            ApiError::SerdeJson(_) => 4002,
             ApiError::Uuid(_) => 4001,
             ApiError::Custom(_) => 5001,
         };
@@ -91,6 +101,18 @@ impl From<JwtError> for ApiError {
 impl From<PgError> for ApiError {
     fn from(err: PgError) -> Self {
         ApiError::Database(err)
+    }
+}
+
+impl From<RedisError> for ApiError {
+    fn from(err: RedisError) -> Self {
+        ApiError::Redis(err)
+    }
+}
+
+impl From<SerdeJsonError> for ApiError {
+    fn from(err: SerdeJsonError) -> Self {
+        ApiError::SerdeJson(err)
     }
 }
 
