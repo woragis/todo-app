@@ -20,15 +20,15 @@ static FIELDS_INPUT: &str = "$1, $2, $3, $4";
 /// **Create Todo**
 pub async fn create_todo(
     client: Data<Arc<Mutex<Client>>>,
+    redis_pool: Data<Arc<Pool>>,
     payload: Json<CreateTodo>,
     request: HttpRequest,
 ) -> Result<HttpResponse, ApiError> {
-    let client = client.lock().await;
-
     let token = extract_token(&request.headers()).map_err(ApiError::from)?;
     let claims = validate_jwt(&token).map_err(ApiError::from)?;
-    let user_id = claims.sub;
+    let user_id = Uuid::from_str(&claims.sub).map_err(ApiError::from)?;
 
+    let client = client.lock().await;
     let stmt = format!(
         "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
         TABLE, FIELDS, FIELDS_INPUT
@@ -43,12 +43,17 @@ pub async fn create_todo(
         .map_err(ApiError::from)?;
 
     let todo = Todo::from_row(&row);
+
+    // ✅ Store new todo in Redis
+    todo.to_redis(&redis_pool, user_id).await?;
+
     Ok(ApiResponse::success(
         todo,
         "Todo created successfully",
         StatusCode::CREATED,
     ))
 }
+
 
 /// **Read Todo**
 pub async fn get_todo(
@@ -119,16 +124,16 @@ pub async fn get_todos(
 /// **Update Todo**
 pub async fn update_todo(
     client: Data<Arc<Mutex<Client>>>,
+    redis_pool: Data<Arc<Pool>>,
     payload: Json<UpdateTodo>,
     request: HttpRequest,
     id: Path<Uuid>,
 ) -> Result<HttpResponse, ApiError> {
-    let client = client.lock().await;
-
     let token = extract_token(&request.headers()).map_err(ApiError::from)?;
     let claims = validate_jwt(&token).map_err(ApiError::from)?;
-    let user_id = claims.sub;
+    let user_id = Uuid::from_str(&claims.sub).map_err(ApiError::from)?;
 
+    let client = client.lock().await;
     let stmt = format!(
         "UPDATE {} SET {} WHERE id = $5 AND author_id = $4",
         TABLE, UPDATE_FIELDS
@@ -153,8 +158,15 @@ pub async fn update_todo(
             title: payload.title.to_owned(),
             description: payload.description.to_owned(),
             completed: payload.completed,
-            author_id: Uuid::from_str(&user_id).map_err(ApiError::from)?,
+            author_id: user_id,
         };
+
+        // ✅ Remove old cache
+        Todo::delete_from_redis(&redis_pool, *id, user_id).await?;
+
+        // ✅ Store updated todo in cache
+        updated_todo.to_redis(&redis_pool, user_id).await?;
+
         return Ok(ApiResponse::success(
             updated_todo,
             "Todo updated successfully",
@@ -170,15 +182,15 @@ pub async fn update_todo(
 /// **Delete Todo**
 pub async fn delete_todo(
     client: Data<Arc<Mutex<Client>>>,
+    redis_pool: Data<Arc<Pool>>,
     request: HttpRequest,
-    id: Path<Uuid>
+    id: Path<Uuid>,
 ) -> Result<HttpResponse, ApiError> {
-    let client = client.lock().await;
-
     let token = extract_token(&request.headers()).map_err(ApiError::from)?;
     let claims = validate_jwt(&token).map_err(ApiError::from)?;
-    let user_id = claims.sub;
+    let user_id = Uuid::from_str(&claims.sub).map_err(ApiError::from)?;
 
+    let client = client.lock().await;
     let stmt = format!("DELETE FROM {} WHERE id = $1 AND author_id = $2", TABLE);
     let result = client
         .execute(&stmt, &[&*id, &user_id])
@@ -186,6 +198,9 @@ pub async fn delete_todo(
         .map_err(ApiError::from)?;
 
     if result == 1 {
+        // ✅ Remove from cache
+        Todo::delete_from_redis(&redis_pool, *id, user_id).await?;
+
         return Ok(ApiResponse::success(
             id.to_string(),
             "Todo deleted successfully",
