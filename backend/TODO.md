@@ -1,5 +1,31 @@
 # Backend
 
+## Documentation
+
+- [ ] - Comments
+  - [ ] - Add Comments to Handlers
+    - [ ] - Auth
+    - [ ] - Profile
+    - [ ] - Todo
+    - [ ] - User
+  - [ ] - Add Comments to Models
+    - [ ] - Auth
+    - [ ] - Jwt
+    - [ ] - Todo
+    - [ ] - User
+  - [ ] - Add Comments to Database
+    - [ ] - Database Connection
+    - [ ] - Database Tables
+  - [ ] - Add Comments to Routes
+    - [ ] - Auth
+    - [ ] - Profile
+    - [ ] - Todo
+    - [ ] - User
+  - [ ] - Add Comments to Utils
+    - [ ] - Jwt
+    - [ ] - Response
+      - [ ] - Separate response models from utils
+
 ## Business Logic
 
 - [x] - Change framework from axum to actix
