@@ -1,6 +1,9 @@
+use deadpool_redis::{redis::AsyncCommands, Pool};
 use serde::{Deserialize, Serialize};
 use tokio_postgres::Row;
 use uuid::Uuid;
+
+use crate::utils::response::ApiError;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Todo {
@@ -32,6 +35,39 @@ impl Todo {
             description: row.get("description"),
             completed: row.get("completed"),
             author_id: row.get("author_id"),
+        }
+    }
+
+    pub fn from_str(todo_str: &str) -> Result<Self, serde_json::Error> {
+        serde_json::from_str(todo_str)
+    }
+
+    pub fn to_str(&self) -> Result<String, serde_json::Error> {
+        serde_json::to_string(self)
+    }
+
+    /// Store the `Todo` in Redis with `todo:<id>:author_id:<user_id>` as the key.
+    pub async fn to_redis(&self, redis_pool: &Pool, author_id: Uuid) -> Result<(), ApiError> {
+        let mut conn = redis_pool.get().await.expect("msg");
+        let key = format!("todo:{}:author_id:{}", self.id, author_id);
+
+        let value = self.to_str().map_err(ApiError::from)?;
+        
+        // cmd("SET").arg(&[&key, &value]);
+        conn.set_ex(key, value, 3600).await.map_err(ApiError::from)
+    }
+
+    /// Retrieve a `Todo` from Redis by ID.
+    pub async fn from_redis(redis_pool: &Pool, id: Uuid, author_id: Uuid) -> Result<Option<Self>, ApiError> {
+        let mut conn = redis_pool.get().await.expect("msg");
+        let key = format!("todo:{}:author_id:{}", id, author_id);
+        let result: Option<String> = conn.get(&key).await?;
+
+        if let Some(todo_str) = result {
+            let todo = Todo::from_str(&todo_str).map_err(ApiError::from)?;
+            Ok(Some(todo))
+        } else {
+            Ok(None)
         }
     }
 }
