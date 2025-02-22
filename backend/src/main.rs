@@ -9,6 +9,7 @@ use std::sync::Arc;
 use actix_cors::Cors;
 use actix_web::{http::header::{AUTHORIZATION, CONTENT_TYPE}, web::Data, App, HttpServer};
 use database::{db::connect, tables::create_tables};
+use deadpool_redis::Config;
 use routes::{auth::auth_routes, profile::profile_routes, todo::todo_routes, user::user_routes};
 use tokio::sync::Mutex;
 
@@ -19,6 +20,9 @@ static PORT: u16 = 8080;
 async fn main() -> std::io::Result<()> {
     dotenvy::dotenv().ok();
 
+    let redis_config = Config::from_url("redis://127.0.0.1");
+    let redis_pool = redis_config.create_pool(None).expect("Failed to create redis pool");
+
     let client = connect().await.expect("Error connecting to client");
     let client = Arc::from(Mutex::from(client));
 
@@ -27,6 +31,7 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(move || {
         App::new()
             .app_data(Data::new(client.clone()))
+            .app_data(Data::new(redis_pool.clone()))
             .wrap(
                 Cors::default()
                     .allow_any_origin()
