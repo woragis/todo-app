@@ -1,15 +1,17 @@
 mod database;
 mod handlers;
+mod middlewares;
 mod models;
 mod routes;
 mod utils;
 
-use std::{sync::Arc, time::Duration};
+use std::sync::Arc;
 
 use actix_cors::Cors;
 use actix_web::{http::header::{AUTHORIZATION, CONTENT_TYPE}, web::{get, Data}, App, HttpServer};
 use database::{cache::pool, db::connect, tables::create_tables};
-use models::rate_limiter::{index, RateLimiter};
+use middlewares::rate_limiter::rate_limiter;
+use models::rate_limiter::index;
 use routes::{auth::auth_routes, profile::profile_routes, todo::todo_routes, user::user_routes};
 use tokio::sync::Mutex;
 
@@ -31,7 +33,7 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .app_data(Data::new(client.clone()))
             .app_data(Data::new(redis_pool.clone()))
-            // .app_data(Data::new(RateLimiter::new(5, Duration::from_secs(60))))
+            .app_data(Data::new(rate_limiter()))
             .wrap(
                 Cors::default()
                     .allow_any_origin()
@@ -39,7 +41,7 @@ async fn main() -> std::io::Result<()> {
                     .allowed_headers(vec![AUTHORIZATION, CONTENT_TYPE])
                     .max_age(3600)
             )
-            // .route("/", get().to(index))
+            .route("/", get().to(index))
             .service(auth_routes())
             .service(profile_routes())
             .service(todo_routes())

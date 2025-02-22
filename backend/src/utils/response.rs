@@ -27,6 +27,7 @@ pub enum ApiError {
     SerdeJson(SerdeJsonError),
     Uuid(UuidError),
     Auth(AuthError),
+    TooManyRequests,
     Custom(String),
 }
 
@@ -41,6 +42,7 @@ impl fmt::Display for ApiError {
             ApiError::SerdeJson(e) => write!(f, "Serialization error: {}", e),
             ApiError::Uuid(e) => write!(f, "UUID error: {}", e),
             ApiError::Auth(e) => write!(f, "Auth error: {}", e),
+            ApiError::TooManyRequests => write!(f, "Too many requests"),
             ApiError::Custom(msg) => write!(f, "Custom error: {}", msg),
         }
     }
@@ -64,6 +66,7 @@ impl ResponseError for ApiError {
                 AuthError::EmailTaken => StatusCode::BAD_REQUEST,  // 400
                 AuthError::EmailWrong => StatusCode::BAD_REQUEST,  // 400
             },
+            ApiError::TooManyRequests => StatusCode::TOO_MANY_REQUESTS, // 429
             ApiError::Custom(_) => StatusCode::BAD_REQUEST, // 400
         }
     }
@@ -82,6 +85,7 @@ impl ResponseError for ApiError {
             ApiError::RedisPool(_) => 3003,
             ApiError::SerdeJson(_) => 4002,
             ApiError::Uuid(_) => 4001,
+            ApiError::TooManyRequests => 4290,
             ApiError::Custom(_) => 5001,
         };
 
