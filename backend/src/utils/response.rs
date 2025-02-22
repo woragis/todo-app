@@ -5,7 +5,7 @@ use serde_json::Error as SerdeJsonError;
 use std::fmt;
 use tokio_postgres::Error as PgError;
 use uuid::Error as UuidError;
-use deadpool_redis::redis::RedisError;
+use deadpool_redis::{redis::RedisError, PoolError};
 
 use crate::utils::jwt::AuthError;
 
@@ -23,6 +23,7 @@ pub enum ApiError {
     Jwt(JwtError),
     Database(PgError),
     Redis(RedisError),
+    RedisPool(PoolError),
     SerdeJson(SerdeJsonError),
     Uuid(UuidError),
     Auth(AuthError),
@@ -36,6 +37,7 @@ impl fmt::Display for ApiError {
             ApiError::Jwt(e) => write!(f, "JWT error: {}", e),
             ApiError::Database(e) => write!(f, "Database error: {}", e),
             ApiError::Redis(e) => write!(f, "Redis error: {}", e),
+            ApiError::RedisPool(e) => write!(f, "Redis pool error: {}", e),
             ApiError::SerdeJson(e) => write!(f, "Serialization error: {}", e),
             ApiError::Uuid(e) => write!(f, "UUID error: {}", e),
             ApiError::Auth(e) => write!(f, "Auth error: {}", e),
@@ -51,6 +53,7 @@ impl ResponseError for ApiError {
             ApiError::Jwt(_) => StatusCode::UNAUTHORIZED, // 401
             ApiError::Database(_) => StatusCode::INTERNAL_SERVER_ERROR, // 500
             ApiError::Redis(_) => StatusCode::INTERNAL_SERVER_ERROR, // 500
+            ApiError::RedisPool(_) => StatusCode::INTERNAL_SERVER_ERROR, // 500
             ApiError::SerdeJson(_) => StatusCode::BAD_REQUEST, // 400
             ApiError::Uuid(_) => StatusCode::BAD_REQUEST, // 400
             ApiError::Auth(auth_error) => match auth_error {
@@ -76,6 +79,7 @@ impl ResponseError for ApiError {
             ApiError::Jwt(_) => 2001,
             ApiError::Database(_) => 3001,
             ApiError::Redis(_) => 3002,
+            ApiError::RedisPool(_) => 3003,
             ApiError::SerdeJson(_) => 4002,
             ApiError::Uuid(_) => 4001,
             ApiError::Custom(_) => 5001,
@@ -107,6 +111,12 @@ impl From<PgError> for ApiError {
 impl From<RedisError> for ApiError {
     fn from(err: RedisError) -> Self {
         ApiError::Redis(err)
+    }
+}
+
+impl From<PoolError> for ApiError {
+    fn from(err: PoolError) -> Self {
+        ApiError::RedisPool(err)
     }
 }
 

@@ -48,7 +48,7 @@ impl Todo {
 
     /// Store the `Todo` in Redis with `todo:<id>:author_id:<user_id>` as the key.
     pub async fn to_redis(&self, redis_pool: &Pool, user_id: Uuid) -> Result<(), ApiError> {
-        let mut conn = redis_pool.get().await.expect("msg");
+        let mut conn = redis_pool.get().await.map_err(ApiError::from)?;
         let key = format!("todo:{}:author_id:{}", self.id, user_id);
 
         let value = self.to_str().map_err(ApiError::from)?;
@@ -59,7 +59,7 @@ impl Todo {
 
     /// Retrieve a `Todo` from Redis by ID.
     pub async fn from_redis(redis_pool: &Pool, id: Uuid, user_id: Uuid) -> Result<Option<Self>, ApiError> {
-        let mut conn = redis_pool.get().await.expect("msg");
+        let mut conn = redis_pool.get().await.map_err(ApiError::from)?;
         let key = format!("todo:{}:author_id:{}", id, user_id);
         let result: Option<String> = conn.get(&key).await?;
 
@@ -73,7 +73,7 @@ impl Todo {
 
     /// **Delete a `Todo` from Redis by ID**
     pub async fn delete_from_redis(redis_pool: &Pool, id: Uuid, user_id: Uuid) -> Result<(), ApiError> {
-        let mut conn = redis_pool.get().await.expect("msg");
+        let mut conn = redis_pool.get().await.map_err(ApiError::from)?;
         let key = format!("todo:{}:author_id:{}", id, user_id);
 
         // Execute the DEL command to remove the key from Redis
