@@ -32,6 +32,8 @@
 - [ ] - Add roles to users model/table
 - [ ] - Handlers
   - [ ] - Add admin permission to CRUD TODOS and USERS
+  - [x] - Add regex validation to REGISTER handler
+  - [ ] - Add regex validation to profile update handler
   - [ ] - Add Bcrypt to LOGIN/REGISTER handlers
   - [ ] - Separate params
   - [ ] - Format Imports
