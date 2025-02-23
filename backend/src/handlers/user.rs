@@ -127,9 +127,6 @@ pub async fn update_user(
             StatusCode::OK,
         ),
         _ => panic!("Error in update user")
-        // Ok(_) => ApiError::Custom("User not found".to_string()),
-        // Err(e) => ApiError::Custom("o".to_string())
-        // _ => ApiError::Custom("Unexpected delete count".to_string()),
     }
 }
 /// **Delete User**
@@ -154,7 +151,5 @@ pub async fn delete_user(
             StatusCode::OK,
         ),
         _ => panic!("Error in update user")
-        // Ok(0) => ApiError::Custom("User not found".to_string()),
-        // _ => ApiError::Custom("Unexpected delete count".to_string()),
     }
 }

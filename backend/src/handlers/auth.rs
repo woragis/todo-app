@@ -40,29 +40,6 @@ pub async fn login(
         Ok(None) => return Err(ApiError::Auth(AuthError::EmailWrong)),
         Err(err) => return Err(err)
     }
-
-    // if !email_exists {
-    //     return Ok(ApiResponse::success(
-    //         (), "email not found", StatusCode::BAD_REQUEST
-    //     ));
-    // }
-
-    // let client = client.lock().await;
-
-    // let stmt = format!("SELECT * FROM {} WHERE email = $1", TABLE);
-    // let row = client
-    //     .query_one(&stmt, &[&payload.email])
-    //     .await
-    //     .map_err(ApiError::from)?;
-
-    // println!("User found in database");
-
-    // let response = AuthResponse::row_to_response(row);
-    // Ok(ApiResponse::success(
-    //     response,
-    //     "User logged in successfully",
-    //     StatusCode::OK,
-    // ))
 }
 
 /// **Register User**
@@ -94,52 +71,12 @@ pub async fn register(
                 "User registered successfully",
                 StatusCode::CREATED,
             ))
-            // match payload.password == user.password {
-            //     false => Err(ApiError::Auth(AuthError::PasswordWrong)),
-            //     true => {
-            //         // generate token
-            //         Ok(
-            //             ApiResponse::success(
-            //                 AuthResponse::user_to_response(user),
-            //                 "Successfully logged in",
-            //                 StatusCode::OK
-            //             )
-            //         )
-            //     },
-            // }
         },
         Ok(Some(_)) => {
             Err(ApiError::Auth(AuthError::EmailTaken))
         },
         Err(err) => return Err(err)
     }
-
-
-    // if email_exists {
-    //     return Ok(ApiResponse::success(
-    //         (), "email already taken", StatusCode::BAD_REQUEST
-    //     ));
-    // }
-
-    // let client = client.lock().await;
-
-    // let stmt = format!(
-    //     "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
-    //     TABLE, FIELDS, FIELDS_INPUT
-    // );
-    // let row = client
-    //     .query_one(&stmt, &[&payload.name, &payload.email, &payload.password])
-    //     .await
-    //     .map_err(ApiError::from)?;
-
-    // println!("User registered successfully");
-
-    // let response = AuthResponse::row_to_response(row);
-    // Ok(ApiResponse::success(
-    //     response,
-    //     "User registered successfully",
-    //     StatusCode::CREATED,
-    // ))
 }
 
 async fn test_email(client: &Arc<Mutex<Client>>, email: String) -> Result<Option<User>, ApiError> {
