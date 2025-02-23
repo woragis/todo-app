@@ -13,6 +13,7 @@ use actix_web::{
     web::{Data, Json},
     HttpResponse,
 };
+use regex::Regex;
 use tokio::sync::Mutex;
 use tokio_postgres::Client;
 
@@ -57,6 +58,33 @@ pub async fn register(
 
     match test_email(&client, payload.email.clone()).await {
         Ok(None) => {
+            // regex validations            
+
+            // regex email validation
+            let email_regex = Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+                .map_err(|e| ApiError::RegexValidationError(format!("{}", e)))?;
+
+            match email_regex.is_match(&payload.email) {
+                false => return Err(ApiError::RegexValidationError("email invalid".to_string())),
+                true => (),
+            }
+
+
+            // regex password validation
+            // let password_regex = Regex::new(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$")
+            //     .map_err(|e| ApiError::RegexValidationError(format!("{}", e)))?;
+            // let password_regex = Regex::new(r"^[A-Za-z0-9!@#$%^&*()_\-]{8,}$")
+            //     .map_err(|e| ApiError::RegexValidationError(format!("{}", e)))?;
+            // let password_regex = Regex::new(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-]).{8,}$")
+            //     .map_err(|e| ApiError::RegexValidationError(format!("{}", e)))?;
+            let password_regex = Regex::new(r"^[A-Za-z0-9!@#$%^&*()_\-]{8,}$")
+                .map_err(|e| ApiError::RegexValidationError(format!("{}", e)))?;
+
+            match password_regex.is_match(&payload.password) {
+                false => return Err(ApiError::RegexValidationError("password invalid".to_string())),
+                true => (),
+            }
+
             // test if password is right
             // with bcrypt
             let client = client.lock().await;

@@ -28,6 +28,7 @@ pub enum ApiError {
     Uuid(UuidError),
     Auth(AuthError),
     TooManyRequests,
+    RegexValidationError(String),
     Custom(String),
 }
 
@@ -43,6 +44,7 @@ impl fmt::Display for ApiError {
             ApiError::Uuid(e) => write!(f, "UUID error: {}", e),
             ApiError::Auth(e) => write!(f, "Auth error: {}", e),
             ApiError::TooManyRequests => write!(f, "Too many requests"),
+            ApiError::RegexValidationError(msg) => write!(f, "Regex validation error: {}", msg),
             ApiError::Custom(msg) => write!(f, "Custom error: {}", msg),
         }
     }
@@ -67,6 +69,7 @@ impl ResponseError for ApiError {
                 AuthError::EmailWrong => StatusCode::BAD_REQUEST,     // 400
             },
             ApiError::TooManyRequests => StatusCode::TOO_MANY_REQUESTS, // 429
+            ApiError::RegexValidationError(_) => StatusCode::BAD_REQUEST, // 400
             ApiError::Custom(_) => StatusCode::BAD_REQUEST,             // 400
         }
     }
@@ -86,6 +89,7 @@ impl ResponseError for ApiError {
             ApiError::SerdeJson(_) => 4002,
             ApiError::Uuid(_) => 4001,
             ApiError::TooManyRequests => 4290,
+            ApiError::RegexValidationError(_) => 1000,
             ApiError::Custom(_) => 5001,
         };
 
