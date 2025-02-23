@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use crate::{
-    models::{auth::{AuthRequest, AuthResponse}, user::User},
-    utils::{jwt::AuthError, response::{ApiError, ApiResponse}},
+    models::{auth::{AuthRequest, AuthResponse}, user::User, response::{ApiError, ApiResponse}},
+    utils::jwt::AuthError,
 };
 use actix_web::{http::StatusCode, web::{Data, Json}, HttpResponse};
 use tokio::sync::Mutex;

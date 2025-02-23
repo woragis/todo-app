@@ -2,10 +2,7 @@ use core::panic;
 use std::sync::Arc;
 
 use actix_web::{http::StatusCode, web::{self, Data, Json, Path}, HttpResponse, Responder};
-use crate::{
-    models::user::{CreateUser, UpdateUser, User},
-    utils::response::{ApiError, ApiResponse},
-};
+use crate::models::{response::{ApiError, ApiResponse}, user::{CreateUser, UpdateUser, User}};
 use tokio::sync::Mutex;
 use tokio_postgres::Client;
 use uuid::Uuid;

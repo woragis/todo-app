@@ -1,11 +1,8 @@
 use std::{str::FromStr, sync::Arc};
 
 use crate::{
-    models::user::{UpdateUser, User},
-    utils::{
-        jwt::{extract_token, validate_jwt},
-        response::{ApiError, ApiResponse},
-    },
+    models::{user::{UpdateUser, User},response::{ApiError, ApiResponse}},
+    utils::jwt::{extract_token, validate_jwt},
 };
 use actix_web::{http::StatusCode, web::{Data, Json}, HttpRequest, HttpResponse};
 use tokio::sync::Mutex;

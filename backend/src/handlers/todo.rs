@@ -1,10 +1,8 @@
 use std::{str::FromStr, sync::Arc};
 
 use crate::{
-    models::todo::{CreateTodo, Todo, UpdateTodo},
-    utils::{
-        jwt::{extract_token, validate_jwt}, response::{ApiError, ApiResponse}
-    },
+    models::{response::{ApiError, ApiResponse}, todo::{CreateTodo, Todo, UpdateTodo}},
+    utils::jwt::{extract_token, validate_jwt},
 };
 use actix_web::{http::StatusCode, web::{Data, Json, Path}, HttpRequest, HttpResponse};
 use deadpool_redis::Pool;

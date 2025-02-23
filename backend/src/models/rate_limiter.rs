@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
-use crate::utils::response::ApiError;
+use crate::models::response::ApiError;
 
 #[derive(Clone)]
 pub struct RateLimiter {

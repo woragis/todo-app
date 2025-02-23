@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use tokio_postgres::Row;
 use uuid::Uuid;
 
-use crate::utils::response::ApiError;
+use crate::models::response::ApiError;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Todo {
