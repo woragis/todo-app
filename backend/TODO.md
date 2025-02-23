@@ -43,6 +43,8 @@
 - [x] - Implement **JWT** on todos CRUD
 - [x] - Padronize **Responses**
 - [ ] - Implement Logging
+  - [x] - Configure Logging
+  - [ ] - Implement Logging for handlers
 - [ ] - Implement **Cache** _with_ **REDIS**
 
 ### Cache
