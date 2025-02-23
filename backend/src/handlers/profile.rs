@@ -1,10 +1,17 @@
 use std::{str::FromStr, sync::Arc};
 
 use crate::{
-    models::{user::{UpdateUser, User},response::{ApiError, ApiResponse}},
+    models::{
+        response::{ApiError, ApiResponse},
+        user::{UpdateUser, User},
+    },
     utils::jwt::{extract_token, validate_jwt},
 };
-use actix_web::{http::StatusCode, web::{Data, Json}, HttpRequest, HttpResponse};
+use actix_web::{
+    http::StatusCode,
+    web::{Data, Json},
+    HttpRequest, HttpResponse,
+};
 use tokio::sync::Mutex;
 use tokio_postgres::Client;
 use uuid::Uuid;
@@ -41,7 +48,7 @@ pub async fn get_user_profile(
 pub async fn update_user_profile(
     client: Data<Arc<Mutex<Client>>>,
     request: HttpRequest,
-    payload: Json<UpdateUser>
+    payload: Json<UpdateUser>,
 ) -> Result<HttpResponse, ApiError> {
     let client = client.lock().await;
 

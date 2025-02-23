@@ -1,11 +1,11 @@
 use actix_web::{error::ResponseError, http::StatusCode, HttpResponse, Responder};
+use deadpool_redis::{redis::RedisError, PoolError};
 use jsonwebtoken::errors::Error as JwtError;
 use serde::Serialize;
 use serde_json::Error as SerdeJsonError;
 use std::fmt;
 use tokio_postgres::Error as PgError;
 use uuid::Error as UuidError;
-use deadpool_redis::{redis::RedisError, PoolError};
 
 use crate::utils::jwt::AuthError;
 
@@ -63,11 +63,11 @@ impl ResponseError for ApiError {
                 AuthError::InvalidHeader => StatusCode::BAD_REQUEST,  // 400
                 AuthError::MissingBearer => StatusCode::BAD_REQUEST,  // 400
                 AuthError::PasswordWrong => StatusCode::BAD_REQUEST,  // 400
-                AuthError::EmailTaken => StatusCode::BAD_REQUEST,  // 400
-                AuthError::EmailWrong => StatusCode::BAD_REQUEST,  // 400
+                AuthError::EmailTaken => StatusCode::BAD_REQUEST,     // 400
+                AuthError::EmailWrong => StatusCode::BAD_REQUEST,     // 400
             },
             ApiError::TooManyRequests => StatusCode::TOO_MANY_REQUESTS, // 429
-            ApiError::Custom(_) => StatusCode::BAD_REQUEST, // 400
+            ApiError::Custom(_) => StatusCode::BAD_REQUEST,             // 400
         }
     }
 

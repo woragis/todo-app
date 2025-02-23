@@ -1,4 +1,7 @@
-use actix_web::{web::{post, scope}, Scope};
+use actix_web::{
+    web::{post, scope},
+    Scope,
+};
 
 use crate::handlers::auth::{login, register};
 

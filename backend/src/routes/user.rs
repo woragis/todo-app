@@ -1,10 +1,11 @@
-
-
-use actix_web::{web::{get, post, put, delete, scope}, Scope};
+use actix_web::{
+    web::{delete, get, post, put, scope},
+    Scope,
+};
 
 use crate::handlers::user::{create_user, delete_user, get_user, get_users, update_user};
 
-pub fn user_routes() -> Scope{
+pub fn user_routes() -> Scope {
     scope("/users")
         .route("/", get().to(get_users))
         .route("/", post().to(create_user))

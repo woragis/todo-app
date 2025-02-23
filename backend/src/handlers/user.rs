@@ -1,8 +1,15 @@
 use core::panic;
 use std::sync::Arc;
 
-use actix_web::{http::StatusCode, web::{self, Data, Json, Path}, HttpResponse, Responder};
-use crate::models::{response::{ApiError, ApiResponse}, user::{CreateUser, UpdateUser, User}};
+use crate::models::{
+    response::{ApiError, ApiResponse},
+    user::{CreateUser, UpdateUser, User},
+};
+use actix_web::{
+    http::StatusCode,
+    web::{self, Data, Json, Path},
+    HttpResponse, Responder,
+};
 use tokio::sync::Mutex;
 use tokio_postgres::Client;
 use uuid::Uuid;
@@ -11,7 +18,6 @@ static TABLE: &str = "users";
 static FIELDS: &str = "name, email, password";
 static UPDATE_FIELDS: &str = "name = $1, email = $2, password = $3";
 static FIELDS_INPUT: &str = "$1, $2, $3";
-
 
 pub async fn create_user(
     client: Data<Arc<Mutex<Client>>>,
@@ -39,7 +45,7 @@ pub async fn create_user(
     Ok(ApiResponse::success(
         user,
         "User created successfully",
-        StatusCode::CREATED
+        StatusCode::CREATED,
     ))
 }
 
@@ -68,20 +74,16 @@ pub async fn get_user(
     Ok(ApiResponse::success(
         user,
         "User retrieved successfully",
-        StatusCode::OK
+        StatusCode::OK,
     ))
 }
-
 
 /// **Read Users**
 pub async fn get_users(client: web::Data<Arc<Mutex<Client>>>) -> Result<HttpResponse, ApiError> {
     let client = client.lock().await;
 
     let stmt = format!("SELECT * FROM {}", TABLE);
-    let rows = client
-        .query(&stmt, &[])
-        .await
-        .map_err(ApiError::from)?;
+    let rows = client.query(&stmt, &[]).await.map_err(ApiError::from)?;
 
     let users: Vec<User> = rows
         .iter()
@@ -96,16 +98,15 @@ pub async fn get_users(client: web::Data<Arc<Mutex<Client>>>) -> Result<HttpResp
     Ok(ApiResponse::success(
         users,
         "Users retrieved successfully",
-        StatusCode::OK
+        StatusCode::OK,
     ))
 }
-
 
 /// **Update User**
 pub async fn update_user(
     client: Data<Arc<Mutex<Client>>>,
     user_id: Path<Uuid>,
-    payload: Json<UpdateUser>
+    payload: Json<UpdateUser>,
 ) -> impl Responder {
     let client = client.lock().await;
 
@@ -113,7 +114,10 @@ pub async fn update_user(
 
     let stmt = format!("UPDATE {} SET {} WHERE id = $4", TABLE, UPDATE_FIELDS);
     let result = client
-        .execute(&stmt, &[&payload.name, &payload.email, &payload.password, &user_id])
+        .execute(
+            &stmt,
+            &[&payload.name, &payload.email, &payload.password, &user_id],
+        )
         .await
         .map_err(ApiError::from);
 
@@ -123,14 +127,11 @@ pub async fn update_user(
             "User updated successfully",
             StatusCode::OK,
         ),
-        _ => panic!("Error in update user")
+        _ => panic!("Error in update user"),
     }
 }
 /// **Delete User**
-pub async fn delete_user(
-    client: Data<Arc<Mutex<Client>>>,
-    user_id: Path<Uuid>,
-) -> impl Responder {
+pub async fn delete_user(client: Data<Arc<Mutex<Client>>>, user_id: Path<Uuid>) -> impl Responder {
     let client = client.lock().await;
 
     let user_id = user_id.to_string();
@@ -147,6 +148,6 @@ pub async fn delete_user(
             "User deleted successfully",
             StatusCode::OK,
         ),
-        _ => panic!("Error in update user")
+        _ => panic!("Error in update user"),
     }
 }

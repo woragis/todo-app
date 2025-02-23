@@ -8,7 +8,11 @@ mod utils;
 use std::sync::Arc;
 
 use actix_cors::Cors;
-use actix_web::{http::header::{AUTHORIZATION, CONTENT_TYPE}, web::{get, Data}, App, HttpServer};
+use actix_web::{
+    http::header::{AUTHORIZATION, CONTENT_TYPE},
+    web::{get, Data},
+    App, HttpServer,
+};
 use database::{cache::pool, db::connect, tables::create_tables};
 use middlewares::rate_limiter::rate_limiter;
 use models::rate_limiter::index;
@@ -39,7 +43,7 @@ async fn main() -> std::io::Result<()> {
                     .allow_any_origin()
                     .allowed_methods(vec!["GET", "POST", "PUT", "DELETE"])
                     .allowed_headers(vec![AUTHORIZATION, CONTENT_TYPE])
-                    .max_age(3600)
+                    .max_age(3600),
             )
             .route("/", get().to(index))
             .service(auth_routes())

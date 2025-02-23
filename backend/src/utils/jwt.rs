@@ -4,9 +4,9 @@ use chrono::{Duration, Utc};
 use dotenvy::dotenv;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use once_cell::sync::Lazy;
-use uuid::Uuid;
 use std::env;
 use std::fmt;
+use uuid::Uuid;
 
 // Define a custom error type
 #[derive(Debug)]

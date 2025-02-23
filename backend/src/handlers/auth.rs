@@ -1,10 +1,18 @@
 use std::sync::Arc;
 
 use crate::{
-    models::{auth::{AuthRequest, AuthResponse}, user::User, response::{ApiError, ApiResponse}},
+    models::{
+        auth::{AuthRequest, AuthResponse},
+        response::{ApiError, ApiResponse},
+        user::User,
+    },
     utils::jwt::AuthError,
 };
-use actix_web::{http::StatusCode, web::{Data, Json}, HttpResponse};
+use actix_web::{
+    http::StatusCode,
+    web::{Data, Json},
+    HttpResponse,
+};
 use tokio::sync::Mutex;
 use tokio_postgres::Client;
 
@@ -27,18 +35,16 @@ pub async fn login(
                 false => Err(ApiError::Auth(AuthError::PasswordWrong)),
                 true => {
                     // generate token
-                    Ok(
-                        ApiResponse::success(
-                            AuthResponse::user_to_response(user),
-                            "Successfully logged in",
-                            StatusCode::OK
-                        )
-                    )
-                },
+                    Ok(ApiResponse::success(
+                        AuthResponse::user_to_response(user),
+                        "Successfully logged in",
+                        StatusCode::OK,
+                    ))
+                }
             }
-        },
+        }
         Ok(None) => return Err(ApiError::Auth(AuthError::EmailWrong)),
-        Err(err) => return Err(err)
+        Err(err) => return Err(err),
     }
 }
 
@@ -71,11 +77,9 @@ pub async fn register(
                 "User registered successfully",
                 StatusCode::CREATED,
             ))
-        },
-        Ok(Some(_)) => {
-            Err(ApiError::Auth(AuthError::EmailTaken))
-        },
-        Err(err) => return Err(err)
+        }
+        Ok(Some(_)) => Err(ApiError::Auth(AuthError::EmailTaken)),
+        Err(err) => return Err(err),
     }
 }
 
@@ -87,6 +91,8 @@ async fn test_email(client: &Arc<Mutex<Client>>, email: String) -> Result<Option
     match client.query_opt(&stmt, &[&email]).await {
         Ok(Some(row)) => Ok(Some(User::from_row(&row))),
         Ok(None) => Ok(None),
-        Err(_) => Err(ApiError::Custom("Error testing email existance".to_string())),
+        Err(_) => Err(ApiError::Custom(
+            "Error testing email existance".to_string(),
+        )),
     }
 }

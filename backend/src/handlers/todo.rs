@@ -1,10 +1,17 @@
 use std::{str::FromStr, sync::Arc};
 
 use crate::{
-    models::{response::{ApiError, ApiResponse}, todo::{CreateTodo, Todo, UpdateTodo}},
+    models::{
+        response::{ApiError, ApiResponse},
+        todo::{CreateTodo, Todo, UpdateTodo},
+    },
     utils::jwt::{extract_token, validate_jwt},
 };
-use actix_web::{http::StatusCode, web::{Data, Json, Path}, HttpRequest, HttpResponse};
+use actix_web::{
+    http::StatusCode,
+    web::{Data, Json, Path},
+    HttpRequest, HttpResponse,
+};
 use deadpool_redis::Pool;
 use tokio::sync::Mutex;
 use tokio_postgres::Client;
@@ -52,7 +59,6 @@ pub async fn create_todo(
     ))
 }
 
-
 /// **Read Todo**
 pub async fn get_todo(
     client: Data<Arc<Mutex<Client>>>,
@@ -66,7 +72,11 @@ pub async fn get_todo(
     let user_id = Uuid::from_str(&claims.sub).map_err(ApiError::from)?;
 
     if let Some(todo) = Todo::from_redis(&redis_pool, id, user_id).await? {
-        return Ok(ApiResponse::success(todo, "Todo retrieved from cache", StatusCode::OK));
+        return Ok(ApiResponse::success(
+            todo,
+            "Todo retrieved from cache",
+            StatusCode::OK,
+        ));
     }
 
     let client = client.lock().await;

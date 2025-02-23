@@ -23,7 +23,7 @@ impl AuthResponse {
     pub fn user_to_response(user: User) -> Self {
         let user_id = user.id;
         let token = generate_jwt(user_id).expect("Token error");
-        AuthResponse {user, token}
+        AuthResponse { user, token }
     }
 
     pub fn row_to_response(row: Row) -> Self {

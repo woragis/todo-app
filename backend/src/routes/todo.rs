@@ -1,4 +1,7 @@
-use actix_web::{web::{delete, get, post, put, scope}, Scope};
+use actix_web::{
+    web::{delete, get, post, put, scope},
+    Scope,
+};
 
 use crate::handlers::todo::{create_todo, delete_todo, get_todo, get_todos, update_todo};
 
