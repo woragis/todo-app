@@ -9,7 +9,7 @@ pub struct User {
     pub email: String,
     pub password: String,
     pub role: String, // 'admin' or 'user'
-    pub profile_picture: Option<String>
+    pub profile_picture: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]

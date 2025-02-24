@@ -58,46 +58,41 @@ pub async fn register(
 
     match test_email(&client, payload.email.clone()).await {
         Ok(None) => {
-            // regex validations            
+            // regex validations
 
             // regex email validation
             let email_regex = Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
                 .map_err(|e| ApiError::RegexValidationError(format!("{}", e)))?;
-
             match email_regex.is_match(&payload.email) {
                 false => return Err(ApiError::RegexValidationError("email invalid".to_string())),
                 true => (),
             }
 
-
             // regex password validation
-            // let password_regex = Regex::new(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$")
-            //     .map_err(|e| ApiError::RegexValidationError(format!("{}", e)))?;
-            // let password_regex = Regex::new(r"^[A-Za-z0-9!@#$%^&*()_\-]{8,}$")
-            //     .map_err(|e| ApiError::RegexValidationError(format!("{}", e)))?;
-            // let password_regex = Regex::new(r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-]).{8,}$")
-            //     .map_err(|e| ApiError::RegexValidationError(format!("{}", e)))?;
             let password_regex = Regex::new(r"^[A-Za-z0-9!@#$%^&*()_\-]{8,}$")
                 .map_err(|e| ApiError::RegexValidationError(format!("{}", e)))?;
-
             match password_regex.is_match(&payload.password) {
-                false => return Err(ApiError::RegexValidationError("password invalid".to_string())),
+                false => {
+                    return Err(ApiError::RegexValidationError(
+                        "password invalid".to_string(),
+                    ))
+                }
                 true => (),
             }
 
             // test if password is right
             // with bcrypt
             let client = client.lock().await;
-
             let stmt = format!(
                 "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
                 TABLE, FIELDS, FIELDS_INPUT
             );
-
             let role = payload.role.clone().unwrap_or_else(|| "user".to_string());
-
             let row = client
-                .query_one(&stmt, &[&payload.name, &payload.email, &payload.password, &role])
+                .query_one(
+                    &stmt,
+                    &[&payload.name, &payload.email, &payload.password, &role],
+                )
                 .await
                 .map_err(ApiError::from)?;
 
@@ -115,7 +110,6 @@ pub async fn register(
 
 async fn test_email(client: &Arc<Mutex<Client>>, email: String) -> Result<Option<User>, ApiError> {
     let client = client.lock().await;
-
     let stmt = format!("SELECT * FROM {} WHERE email = $1", TABLE);
 
     match client.query_opt(&stmt, &[&email]).await {

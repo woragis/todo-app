@@ -113,20 +113,22 @@ pub async fn delete_user_profile(
     Err(ApiError::Custom("Unexpected delete count".to_string()))
 }
 
-pub async fn get_profile_picture(client: Data<Arc<Mutex<Client>>>, request: HttpRequest) -> Result<HttpResponse, ApiError> {
+pub async fn get_profile_picture(
+    client: Data<Arc<Mutex<Client>>>,
+    request: HttpRequest,
+) -> Result<HttpResponse, ApiError> {
     let token = extract_token(&request.headers()).map_err(ApiError::from)?;
     let claims = validate_jwt(&token).map_err(ApiError::from)?;
     let user_id = Uuid::from_str(&claims.sub).map_err(ApiError::from)?;
 
     let client = client.lock().await;
     let stmt = format!("SELECT profile_picture FROM {} WHERE id = $1", TABLE);
-
     let row = client
         .query_opt(&stmt, &[&user_id])
         .await
         .map_err(ApiError::from)?;
 
-    let profile_picture: Option<String>= match row {
+    let profile_picture: Option<String> = match row {
         Some(row) => row.get("profile_picture"),
         None => None,
     };
@@ -138,7 +140,11 @@ pub async fn get_profile_picture(client: Data<Arc<Mutex<Client>>>, request: Http
     ))
 }
 
-pub async fn add_or_edit_profile_picture(client: Data<Arc<Mutex<Client>>>, request: HttpRequest, profile_picture: Json<String>) -> Result<HttpResponse, ApiError> {
+pub async fn add_or_edit_profile_picture(
+    client: Data<Arc<Mutex<Client>>>,
+    request: HttpRequest,
+    profile_picture: Json<String>,
+) -> Result<HttpResponse, ApiError> {
     let token = extract_token(&request.headers()).map_err(ApiError::from)?;
     let claims = validate_jwt(&token).map_err(ApiError::from)?;
     let user_id = Uuid::from_str(&claims.sub).map_err(ApiError::from)?;
@@ -146,10 +152,7 @@ pub async fn add_or_edit_profile_picture(client: Data<Arc<Mutex<Client>>>, reque
     let client = client.lock().await;
     let stmt = format!("UPDATE {} SET profile_picture = $1 WHERE id = $2", TABLE);
     let result = client
-        .execute(
-            &stmt,
-            &[&*profile_picture, &user_id],
-        )
+        .execute(&stmt, &[&*profile_picture, &user_id])
         .await
         .map_err(ApiError::from)?;
 
@@ -166,7 +169,10 @@ pub async fn add_or_edit_profile_picture(client: Data<Arc<Mutex<Client>>>, reque
     Err(ApiError::Custom("Unexpected update count".to_string()))
 }
 
-pub async fn delete_profile_picture(client: Data<Arc<Mutex<Client>>>, request: HttpRequest) -> Result<HttpResponse, ApiError> {
+pub async fn delete_profile_picture(
+    client: Data<Arc<Mutex<Client>>>,
+    request: HttpRequest,
+) -> Result<HttpResponse, ApiError> {
     let token = extract_token(&request.headers()).map_err(ApiError::from)?;
     let claims = validate_jwt(&token).map_err(ApiError::from)?;
     let user_id = Uuid::from_str(&claims.sub).map_err(ApiError::from)?;
@@ -174,10 +180,7 @@ pub async fn delete_profile_picture(client: Data<Arc<Mutex<Client>>>, request: H
     let client = client.lock().await;
     let stmt = format!("UPDATE {} SET profile_picture = NULL WHERE id = $1", TABLE);
     let result = client
-        .execute(
-            &stmt,
-            &[&user_id],
-        )
+        .execute(&stmt, &[&user_id])
         .await
         .map_err(ApiError::from)?;
 

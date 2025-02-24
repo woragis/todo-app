@@ -38,7 +38,6 @@ pub async fn create_todo(
         "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
         TABLE, FIELDS, FIELDS_INPUT
     );
-
     let row = client
         .query_one(
             &stmt,
@@ -115,7 +114,6 @@ pub async fn get_todos(
         .map_err(ApiError::from)?;
 
     let mut todos = Vec::new();
-
     for row in rows {
         let todo = Todo::from_row(&row);
         todo.to_redis(&redis_pool, user_id).await?;

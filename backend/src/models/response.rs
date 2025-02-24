@@ -1,9 +1,10 @@
+use std::fmt;
+
 use actix_web::{error::ResponseError, http::StatusCode, HttpResponse, Responder};
 use deadpool_redis::{redis::RedisError, PoolError};
 use jsonwebtoken::errors::Error as JwtError;
 use serde::Serialize;
 use serde_json::Error as SerdeJsonError;
-use std::fmt;
 use tokio_postgres::Error as PgError;
 use uuid::Error as UuidError;
 

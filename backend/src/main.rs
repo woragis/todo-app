@@ -52,7 +52,6 @@ async fn main() -> std::io::Result<()> {
         .unwrap();
 
     info!("Application logger initialized");
-        
 
     dotenvy::dotenv().ok();
 

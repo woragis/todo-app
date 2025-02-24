@@ -1,10 +1,12 @@
-use actix_web::web::Data;
-use actix_web::{HttpRequest, HttpResponse};
-use std::collections::HashMap;
-use std::sync::{Arc, Mutex};
-use std::time::{Duration, Instant};
+use std::{
+    collections::HashMap,
+    sync::{Arc, Mutex},
+    time::{Duration, Instant},
+};
 
-use crate::models::response::ApiError;
+use actix_web::{web::Data, HttpRequest, HttpResponse};
+
+use super::response::ApiError;
 
 #[derive(Clone)]
 pub struct RateLimiter {

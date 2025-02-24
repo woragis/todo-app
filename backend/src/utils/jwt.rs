@@ -1,12 +1,14 @@
-use crate::models::jwt::Claims;
+use std::fmt;
+
 use actix_web::http::header::HeaderMap;
 use chrono::{Duration, Utc};
 use dotenvy::dotenv;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
 use once_cell::sync::Lazy;
 use std::env;
-use std::fmt;
 use uuid::Uuid;
+
+use crate::models::jwt::Claims;
 
 // Define a custom error type
 #[derive(Debug)]
