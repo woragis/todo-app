@@ -35,12 +35,7 @@ pub async fn create_user(
         .await
         .map_err(ApiError::from)?;
 
-    let user = User {
-        id: row.get("id"),
-        name: row.get("name"),
-        email: row.get("email"),
-        password: String::new(), // Do not return the password
-    };
+    let user = User::from_row(&row);
 
     Ok(ApiResponse::success(
         user,
@@ -64,12 +59,7 @@ pub async fn get_user(
         .await
         .map_err(ApiError::from)?;
 
-    let user = User {
-        id: row.get("id"),
-        name: row.get("name"),
-        email: row.get("email"),
-        password: String::new(), // Do not return the password
-    };
+    let user = User::from_row(&row);
 
     Ok(ApiResponse::success(
         user,
@@ -87,12 +77,7 @@ pub async fn get_users(client: web::Data<Arc<Mutex<Client>>>) -> Result<HttpResp
 
     let users: Vec<User> = rows
         .iter()
-        .map(|row| User {
-            id: row.get("id"),
-            name: row.get("name"),
-            email: row.get("email"),
-            password: String::new(), // Do not return the password
-        })
+        .map(|row| User::from_row(row))
         .collect();
 
     Ok(ApiResponse::success(
