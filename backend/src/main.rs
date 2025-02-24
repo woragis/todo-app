@@ -1,4 +1,4 @@
-mod database;
+mod data;
 mod handlers;
 mod middlewares;
 mod models;
@@ -14,7 +14,7 @@ use actix_web::{
     App, HttpServer,
 };
 use chrono::Local;
-use database::{cache::pool, db::connect, tables::create_tables};
+use data::{cache::pool, db::connect, tables::create_tables};
 use fern::Dispatch;
 use log::{error, info, LevelFilter};
 use middlewares::rate_limiter::rate_limiter;
