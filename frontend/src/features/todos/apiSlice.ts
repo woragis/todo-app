@@ -1,13 +1,25 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { TodoInterface, TodoResponse, TodosResponse } from './types'
+import { RootState } from '../store'
 
 const todosApi = createApi({
   reducerPath: 'todosApi',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8080/todos' }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: 'http://localhost:8080/todos',
+    prepareHeaders: (headers, { getState }) => {
+      const state = getState() as RootState
+      const token = state.auth.token
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`)
+      }
+      headers.set('Content-Type', 'application/json')
+      return headers
+    },
+  }),
   tagTypes: ['todos'],
   endpoints: (builder) => ({
     getTodos: builder.query<TodoInterface[], void>({
-      query: () => '',
+      query: () => '/',
       providesTags: ['todos'],
       transformResponse: (response: TodosResponse) => {
         return response.data

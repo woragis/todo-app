@@ -2,7 +2,7 @@ import { ChangeEvent, FormEvent, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 
-import { register } from '@/features/auth/actions'
+import { auth } from '@/features/auth/actions'
 import { RegisterBody } from '@/features/forms/register/types'
 import { useAppDispatch, useAppSelector } from '@/features/hooks'
 import { useRegisterMutation } from '@/features/auth/apiSlice'
@@ -33,7 +33,7 @@ export const useRegisterModel = () => {
     const responseUser = await (
       await registerMutation(registerData).unwrap()
     ).data
-    dispatch(register(responseUser))
+    dispatch(auth(responseUser))
     navigate({ to: '/profile' })
   }
 

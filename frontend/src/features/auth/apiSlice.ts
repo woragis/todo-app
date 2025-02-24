@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { AuthResponse, LoginRequest, RegisterRequest } from './types'
+import { auth } from './actions'
 
 const authApi = createApi({
   reducerPath: 'authApi',
@@ -12,7 +13,14 @@ const authApi = createApi({
         body: user,
         method: 'POST',
       }),
-      invalidatesTags: ['auth'],
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          dispatch(auth(data.data))
+        } catch (err) {
+          console.error('Login error: ', err)
+        }
+      },
     }),
     register: builder.mutation<AuthResponse, RegisterRequest>({
       query: (user) => ({
@@ -20,24 +28,15 @@ const authApi = createApi({
         body: user,
         method: 'POST',
       }),
-      invalidatesTags: ['auth'],
+      async onQueryStarted(_, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          dispatch(auth(data.data))
+        } catch (err) {
+          console.error('Login error: ', err)
+        }
+      },
     }),
-    // putTodo: builder.mutation<TodoInterface, TodoInterface>({
-    //   query: (todo) => ({
-    //     url: `/${todo.id}`,
-    //     body: todo,
-    //     method: 'PUT',
-    //   }),
-    //   invalidatesTags: ['todos'],
-    // }),
-    // deleteTodo: builder.mutation<{}, TodoInterface['id']>({
-    //   query: (id) => ({
-    //     url: `/${id}`,
-    //     // body: todo,
-    //     method: 'DELETE',
-    //   }),
-    //   invalidatesTags: ['todos'],
-    // }),
   }),
 })
 

@@ -1,3 +1,3 @@
 import authSlice from './slice'
 
-export const { login, register, logout } = authSlice.actions
+export const { auth, logout } = authSlice.actions

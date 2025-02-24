@@ -2,7 +2,7 @@ import { ChangeEvent, FormEvent, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 
-import { login } from '@/features/auth/actions'
+import { auth } from '@/features/auth/actions'
 import { LoginBody } from '@/features/forms/login/types'
 import { useAppDispatch, useAppSelector } from '@/features/hooks'
 import { useLoginMutation } from '@/features/auth/apiSlice'
@@ -30,7 +30,7 @@ export const useLoginModel = () => {
   const handleLoginSubmit = async (event: FormEvent) => {
     event.preventDefault()
     const responseUser = await (await loginMutation(loginData).unwrap()).data
-    dispatch(login(responseUser))
+    dispatch(auth(responseUser))
     navigate({ to: '/profile' })
   }
 
