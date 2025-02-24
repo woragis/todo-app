@@ -18,8 +18,8 @@ use tokio::sync::Mutex;
 use tokio_postgres::Client;
 
 static TABLE: &str = "users";
-static FIELDS: &str = "name, email, password";
-static FIELDS_INPUT: &str = "$1, $2, $3";
+static FIELDS: &str = "name, email, password, role";
+static FIELDS_INPUT: &str = "$1, $2, $3, $4";
 
 /// **Login User**
 pub async fn login(
@@ -94,8 +94,10 @@ pub async fn register(
                 TABLE, FIELDS, FIELDS_INPUT
             );
 
+            let role = payload.role.clone().unwrap_or_else(|| "user".to_string());
+
             let row = client
-                .query_one(&stmt, &[&payload.name, &payload.email, &payload.password])
+                .query_one(&stmt, &[&payload.name, &payload.email, &payload.password, &role])
                 .await
                 .map_err(ApiError::from)?;
 
