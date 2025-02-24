@@ -8,6 +8,8 @@ pub struct User {
     pub name: String,
     pub email: String,
     pub password: String,
+    pub role: String, // 'admin' or 'user'
+    pub profile_picture: Option<String>
 }
 
 #[derive(Debug, Deserialize)]
@@ -31,6 +33,8 @@ impl User {
             name: row.get("name"),
             email: row.get("email"),
             password: row.get("password"),
+            role: row.get("role"),
+            profile_picture: row.get("profile_picture"),
         }
     }
 }

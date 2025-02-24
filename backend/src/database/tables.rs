@@ -13,9 +13,11 @@ pub async fn create_tables(client: &Arc<Mutex<Client>>) -> Result<(), Error> {
         "
     CREATE TABLE IF NOT EXISTS {} (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        name TEXT NOT NULL,
-        email TEXT NOT NULL,
-        password TEXT NOT NULL
+        name VARCHAR(100) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        password TEXT NOT NULL,
+        role VARCHAR(5) NOT NULL CHECK (role IN ('admin', 'user')) DEFAULT 'user',
+        profile_picture TEXT NULL
     );
     ",
         USERS_TABLE

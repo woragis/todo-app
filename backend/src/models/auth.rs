@@ -11,6 +11,7 @@ pub struct AuthRequest {
     pub name: Option<String>,
     pub email: String,
     pub password: String,
+    pub role: Option<String>, // 'admin' or 'user'
 }
 
 #[derive(Debug, Serialize)]
