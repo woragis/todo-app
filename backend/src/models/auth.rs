@@ -36,3 +36,6 @@ impl AuthResponse {
         }
     }
 }
+
+// impl AuthRequest {
+// }

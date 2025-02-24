@@ -3,10 +3,10 @@ use std::sync::Arc;
 use crate::{
     models::{
         auth::{AuthRequest, AuthResponse},
-        response::{ApiError, ApiResponse},
+        response::{ApiError, ApiResponse, AuthError},
         user::User,
     },
-    utils::jwt::AuthError,
+    utils::bcrypt::{compare_password, hash_password},
 };
 use actix_web::{
     http::StatusCode,
@@ -31,8 +31,8 @@ pub async fn login(
     match test_email(&client, payload.email.clone()).await {
         Ok(Some(user)) => {
             // test if password is right
-            // with bcrypt
-            match payload.password == user.password {
+            let is_equal = compare_password(&payload.password, &user.password).map_err(ApiError::from)?;
+            match is_equal {
                 false => Err(ApiError::Auth(AuthError::PasswordWrong)),
                 true => {
                     // generate token
@@ -43,6 +43,17 @@ pub async fn login(
                     ))
                 }
             }
+            // match payload.password == user.password {
+            //     false => Err(ApiError::Auth(AuthError::PasswordWrong)),
+            //     true => {
+            //         // generate token
+            //         Ok(ApiResponse::success(
+            //             AuthResponse::user_to_response(user),
+            //             "Successfully logged in",
+            //             StatusCode::OK,
+            //         ))
+            //     }
+            // }
         }
         Ok(None) => return Err(ApiError::Auth(AuthError::EmailWrong)),
         Err(err) => return Err(err),
@@ -80,18 +91,17 @@ pub async fn register(
                 true => (),
             }
 
-            // test if password is right
-            // with bcrypt
             let client = client.lock().await;
             let stmt = format!(
                 "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
                 TABLE, FIELDS, FIELDS_INPUT
             );
+            let hash = hash_password(&payload.password).map_err(ApiError::from)?;
             let role = payload.role.clone().unwrap_or_else(|| "user".to_string());
             let row = client
                 .query_one(
                     &stmt,
-                    &[&payload.name, &payload.email, &payload.password, &role],
+                    &[&payload.name, &payload.email, &hash, &role],
                 )
                 .await
                 .map_err(ApiError::from)?;

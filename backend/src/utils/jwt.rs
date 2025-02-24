@@ -1,5 +1,3 @@
-use std::fmt;
-
 use actix_web::http::header::HeaderMap;
 use chrono::{Duration, Utc};
 use dotenvy::dotenv;
@@ -8,32 +6,7 @@ use once_cell::sync::Lazy;
 use std::env;
 use uuid::Uuid;
 
-use crate::models::jwt::Claims;
-
-// Define a custom error type
-#[derive(Debug)]
-pub enum AuthError {
-    MissingHeader,
-    InvalidHeader,
-    MissingBearer,
-    PasswordWrong,
-    EmailTaken,
-    EmailWrong,
-}
-
-// Implement `Display` for `AuthError`
-impl fmt::Display for AuthError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            AuthError::MissingHeader => write!(f, "Authorization header is missing"),
-            AuthError::InvalidHeader => write!(f, "Invalid authorization header format"),
-            AuthError::MissingBearer => write!(f, "Error striping 'Bearer '"),
-            AuthError::PasswordWrong => write!(f, "Password wrong"),
-            AuthError::EmailTaken => write!(f, "Email is already taken"),
-            AuthError::EmailWrong => write!(f, "Email wrong"),
-        }
-    }
-}
+use crate::models::{jwt::Claims, response::AuthError};
 
 static SECRET_KEY: Lazy<String> = Lazy::new(|| {
     dotenv().ok(); // Load .env file if available
