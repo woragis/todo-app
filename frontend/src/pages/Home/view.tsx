@@ -30,8 +30,11 @@ export const HomeView = ({
   }
   const todosComponent = todos.map((todo) => {
     return (
-      <Link to={'todos/' + todo.id}>
-        <TodoCard key={`listed_todo_${todo.id}`}>
+      <Link
+        to={'todos/' + todo.id}
+        key={`listed_todo_${todo.id}`}
+      >
+        <TodoCard>
           <TodoDataContainer>
             <TodoTitle>{todo.title}</TodoTitle>
             <TodoDescription>{todo.description}</TodoDescription>
