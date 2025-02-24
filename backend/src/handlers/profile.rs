@@ -80,7 +80,6 @@ pub async fn update_user_profile(
     } else if result == 0 {
         return Err(ApiError::Custom("User not found".to_string()));
     }
-
     Err(ApiError::Custom("Unexpected update count".to_string()))
 }
 
@@ -109,7 +108,6 @@ pub async fn delete_user_profile(
     } else if result == 0 {
         return Err(ApiError::Custom("User not found".to_string()));
     }
-
     Err(ApiError::Custom("Unexpected delete count".to_string()))
 }
 
@@ -135,7 +133,7 @@ pub async fn get_profile_picture(
 
     Ok(ApiResponse::success(
         profile_picture,
-        "User retrieved successfully",
+        "User's profile picture retrieved successfully",
         StatusCode::OK,
     ))
 }
@@ -159,13 +157,12 @@ pub async fn add_or_edit_profile_picture(
     if result == 1 {
         return Ok(ApiResponse::success(
             (),
-            "User updated successfully",
-            StatusCode::OK,
+            "User's profile picture updated successfully",
+            StatusCode::CREATED,
         ));
     } else if result == 0 {
         return Err(ApiError::Custom("User not found".to_string()));
     }
-
     Err(ApiError::Custom("Unexpected update count".to_string()))
 }
 
@@ -187,12 +184,11 @@ pub async fn delete_profile_picture(
     if result == 1 {
         return Ok(ApiResponse::success(
             (),
-            "User updated successfully",
+            "User's profile picture deleted successfully",
             StatusCode::OK,
         ));
     } else if result == 0 {
         return Err(ApiError::Custom("User not found".to_string()));
     }
-
-    Err(ApiError::Custom("Unexpected update count".to_string()))
+    Err(ApiError::Custom("Unexpected delete count".to_string()))
 }

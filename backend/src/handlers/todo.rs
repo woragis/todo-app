@@ -48,7 +48,6 @@ pub async fn create_todo(
 
     let todo = Todo::from_row(&row);
 
-    // ✅ Store new todo in Redis
     todo.to_redis(&redis_pool, user_id).await?;
 
     Ok(ApiResponse::success(

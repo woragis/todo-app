@@ -114,6 +114,6 @@ pub async fn delete_user(client: Data<Arc<Mutex<Client>>>, user_id: Path<Uuid>) 
             "User deleted successfully",
             StatusCode::OK,
         ),
-        _ => panic!("Error in update user"),
+        _ => panic!("Error in delete user"),
     }
 }

@@ -26,8 +26,6 @@ pub async fn login(
     client: Data<Arc<Mutex<Client>>>,
     payload: Json<AuthRequest>,
 ) -> Result<HttpResponse, ApiError> {
-    println!("Login request received for email: {}", payload.email);
-
     match test_email(&client, payload.email.clone()).await {
         Ok(Some(user)) => {
             // test if password is right
@@ -43,17 +41,6 @@ pub async fn login(
                     ))
                 }
             }
-            // match payload.password == user.password {
-            //     false => Err(ApiError::Auth(AuthError::PasswordWrong)),
-            //     true => {
-            //         // generate token
-            //         Ok(ApiResponse::success(
-            //             AuthResponse::user_to_response(user),
-            //             "Successfully logged in",
-            //             StatusCode::OK,
-            //         ))
-            //     }
-            // }
         }
         Ok(None) => return Err(ApiError::Auth(AuthError::EmailWrong)),
         Err(err) => return Err(err),
@@ -65,21 +52,14 @@ pub async fn register(
     client: Data<Arc<Mutex<Client>>>,
     payload: Json<AuthRequest>,
 ) -> Result<HttpResponse, ApiError> {
-    println!("Register request received for email: {}", payload.email);
-
     match test_email(&client, payload.email.clone()).await {
         Ok(None) => {
-            // regex validations
-
-            // regex email validation
             let email_regex = Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
                 .map_err(|e| ApiError::RegexValidationError(format!("{}", e)))?;
             match email_regex.is_match(&payload.email) {
                 false => return Err(ApiError::RegexValidationError("email invalid".to_string())),
                 true => (),
             }
-
-            // regex password validation
             let password_regex = Regex::new(r"^[A-Za-z0-9!@#$%^&*()_\-]{8,}$")
                 .map_err(|e| ApiError::RegexValidationError(format!("{}", e)))?;
             match password_regex.is_match(&payload.password) {
@@ -121,7 +101,6 @@ pub async fn register(
 async fn test_email(client: &Arc<Mutex<Client>>, email: String) -> Result<Option<User>, ApiError> {
     let client = client.lock().await;
     let stmt = format!("SELECT * FROM {} WHERE email = $1", TABLE);
-
     match client.query_opt(&stmt, &[&email]).await {
         Ok(Some(row)) => Ok(Some(User::from_row(&row))),
         Ok(None) => Ok(None),
