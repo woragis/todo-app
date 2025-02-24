@@ -71,6 +71,8 @@ pub async fn update_user_profile(
             name: payload.name.to_owned(),
             email: payload.email.to_owned(),
             password: payload.password.to_owned(),
+            role: String::from("user"),
+            profile_picture: Some(String::new()),
         };
         return Ok(ApiResponse::success(
             updated_user,
@@ -112,4 +114,60 @@ pub async fn delete_user_profile(
     }
 
     Err(ApiError::Custom("Unexpected delete count".to_string()))
+}
+
+pub async fn add_or_edit_profile_picture(client: Data<Arc<Mutex<Client>>>, request: HttpRequest, profile_picture: Json<String>) -> Result<HttpResponse, ApiError> {
+    let token = extract_token(&request.headers()).map_err(ApiError::from)?;
+    let claims = validate_jwt(&token).map_err(ApiError::from)?;
+    let id = claims.sub;
+
+    let client = client.lock().await;
+    let stmt = format!("UPDATE {} SET profile_picture = $1 WHERE id = $2", TABLE);
+    let result = client
+        .execute(
+            &stmt,
+            &[&*profile_picture, &id],
+        )
+        .await
+        .map_err(ApiError::from)?;
+
+    if result == 1 {
+        return Ok(ApiResponse::success(
+            true,
+            "User updated successfully",
+            StatusCode::OK,
+        ));
+    } else if result == 0 {
+        return Err(ApiError::Custom("User not found".to_string()));
+    }
+
+    Err(ApiError::Custom("Unexpected update count".to_string()))
+}
+
+pub async fn delete_profile_picture(client: Data<Arc<Mutex<Client>>>, request: HttpRequest) -> Result<HttpResponse, ApiError> {
+    let token = extract_token(&request.headers()).map_err(ApiError::from)?;
+    let claims = validate_jwt(&token).map_err(ApiError::from)?;
+    let id = claims.sub;
+
+    let client = client.lock().await;
+    let stmt = format!("UPDATE {} SET profile_picture = NULL WHERE id = $1", TABLE);
+    let result = client
+        .execute(
+            &stmt,
+            &[&id],
+        )
+        .await
+        .map_err(ApiError::from)?;
+
+    if result == 1 {
+        return Ok(ApiResponse::success(
+            true,
+            "User updated successfully",
+            StatusCode::OK,
+        ));
+    } else if result == 0 {
+        return Err(ApiError::Custom("User not found".to_string()));
+    }
+
+    Err(ApiError::Custom("Unexpected update count".to_string()))
 }
