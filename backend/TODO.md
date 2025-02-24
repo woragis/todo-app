@@ -29,7 +29,9 @@
 ## Business Logic
 
 - [x] - Change framework from axum to actix
-- [ ] - Add roles to users model/table
+- [x] - Add roles to users model/table
+- [x] - Add profile_picture to users model/table
+- [x] - Add profile CRUD profile_picture handlers
 - [ ] - Handlers
   - [ ] - Add admin permission to CRUD TODOS and USERS
   - [x] - Add regex validation to REGISTER handler
