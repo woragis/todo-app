@@ -5,13 +5,12 @@ import Cookies from 'js-cookie'
 const get = () => {
   let token = Cookies.get('token') || ''
   let userCookie = Cookies.get('user')
-  let user = JSON.parse(userCookie || '') as UserInterface
+  let user = JSON.parse(userCookie || '{}') as UserInterface
   let logged = token.length > 0
   return { user, token, logged }
 }
 
-const { user, token, logged } = get()
-const initialState: AuthState = { user, token, logged }
+const initialState: AuthState = get()
 
 const authSlice = createSlice({
   name: 'auth',
@@ -25,6 +24,8 @@ const authSlice = createSlice({
       state.logged = true
     },
     logout: (state) => {
+      Cookies.remove('user')
+      Cookies.remove('token')
       state = initialState
     },
   },
