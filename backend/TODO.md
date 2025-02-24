@@ -36,7 +36,7 @@
   - [ ] - Add admin permission to CRUD TODOS and USERS
   - [x] - Add regex validation to REGISTER handler
   - [ ] - Add regex validation to profile update handler
-  - [ ] - Add Bcrypt to LOGIN/REGISTER handlers
+  - [x] - Add Bcrypt to LOGIN/REGISTER handlers
   - [ ] - Separate params
   - [x] - Format Imports
     - [x] - Reimport everything
@@ -58,7 +58,8 @@
     - [x] - GetMany
     - [x] - Update
     - [x] - Delete
-- [x] - Implement Rate Limit
+- [x] - Create Rate Limit
+- [ ] - Implement Rate limit as middleware or in every handler
   - [ ] - Add to all Todos handlers
   - [ ] - Add to all Users handlers
   - [ ] - Add to all Auth handlers
