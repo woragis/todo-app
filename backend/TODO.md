@@ -38,9 +38,9 @@
   - [ ] - Add regex validation to profile update handler
   - [ ] - Add Bcrypt to LOGIN/REGISTER handlers
   - [ ] - Separate params
-  - [ ] - Format Imports
-    - [ ] - Reimport everything
-- [ ] - Format Imports
+  - [x] - Format Imports
+    - [x] - Reimport everything
+- [x] - Format Imports
 - [x] - Implement **JWT** on Login & Register
 - [x] - Implement **JWT** on todos CRUD
 - [x] - Padronize **Responses**
