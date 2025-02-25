@@ -4,7 +4,7 @@ use cipher::generic_array::GenericArray;
 use openssl::error::Error;
 use openssl::sha::Sha512;
 
-pub async fn sha_encrypt_string(payload: String) -> Result<String, Error> {
+pub fn sha_encrypt_string(payload: String) -> Result<String, Error> {
     let key = "banana";
     let mut my_sha = Sha512::new();
     my_sha.update(key.as_bytes());

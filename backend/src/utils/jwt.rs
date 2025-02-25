@@ -8,19 +8,24 @@ use uuid::Uuid;
 
 use crate::models::{jwt::Claims, response::AuthError};
 
+use super::encryption::sha_encrypt_string;
+
 static SECRET_KEY: Lazy<String> = Lazy::new(|| {
     dotenv().ok(); // Load .env file if available
     env::var("SECRET_KEY").expect("SECRET_KEY must be set")
 });
 
-pub fn generate_jwt(user_id: Uuid) -> Result<String, jsonwebtoken::errors::Error> {
+pub fn generate_jwt(user_id: Uuid, role: String) -> Result<String, jsonwebtoken::errors::Error> {
     let expiration = Utc::now()
         .checked_add_signed(Duration::minutes(60))
         .expect("Valid timestamp")
         .timestamp() as usize;
 
+    let role = sha_encrypt_string(role).expect("Error encrypting role");
+
     let claims = Claims {
         sub: user_id.to_string(),
+        role,
         exp: expiration,
     };
 
