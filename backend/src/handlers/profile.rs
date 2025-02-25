@@ -3,9 +3,9 @@ use std::{str::FromStr, sync::Arc};
 use crate::{
     models::{
         response::{ApiError, ApiResponse},
-        user::{UpdateUser, User},
+        user::{UpdateProfile, User},
     },
-    utils::jwt::{extract_token, validate_jwt},
+    utils::{bcrypt::hash_password, jwt::{extract_token, validate_jwt}},
 };
 use actix_web::{
     http::StatusCode,
@@ -47,33 +47,25 @@ pub async fn get_user_profile(
 pub async fn update_user_profile(
     client: Data<Arc<Mutex<Client>>>,
     request: HttpRequest,
-    payload: Json<UpdateUser>,
+    payload: Json<UpdateProfile>,
 ) -> Result<HttpResponse, ApiError> {
     let token = extract_token(&request.headers()).map_err(ApiError::from)?;
     let claims = validate_jwt(&token).map_err(ApiError::from)?;
     let user_id = Uuid::from_str(&claims.sub).map_err(ApiError::from)?;
 
     let client = client.lock().await;
-    let stmt = format!("UPDATE {} SET {} WHERE id = $4", TABLE, UPDATE_FIELDS);
+    let stmt = format!("UPDATE {} SET name = $1, email = $2 WHERE id = $3", TABLE);
     let result = client
         .execute(
             &stmt,
-            &[&payload.name, &payload.email, &payload.password, &user_id],
+            &[&payload.name, &payload.email, &user_id],
         )
         .await
         .map_err(ApiError::from)?;
 
     if result == 1 {
-        let updated_user = User {
-            id: user_id,
-            name: payload.name.to_owned(),
-            email: payload.email.to_owned(),
-            password: payload.password.to_owned(),
-            role: String::from("user"),
-            profile_picture: Some(String::new()),
-        };
         return Ok(ApiResponse::success(
-            updated_user,
+            (),
             "User updated successfully",
             StatusCode::OK,
         ));
@@ -82,6 +74,40 @@ pub async fn update_user_profile(
     }
     Err(ApiError::Custom("Unexpected update count".to_string()))
 }
+
+/// **Update User Password**
+pub async fn update_user_password(
+    client: Data<Arc<Mutex<Client>>>,
+    request: HttpRequest,
+    password: Json<String>,
+) -> Result<HttpResponse, ApiError> {
+    let token = extract_token(&request.headers()).map_err(ApiError::from)?;
+    let claims = validate_jwt(&token).map_err(ApiError::from)?;
+    let user_id = Uuid::from_str(&claims.sub).map_err(ApiError::from)?;
+    let hashed_password = hash_password(&password).map_err(ApiError::from)?;
+
+    let client = client.lock().await;
+    let stmt = format!("UPDATE {} SET password = $1 WHERE id = $2", TABLE);
+    let result = client
+        .execute(
+            &stmt,
+            &[&hashed_password, &user_id],
+        )
+        .await
+        .map_err(ApiError::from)?;
+
+    if result == 1 {
+        return Ok(ApiResponse::success(
+            (),
+            "Password updated successfully",
+            StatusCode::OK,
+        ));
+    } else if result == 0 {
+        return Err(ApiError::Custom("User not found".to_string()));
+    }
+    Err(ApiError::Custom("Unexpected update count".to_string()))
+}
+
 
 /// **Delete User Profile**
 pub async fn delete_user_profile(
@@ -102,7 +128,7 @@ pub async fn delete_user_profile(
     if result == 1 {
         return Ok(ApiResponse::success(
             (),
-            "User deleted successfully",
+            "Account deleted successfully",
             StatusCode::OK,
         ));
     } else if result == 0 {

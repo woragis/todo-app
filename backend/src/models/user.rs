@@ -20,11 +20,18 @@ pub struct CreateUser {
 }
 
 #[derive(Debug, Deserialize)]
+pub struct UpdateProfile {
+    pub name: String,
+    pub email: String,
+}
+
+#[derive(Debug, Deserialize)]
 pub struct UpdateUser {
     pub name: String,
     pub email: String,
     pub password: String,
 }
+
 
 impl User {
     pub fn from_row(row: &Row) -> Self {

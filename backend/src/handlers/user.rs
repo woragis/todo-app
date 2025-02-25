@@ -4,7 +4,7 @@ use std::sync::Arc;
 use crate::{models::{
     response::{ApiError, ApiResponse, AuthError},
     user::{CreateUser, UpdateUser, User},
-}, utils::{encryption::sha_encrypt_string, jwt::{extract_token, validate_jwt}}};
+}, utils::{bcrypt::hash_password, encryption::sha_encrypt_string, jwt::{extract_token, validate_jwt}}};
 use actix_web::{
     http::StatusCode, web::{self, Data, Json, Path}, HttpRequest, HttpResponse
 };
@@ -35,13 +35,15 @@ pub async fn create_user(
         false => return Err(ApiError::Auth(AuthError::AdminsOnly))
     }
 
+    let hashed_password = hash_password(&payload.password).map_err(ApiError::from)?;
+
     let client = client.lock().await;
     let stmt = format!(
         "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
         TABLE, FIELDS, FIELDS_INPUT
     );
     let row = client
-        .query_one(&stmt, &[&payload.name, &payload.email, &payload.password])
+        .query_one(&stmt, &[&payload.name, &payload.email, &hashed_password])
         .await
         .map_err(ApiError::from)?;
 
@@ -126,21 +128,25 @@ pub async fn update_user(
         false => return Err(ApiError::Auth(AuthError::AdminsOnly))
     }
 
+    let hashed_password = hash_password(&payload.password).map_err(ApiError::from)?;
+
     let client = client.lock().await;
     let stmt = format!("UPDATE {} SET {} WHERE id = $4", TABLE, UPDATE_FIELDS);
     let result = client
         .execute(
             &stmt,
-            &[&payload.name, &payload.email, &payload.password, &*user_id],
+            &[&payload.name, &payload.email, &hashed_password, &*user_id],
         )
         .await
         .map_err(ApiError::from);
 
     match result {
         Ok(1) => Ok(ApiResponse::success(*user_id, "User updated successfully", StatusCode::OK)),
+        // update response
         _ => panic!("Error in update user"),
     }
 }
+
 /// **Delete User**
 pub async fn delete_user(client: Data<Arc<Mutex<Client>>>, request: HttpRequest, user_id: Path<Uuid>) -> Result<HttpResponse, ApiError> {
     let token = extract_token(&request.headers()).map_err(ApiError::from)?;
@@ -164,6 +170,7 @@ pub async fn delete_user(client: Data<Arc<Mutex<Client>>>, request: HttpRequest,
             "User deleted successfully",
             StatusCode::OK,
         )),
+        // update response
         _ => panic!("Error in delete user"),
     }
 }
