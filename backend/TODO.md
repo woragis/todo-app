@@ -25,6 +25,7 @@
     - [ ] - Jwt
     - [ ] - Todo
     - [ ] - User
+    - [ ] - Response
   - [ ] - Add Comments to Database
     - [ ] - Database Connection
     - [ ] - Database Tables
@@ -33,9 +34,11 @@
     - [ ] - Profile
     - [ ] - Todo
     - [ ] - User
-  - [ ] - Add Comments to Utils
-    - [ ] - Jwt
-    - [ ] - Response
+  - [x] - Add Comments to Utils
+    - [x] - Bcrypt
+    - [x] - Encryption
+    - [x] - Jwt
+    - [x] - Regex
       - [ ] - Separate response models from utils
 
 ## Security
