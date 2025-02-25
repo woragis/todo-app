@@ -2,10 +2,9 @@ use std::{str::FromStr, sync::Arc};
 
 use crate::{
     models::{
-        response::{ApiError, ApiResponse},
-        user::{UpdateProfile, User},
+        auth::UpdatePassword, response::{ApiError, ApiResponse}, user::{UpdateProfile, User}
     },
-    utils::{bcrypt::hash_password, jwt::{extract_token, validate_jwt}},
+    utils::{bcrypt::hash_password, jwt::{extract_token, validate_jwt}, regex::{regex_email, regex_password}},
 };
 use actix_web::{
     http::StatusCode,
@@ -17,7 +16,6 @@ use tokio_postgres::Client;
 use uuid::Uuid;
 
 static TABLE: &str = "users";
-static UPDATE_FIELDS: &str = "name = $1, email = $2, password = $3";
 
 /// **Read User Profile**
 pub async fn get_user_profile(
@@ -53,6 +51,8 @@ pub async fn update_user_profile(
     let claims = validate_jwt(&token).map_err(ApiError::from)?;
     let user_id = Uuid::from_str(&claims.sub).map_err(ApiError::from)?;
 
+    regex_email(&payload.email)?;
+
     let client = client.lock().await;
     let stmt = format!("UPDATE {} SET name = $1, email = $2 WHERE id = $3", TABLE);
     let result = client
@@ -79,12 +79,27 @@ pub async fn update_user_profile(
 pub async fn update_user_password(
     client: Data<Arc<Mutex<Client>>>,
     request: HttpRequest,
-    password: Json<String>,
+    payload: Json<UpdatePassword>,
 ) -> Result<HttpResponse, ApiError> {
     let token = extract_token(&request.headers()).map_err(ApiError::from)?;
     let claims = validate_jwt(&token).map_err(ApiError::from)?;
     let user_id = Uuid::from_str(&claims.sub).map_err(ApiError::from)?;
-    let hashed_password = hash_password(&password).map_err(ApiError::from)?;
+
+    // let is_equal = compare_password(&payload.oldpassword, &user.password).map_err(ApiError::from)?;
+    // match is_equal {
+    //     false => Err(ApiError::Auth(AuthError::PasswordWrong)),
+    //     true => {
+    //         // generate token
+    //         Ok(ApiResponse::success(
+    //             AuthResponse::user_to_response(user),
+    //             "Successfully logged in",
+    //             StatusCode::OK,
+    //         ))
+    //     }
+    // }
+
+    regex_password(&payload.new_password)?;
+    let hashed_password = hash_password(&payload.new_password).map_err(ApiError::from)?;
 
     let client = client.lock().await;
     let stmt = format!("UPDATE {} SET password = $1 WHERE id = $2", TABLE);
