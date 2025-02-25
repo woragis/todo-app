@@ -4,6 +4,7 @@ use actix_web::{error::ResponseError, http::StatusCode, HttpResponse, Responder}
 use bcrypt::BcryptError;
 use deadpool_redis::{redis::RedisError, PoolError};
 use jsonwebtoken::errors::Error as JwtError;
+use openssl::ssl::Error as OpenSSLError;
 use serde::Serialize;
 use serde_json::Error as SerdeJsonError;
 use tokio_postgres::Error as PgError;
@@ -49,6 +50,7 @@ impl fmt::Display for AuthError {
 #[derive(Debug)]
 pub enum ApiError {
     Jwt(JwtError),
+    OpenSSL(OpenSSLError),
     Bcrypt(BcryptError),
     Database(PgError),
     Redis(RedisError),
@@ -66,6 +68,7 @@ impl fmt::Display for ApiError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ApiError::Jwt(e) => write!(f, "JWT error: {}", e),
+            ApiError::OpenSSL(e) => write!(f, "OpenSSL error: {}", e),
             ApiError::Bcrypt(e) => write!(f, "Bcrypt error: {}", e),
             ApiError::Database(e) => write!(f, "Database error: {}", e),
             ApiError::Redis(e) => write!(f, "Redis error: {}", e),
@@ -85,6 +88,7 @@ impl ResponseError for ApiError {
     fn status_code(&self) -> StatusCode {
         match self {
             ApiError::Jwt(_) => StatusCode::UNAUTHORIZED, // 401
+            ApiError::OpenSSL(_) => StatusCode::INTERNAL_SERVER_ERROR, // 500
             ApiError::Bcrypt(_) => StatusCode::INTERNAL_SERVER_ERROR, // 500
             ApiError::Database(_) => StatusCode::INTERNAL_SERVER_ERROR, // 500
             ApiError::Redis(_) => StatusCode::INTERNAL_SERVER_ERROR, // 500
@@ -116,6 +120,7 @@ impl ResponseError for ApiError {
             ApiError::Auth(AuthError::EmailTaken) => 1005,
             ApiError::Auth(AuthError::EmailWrong) => 1006,
             ApiError::Jwt(_) => 2001,
+            ApiError::OpenSSL(_) => 2003,
             ApiError::Bcrypt(_) => 2002,
             ApiError::Database(_) => 3001,
             ApiError::Redis(_) => 3002,
@@ -141,6 +146,12 @@ impl ResponseError for ApiError {
 impl From<JwtError> for ApiError {
     fn from(err: JwtError) -> Self {
         ApiError::Jwt(err)
+    }
+}
+
+impl From<OpenSSLError> for ApiError {
+    fn from(err: OpenSSLError) -> Self {
+        ApiError::OpenSSL(err)
     }
 }
 

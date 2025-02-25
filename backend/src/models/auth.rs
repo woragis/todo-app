@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use tokio_postgres::Row;
 use uuid::Uuid;
 
-use crate::utils::jwt::generate_jwt;
+use crate::utils::{encryption::sha_encrypt_string, jwt::generate_jwt};
 
 use super::user::User;
 
@@ -23,13 +23,15 @@ pub struct AuthResponse {
 impl AuthResponse {
     pub fn user_to_response(user: User) -> Self {
         let user_id = user.id;
-        let token = generate_jwt(user_id, user.role.to_owned()).expect("Token error");
+        let role = sha_encrypt_string(user.role.clone()).expect("Error encrypting role");
+        let token = generate_jwt(user_id, role).expect("Token error");
         AuthResponse { user, token }
     }
 
     pub fn row_to_response(row: Row) -> Self {
         let user_id: Uuid = row.get("id");
         let role: String = row.get("role");
+        let role = sha_encrypt_string(role).expect("Error encrypting role");
         let token = generate_jwt(user_id, role).expect("Token error");
         AuthResponse {
             user: User::from_row(&row),
