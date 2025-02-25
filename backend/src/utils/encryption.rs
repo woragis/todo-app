@@ -1,10 +1,12 @@
 use aes::Aes128;
 use aes::cipher::{BlockEncrypt, BlockDecrypt, KeyInit};
 use cipher::generic_array::GenericArray;
+use log::debug;
 use openssl::error::Error;
 use openssl::sha::Sha512;
 
 pub fn sha_encrypt_string(payload: String) -> Result<String, Error> {
+    debug!("Encrypting with sha...");
     let key = "banana";
     let mut my_sha = Sha512::new();
     my_sha.update(key.as_bytes());
@@ -13,24 +15,10 @@ pub fn sha_encrypt_string(payload: String) -> Result<String, Error> {
     let result = hex::encode(my_sha.finish());
 
     Ok(result)
-    // let response_string = format!("Input: {}\nSha: {}", payload, result);
-    // Ok(HttpResponse::Ok().body(response_string))
 }
 
-
-// pub async fn aes_string(payload: String) -> Result<HttpResponse, Error> {
-//     let my_encrypted = aes_encrypt_string(payload.clone());
-//     let encrypted_len = &my_encrypted.len();
-//     let my_decrypted = aes_decrypt_string(my_encrypted.clone());
-//     let decrypted_len = &my_decrypted.len();
-
-
-//     let response_string = format!("Input: {} - len: {}\nEncrypted: {:?} - len: {}\nDecrypted: {:?} - len: {}\n", payload.clone(), &payload.clone().len(), &my_encrypted, encrypted_len, &my_decrypted, decrypted_len);
-//     Ok(HttpResponse::Ok().body(response_string))
-// }
-
-
 fn aes_encrypt_string(payload: String) -> Vec<u8> {
+    debug!("Encrypting with aes...");
     let key=GenericArray::from([0u8;16]);
     let cipher = Aes128::new(&key);
 
@@ -46,6 +34,7 @@ fn aes_encrypt_string(payload: String) -> Vec<u8> {
 }
 
 fn aes_decrypt_string(payload: Vec<u8>) -> String {
+    debug!("Decrypting aes...");
     let key=GenericArray::from([0u8;16]);
     let cipher = Aes128::new(GenericArray::from_slice(&key));
 
