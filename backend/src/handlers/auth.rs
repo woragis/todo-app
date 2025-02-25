@@ -6,14 +6,13 @@ use crate::{
         response::{ApiError, ApiResponse, AuthError},
         user::User,
     },
-    utils::bcrypt::{compare_password, hash_password},
+    utils::{bcrypt::{compare_password, hash_password}, regex::{regex_email, regex_password}},
 };
 use actix_web::{
     http::StatusCode,
     web::{Data, Json},
     HttpResponse,
 };
-use regex::Regex;
 use tokio::sync::Mutex;
 use tokio_postgres::Client;
 
@@ -54,22 +53,8 @@ pub async fn register(
 ) -> Result<HttpResponse, ApiError> {
     match test_email(&client, payload.email.clone()).await {
         Ok(None) => {
-            let email_regex = Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
-                .map_err(|e| ApiError::RegexValidationError(format!("{}", e)))?;
-            match email_regex.is_match(&payload.email) {
-                false => return Err(ApiError::RegexValidationError("email invalid".to_string())),
-                true => (),
-            }
-            let password_regex = Regex::new(r"^[A-Za-z0-9!@#$%^&*()_\-]{8,}$")
-                .map_err(|e| ApiError::RegexValidationError(format!("{}", e)))?;
-            match password_regex.is_match(&payload.password) {
-                false => {
-                    return Err(ApiError::RegexValidationError(
-                        "password invalid".to_string(),
-                    ))
-                }
-                true => (),
-            }
+            regex_email(&payload.email)?;
+            regex_password(&payload.password)?;
 
             let client = client.lock().await;
             let stmt = format!(
