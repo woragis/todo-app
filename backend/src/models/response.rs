@@ -20,6 +20,7 @@ pub struct ApiResponse<T> {
 // Define a custom error type
 #[derive(Debug)]
 pub enum AuthError {
+    AdminsOnly,
     MissingHeader,
     InvalidHeader,
     MissingBearer,
@@ -32,6 +33,7 @@ pub enum AuthError {
 impl fmt::Display for AuthError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
+            AuthError::AdminsOnly => write!(f, "Admin only section"),
             AuthError::MissingHeader => write!(f, "Authorization header is missing"),
             AuthError::InvalidHeader => write!(f, "Invalid authorization header format"),
             AuthError::MissingBearer => write!(f, "Error striping 'Bearer '"),
@@ -90,6 +92,7 @@ impl ResponseError for ApiError {
             ApiError::SerdeJson(_) => StatusCode::BAD_REQUEST, // 400
             ApiError::Uuid(_) => StatusCode::BAD_REQUEST, // 400
             ApiError::Auth(auth_error) => match auth_error {
+                AuthError::AdminsOnly => StatusCode::UNAUTHORIZED, // 401
                 AuthError::MissingHeader => StatusCode::UNAUTHORIZED, // 401
                 AuthError::InvalidHeader => StatusCode::BAD_REQUEST,  // 400
                 AuthError::MissingBearer => StatusCode::BAD_REQUEST,  // 400
@@ -105,6 +108,7 @@ impl ResponseError for ApiError {
 
     fn error_response(&self) -> HttpResponse {
         let error_number = match self {
+            ApiError::Auth(AuthError::AdminsOnly) => 1007,
             ApiError::Auth(AuthError::MissingHeader) => 1001,
             ApiError::Auth(AuthError::InvalidHeader) => 1002,
             ApiError::Auth(AuthError::MissingBearer) => 1003,
