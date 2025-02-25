@@ -5,7 +5,7 @@ mod models;
 mod routes;
 mod utils;
 
-use std::{env, sync::Arc};
+use std::{env, process::exit, sync::Arc};
 
 use actix_cors::Cors;
 use actix_web::{
@@ -55,18 +55,37 @@ async fn main() -> std::io::Result<()> {
 
     dotenvy::dotenv().ok();
 
-    let redis_pool = Arc::new(pool());
-
-    let client = match connect().await {
-        Ok(client) => Arc::new(Mutex::from(client)),
+    let redis_pool = match pool() {
+        Ok(redis_pool) => {
+            info!("Redis cache connected");
+            Arc::new(redis_pool)
+        },
         Err(e) => {
-            error!("Error connecting to database: {}", e);
-            return Ok(());
+            error!("Error connecting to redis cache: {}", e);
+            exit(2);
         }
     };
 
-    if let Err(e) = create_tables(&client).await {
-        error!("Error creating tables: {}", e);
+    let client = match connect().await {
+        Ok(client) => {
+            info!("Database client connected");
+            Arc::new(Mutex::from(client))
+        },
+        Err(e) => {
+            error!("Error connecting to postgres database: {}", e);
+            exit(3);
+        }
+    };
+
+    match create_tables(&client).await {
+        Ok(()) => {
+            info!("Created tables");
+            ()
+        },
+        Err(e) => {
+            error!("Error creating tables: {}", e);
+            exit(4);
+        },
     }
 
     HttpServer::new(move || {
@@ -89,8 +108,8 @@ async fn main() -> std::io::Result<()> {
     })
     .bind((HOST, PORT))
     .unwrap_or_else(|e| {
-        eprintln!("Failed to bind address {}:{}: {}", HOST, PORT, e);
-        std::process::exit(1);
+        error!("Failed to bind address {}:{}: {}", HOST, PORT, e);
+        exit(1);
     })
     .run()
     .await
