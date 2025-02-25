@@ -1,6 +1,18 @@
 # Backend
 
-## Documentation
+## Code organization
+
+- [x] - Format Imports
+- [x] - Padronize **Responses**
+- [ ] - Separate params
+- [ ] - Implement Logging
+  - [x] - Configure Logging
+  - [ ] - Implement Logging for handlers
+- [ ] - Rate limit
+  - [ ] - Create rate limit
+  - [ ] - Implement rate limit
+
+### Documentation
 
 - [ ] - Comments
   - [ ] - Add Comments to Handlers
@@ -26,6 +38,21 @@
     - [ ] - Response
       - [ ] - Separate response models from utils
 
+## Security
+
+- [ ] - Encrypt data like EMAIL with AES
+- [x] - Encrypt PASSWORD with bcrypt
+- [ ] - Use JWT
+- [ ] - Use UUID
+- [ ] - Encrypt data like EMAIL with AES
+- [x] - Use auth header for TODOS CRUD
+- [ ] - Use admin role for USERS CRUD
+  - [ ] - Add regex validation
+- [ ] - Put role in JWT
+- [ ] - Encrypt JWT role with AES
+- [ ] - Regex validation
+  - [ ] - Make regex validations global
+
 ## Business Logic
 
 - [x] - Change framework from axum to actix
@@ -37,17 +64,12 @@
   - [x] - Add regex validation to REGISTER handler
   - [ ] - Add regex validation to profile update handler
   - [x] - Add Bcrypt to LOGIN/REGISTER handlers
-  - [ ] - Separate params
   - [x] - Format Imports
     - [x] - Reimport everything
-- [x] - Format Imports
 - [x] - Implement **JWT** on Login & Register
 - [x] - Implement **JWT** on todos CRUD
-- [x] - Padronize **Responses**
-- [ ] - Implement Logging
-  - [x] - Configure Logging
-  - [ ] - Implement Logging for handlers
-- [ ] - Implement **Cache** _with_ **REDIS**
+- [x] - Implement **Cache** _with_ **REDIS**
+- [ ] - Implement **Cache** for USERS CRUD
 
 ### Cache
 
