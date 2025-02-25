@@ -40,16 +40,19 @@
 
 ## Security
 
-- [ ] - Encrypt data like EMAIL with AES
+- [ ] - Encrypt data like EMAIL with SHA512
 - [x] - Encrypt PASSWORD with bcrypt
-- [ ] - Use JWT
-- [ ] - Use UUID
-- [ ] - Encrypt data like EMAIL with AES
+- [x] - Use JWT
+- [x] - Use UUID
 - [x] - Use auth header for TODOS CRUD
-- [ ] - Use admin role for USERS CRUD
-  - [ ] - Add regex validation
-- [ ] - Put role in JWT
-- [ ] - Encrypt JWT role with AES
+- [ ] - USERS CRUD
+  - [x] - Require admin role
+  - [x] - Add regex validation
+  - [x] - Add bcrypt to update and create handlers
+- [x] - Remove password from profile/update
+- [x] - Add update password route
+- [x] - Put role in JWT
+- [x] - Encrypt JWT role with AES
 - [ ] - Regex validation
   - [ ] - Make regex validations global
 
@@ -60,9 +63,9 @@
 - [x] - Add profile_picture to users model/table
 - [x] - Add profile CRUD profile_picture handlers
 - [ ] - Handlers
-  - [ ] - Add admin permission to CRUD TODOS and USERS
+  - [x] - Add admin permission to CRUD TODOS and USERS
   - [x] - Add regex validation to REGISTER handler
-  - [ ] - Add regex validation to profile update handler
+  - [x] - Add regex validation to profile update handler
   - [x] - Add Bcrypt to LOGIN/REGISTER handlers
   - [x] - Format Imports
     - [x] - Reimport everything
@@ -80,6 +83,15 @@
     - [x] - GetMany
     - [x] - Update
     - [x] - Delete
+  - [x] - Implement cache for USERS
+    - [x] - Create
+    - [x] - GetById
+    - [x] - GetMany
+    - [x] - Update
+    - [x] - Delete
+  - [x] - Implement cache for PROFILE
+    - [ ] - Read
+    - [ ] - Read profile picture
 - [x] - Create Rate Limit
 - [ ] - Implement Rate limit as middleware or in every handler
   - [ ] - Add to all Todos handlers
