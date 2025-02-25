@@ -2,6 +2,7 @@ use actix_web::http::header::HeaderMap;
 use chrono::{Duration, Utc};
 use dotenvy::dotenv;
 use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation};
+use log::debug;
 use once_cell::sync::Lazy;
 use std::env;
 use uuid::Uuid;
@@ -11,16 +12,18 @@ use crate::models::{jwt::Claims, response::AuthError};
 use super::encryption::sha_encrypt_string;
 
 static SECRET_KEY: Lazy<String> = Lazy::new(|| {
-    dotenv().ok(); // Load .env file if available
+    dotenv().ok();
+    debug!("Fetching jwt SECRET_KEY...");
     env::var("SECRET_KEY").expect("SECRET_KEY must be set")
 });
 
 pub fn generate_jwt(user_id: Uuid, role: String) -> Result<String, jsonwebtoken::errors::Error> {
     let expiration = Utc::now()
         .checked_add_signed(Duration::minutes(60))
-        .expect("Valid timestamp")
+        .expect("JWT Generation: error in timestamp")
         .timestamp() as usize;
 
+    // put this outside of this function for better error handling
     let role = sha_encrypt_string(role).expect("Error encrypting role");
 
     let claims = Claims {
@@ -40,7 +43,6 @@ pub fn extract_token(header: &HeaderMap) -> Result<String, AuthError> {
     match header.get("Authorization") {
         Some(auth_header) => match auth_header.to_str() {
             Ok(auth_str) => {
-                println!("Authorization Header: {}", auth_str);
                 match auth_str.strip_prefix("Bearer ") {
                     Some(token) => Ok(token.to_string()),
                     None => Err(AuthError::MissingBearer),
