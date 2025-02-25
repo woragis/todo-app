@@ -1,11 +1,14 @@
 use std::sync::Arc;
 
+use log::debug;
 use tokio::sync::Mutex;
 use tokio_postgres::{Client, Error};
 
+pub static USERS_TABLE: &str = "users";
+pub static TODOS_TABLE: &str = "todos";
+
 pub async fn create_tables(client: &Arc<Mutex<Client>>) -> Result<(), Error> {
-    const USERS_TABLE: &str = "users";
-    const TODOS_TABLE: &str = "todos";
+    debug!("Creating tables: '{}', '{}'", USERS_TABLE, TODOS_TABLE);
 
     let extension = "CREATE EXTENSION IF NOT EXISTS pgcrypto;";
 
@@ -37,6 +40,7 @@ pub async fn create_tables(client: &Arc<Mutex<Client>>) -> Result<(), Error> {
         TODOS_TABLE, USERS_TABLE
     );
 
+
     let client = client.lock().await;
     client
         .batch_execute(&extension)
@@ -50,8 +54,6 @@ pub async fn create_tables(client: &Arc<Mutex<Client>>) -> Result<(), Error> {
         .batch_execute(&create_todos_table)
         .await
         .expect("Could not create todos table");
-
-    println!("Tables created successfully");
 
     Ok(())
 }
