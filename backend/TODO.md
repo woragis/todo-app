@@ -13,10 +13,10 @@
 
 ### Documentation
 
-- [ ] - Add comments to Data
-  - [ ] - Cache
-  - [ ] - Database
-  - [ ] - Tables
+- [x] - Add comments to Data
+  - [x] - Cache
+  - [x] - Database
+  - [x] - Tables
 - [ ] - Add comments to Handlers
   - [ ] - Auth
   - [ ] - Profile
