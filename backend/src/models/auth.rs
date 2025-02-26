@@ -1,3 +1,4 @@
+use log::debug;
 use serde::{Deserialize, Serialize};
 use tokio_postgres::Row;
 use uuid::Uuid;
@@ -22,6 +23,7 @@ pub struct AuthResponse {
 
 impl AuthResponse {
     pub fn user_to_response(user: User) -> Self {
+        debug!("Parsing user to response model");
         let user_id = user.id;
         let role = sha_encrypt_string(user.role.clone()).expect("Error encrypting role");
         let token = generate_jwt(user_id, role).expect("Token error");
@@ -29,6 +31,7 @@ impl AuthResponse {
     }
 
     pub fn row_to_response(row: Row) -> Self {
+        debug!("Parsing row to response model");
         let user_id: Uuid = row.get("id");
         let role: String = row.get("role");
         let role = sha_encrypt_string(role).expect("Error encrypting role");

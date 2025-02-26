@@ -1,3 +1,4 @@
+use log::debug;
 use serde::{Deserialize, Serialize};
 use tokio_postgres::Row;
 use uuid::Uuid;
@@ -35,6 +36,7 @@ pub struct UpdateUser {
 
 impl User {
     pub fn from_row(row: &Row) -> Self {
+        debug!("Parsing row to user model");
         User {
             id: row.get("id"),
             name: row.get("name"),

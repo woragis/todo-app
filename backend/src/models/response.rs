@@ -145,54 +145,63 @@ impl ResponseError for ApiError {
 // Convert other errors into `ApiError`
 impl From<JwtError> for ApiError {
     fn from(err: JwtError) -> Self {
+        log::error!("JWT error: {}", err);
         ApiError::Jwt(err)
     }
 }
 
 impl From<OpenSSLError> for ApiError {
     fn from(err: OpenSSLError) -> Self {
+        log::error!("OpenSSL error: {}", err);
         ApiError::OpenSSL(err)
     }
 }
 
 impl From<BcryptError> for ApiError {
     fn from(err: BcryptError) -> Self {
+        log::error!("Bcrypt error: {}", err);
         ApiError::Bcrypt(err)
     }
 }
 
 impl From<PgError> for ApiError {
     fn from(err: PgError) -> Self {
+        log::error!("Postgres error: {}", err);
         ApiError::Database(err)
     }
 }
 
 impl From<RedisError> for ApiError {
     fn from(err: RedisError) -> Self {
+        log::error!("Redis error: {}", err);
         ApiError::Redis(err)
     }
 }
 
 impl From<PoolError> for ApiError {
     fn from(err: PoolError) -> Self {
+        log::error!("Redis Pool error: {}", err);
         ApiError::RedisPool(err)
     }
 }
 
 impl From<SerdeJsonError> for ApiError {
     fn from(err: SerdeJsonError) -> Self {
+        log::error!("SerdeJson error: {}", err);
         ApiError::SerdeJson(err)
     }
 }
 
 impl From<UuidError> for ApiError {
     fn from(err: UuidError) -> Self {
+        log::error!("Uuid error: {}", err);
         ApiError::Uuid(err)
     }
 }
 
 impl From<AuthError> for ApiError {
     fn from(err: AuthError) -> Self {
+        log::error!("Auth error: {}", err);
         ApiError::Auth(err)
     }
 }

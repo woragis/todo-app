@@ -5,12 +5,12 @@ use std::{
 };
 
 use actix_web::{web::Data, HttpRequest, HttpResponse};
+use log::{debug, info, warn};
 
 use super::response::ApiError;
 
 #[derive(Clone)]
 pub struct RateLimiter {
-    // Maps IP addresses to (request count, window start time)
     requests: Arc<Mutex<HashMap<String, (usize, Instant)>>>,
     max_requests: usize,
     window: Duration,
@@ -25,18 +25,20 @@ impl RateLimiter {
         }
     }
     pub fn is_allowed(&self, ip: &str) -> bool {
+        debug!("Checking if ip: '{}' is allowed", ip);
         let mut requests = self.requests.lock().unwrap();
         let now = Instant::now();
         let entry = requests.entry(ip.to_string()).or_insert((0, now));
-        // if the window has passed, reset the counter
         if now.duration_since(entry.1) > self.window {
             *entry = (1, now);
             true
         } else {
             if entry.0 < self.max_requests {
                 entry.0 += 1;
+                info!("Ip: '{}' allowed", ip);
                 true
             } else {
+                warn!("Ip: '{}' not allowed", ip);
                 false
             }
         }
@@ -45,7 +47,6 @@ impl RateLimiter {
         if let Some(peer_addr) = req.peer_addr() {
             let ip = peer_addr.ip().to_string();
             if !self.is_allowed(&ip) {
-                // return Err(HttpResponse::TooManyRequests().body("Too many requests"));
                 return Err(ApiError::TooManyRequests);
             }
         }
