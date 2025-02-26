@@ -1,12 +1,26 @@
 # Mobile
 
+## Features
+
+- [ ] - Authentication
+- [ ] - JWT in request header
+- [ ] - Local db with SQLite
+- [ ] - End to End Encryption _(E2EE)_
+- [ ] - Bloc State managment
+
 ## UI
 
-- [ ] - Todo Page
-- [ ] - Login Page
-- [ ] - Register Page
-- [ ] - Profile Page
-- [ ] - Home Page
+- [ ] - Pages
+  - [ ] - Todo
+  - [ ] - Login
+  - [ ] - Register
+  - [ ] - Profile
+  - [ ] - Home
+- [ ] - Widgets
+  - [ ] - Appbar
+  - [ ] - Navbar
+- [ ] - Components/Widgets
+  - ...
 
 ## CI/CD
 
