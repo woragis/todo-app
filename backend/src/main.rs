@@ -9,6 +9,7 @@ use std::{env, process::exit, sync::Arc};
 
 use actix_cors::Cors;
 use actix_web::{
+    middleware::Logger,
     http::header::{AUTHORIZATION, CONTENT_TYPE},
     web::{get, Data},
     App, HttpServer,
@@ -100,6 +101,7 @@ async fn main() -> std::io::Result<()> {
                     .allowed_headers(vec![AUTHORIZATION, CONTENT_TYPE])
                     .max_age(3600),
             )
+            .wrap(Logger::new("%a %r %s %Dms"))
             .route("/", get().to(index))
             .service(auth_routes())
             .service(profile_routes())
