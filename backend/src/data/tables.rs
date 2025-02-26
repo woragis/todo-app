@@ -4,14 +4,28 @@ use log::debug;
 use tokio::sync::Mutex;
 use tokio_postgres::{Client, Error};
 
+/// Table names for the database.
 pub static USERS_TABLE: &str = "users";
 pub static TODOS_TABLE: &str = "todos";
 
+/// Creates necessary database tables if they do not exist.
+/// 
+/// # Parameters
+/// - `client`: A shared and synchronized PostgreSQL client.
+/// 
+/// # Returns
+/// A `Result` indicating success or failure in creating the tables.
+/// 
+/// # Errors
+/// Returns an `Error` if any of the table creation queries fail.
 pub async fn create_tables(client: &Arc<Mutex<Client>>) -> Result<(), Error> {
+    // Log the table creation process.
     debug!("Creating tables: '{}', '{}'", USERS_TABLE, TODOS_TABLE);
 
+    // Ensure the pgcrypto extension is available for UUID generation.
     let extension = "CREATE EXTENSION IF NOT EXISTS pgcrypto;";
 
+    // SQL statement for creating the users table.
     let create_users_table = format!(
         "
     CREATE TABLE IF NOT EXISTS {} (
@@ -26,6 +40,7 @@ pub async fn create_tables(client: &Arc<Mutex<Client>>) -> Result<(), Error> {
         USERS_TABLE
     );
 
+    // SQL statement for creating the todos table.
     let create_todos_table = format!(
         "
     CREATE TABLE IF NOT EXISTS {} (
@@ -41,7 +56,10 @@ pub async fn create_tables(client: &Arc<Mutex<Client>>) -> Result<(), Error> {
     );
 
 
+    // Lock the database client to execute queries sequentially.
     let client = client.lock().await;
+
+    // Execute the extension and table creation queries.
     client
         .batch_execute(&extension)
         .await
