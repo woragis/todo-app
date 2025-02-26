@@ -96,6 +96,22 @@
 - [x] - Regex validation
   - [x] - Make regex validations global
 
+### Middleware
+
+- [ ] - Auth rate limiter
+  - check time: 10 minutes
+  - max requests: 5
+  - timeout: 24 hours
+- [ ] - General rate limiter
+  - check time: 1 minute
+  - max requests: 100
+  - timeout: 12 hours
+- [ ] - Progressive timout
+  - 12 hours
+  - 36 hours
+  - 72 hours
+  - 1 week
+
 ## Business Logic
 
 - [x] - Change framework from axum to actix
