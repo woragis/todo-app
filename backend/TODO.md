@@ -55,12 +55,12 @@
   - [ ] - User
 - [ ] - Add logging to Middlewares
   - [ ] - rate limit
-- [ ] - Add logging to Models
-  - [ ] - Auth
-  - [ ] - Jwt
-  - [ ] - Todo
-  - [ ] - User
-  - [ ] - Response
+- [x] - Add logging to Models
+  - [x] - Auth
+  - [x] - Rate Limiter
+  - [x] - Response
+  - [x] - Todo
+  - [x] - User
 - [x] - Add logging to Utils
   - [x] - Bcrypt
   - [x] - Encryption
