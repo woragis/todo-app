@@ -4,60 +4,97 @@
 
 - [x] - Format Imports
 - [x] - Padronize **Responses**
-- [ ] - Separate params
 - [ ] - Implement Logging
   - [x] - Configure Logging
   - [ ] - Implement Logging for handlers
-- [ ] - Rate limit
+- [ ] - Rate limit middleware
   - [ ] - Create rate limit
-  - [ ] - Implement rate limit
+  - [ ] - Implement rate limit middleware
 
 ### Documentation
 
-- [ ] - Comments
-  - [ ] - Add Comments to Handlers
-    - [ ] - Auth
-    - [ ] - Profile
-    - [ ] - Todo
-    - [ ] - User
-  - [ ] - Add Comments to Models
-    - [ ] - Auth
-    - [ ] - Jwt
-    - [ ] - Todo
-    - [ ] - User
-    - [ ] - Response
-  - [ ] - Add Comments to Database
-    - [ ] - Database Connection
-    - [ ] - Database Tables
-  - [ ] - Add Comments to Routes
-    - [ ] - Auth
-    - [ ] - Profile
-    - [ ] - Todo
-    - [ ] - User
-  - [x] - Add Comments to Utils
-    - [x] - Bcrypt
-    - [x] - Encryption
-    - [x] - Jwt
-    - [x] - Regex
-      - [ ] - Separate response models from utils
+- [ ] - Add comments to Data
+  - [ ] - Cache
+  - [ ] - Database
+  - [ ] - Tables
+- [ ] - Add comments to Handlers
+  - [ ] - Auth
+  - [ ] - Profile
+  - [ ] - Todo
+  - [ ] - User
+- [ ] - Add comments to Middlewares
+  - [ ] - rate limit
+- [ ] - Add comments to Models
+  - [ ] - Auth
+  - [ ] - Jwt
+  - [ ] - Todo
+  - [ ] - User
+  - [ ] - Response
+- [ ] - Add comments to Routes
+  - [ ] - Auth
+  - [ ] - Profile
+  - [ ] - Todo
+  - [ ] - User
+- [ ] - Add comments to Utils
+  - [ ] - Bcrypt
+  - [ ] - Encryption
+  - [ ] - Jwt
+  - [ ] - Regex
+  - [ ] - Auth rate limit
+
+### Logging
+
+- [x] - Add logging to Data
+  - [x] - Cache
+  - [x] - Database
+  - [x] - Tables
+- [ ] - Add logging to Handlers
+  - [ ] - Auth
+  - [ ] - Profile
+  - [ ] - Todo
+  - [ ] - User
+- [ ] - Add logging to Middlewares
+  - [ ] - rate limit
+- [ ] - Add logging to Models
+  - [ ] - Auth
+  - [ ] - Jwt
+  - [ ] - Todo
+  - [ ] - User
+  - [ ] - Response
+- [x] - Add logging to Utils
+  - [x] - Bcrypt
+  - [x] - Encryption
+  - [x] - Jwt
+  - [x] - Regex
+  - [ ] - Auth rate limit
 
 ## Security
 
-- [ ] - Encrypt data like EMAIL with SHA512
+- [ ] - Update model (add hashed_email and encrypted_email and remove email)
+  - [ ] - Encrypt email with SHA512 to hashed_email
+  - [ ] - Encrypt email with AES512 to encrypted_email
 - [x] - Encrypt PASSWORD with bcrypt
-- [x] - Use JWT
-- [x] - Use UUID
-- [x] - Use auth header for TODOS CRUD
-- [ ] - USERS CRUD
-  - [x] - Require admin role
-  - [x] - Add regex validation
-  - [x] - Add bcrypt to update and create handlers
-- [x] - Remove password from profile/update
-- [x] - Add update password route
-- [x] - Put role in JWT
-- [x] - Encrypt JWT role with AES
-- [ ] - Regex validation
-  - [ ] - Make regex validations global
+- [x] - JWT
+  - [x] - Sub -> user_id as String
+  - [x] - Role -> hashed with SHA512 as String
+- [x] - UUID
+- [x] - TODOS CRUD
+  - [ ] - Admins can see everyone's TODOS
+  - [ ] - Hash
+    - [ ] - Use user_id as key? NO. use it as secondary key? Maybe
+- [x] - USERS CRUD
+  - [x] - 'users/\*' requires admin role through JWT
+  - [x] - Regex to: 'create, update'
+  - [x] - Bcrypt to: 'create, update'
+- [ ] - Auth
+  - [x] - 'profile/\*' requires 'Authorization: Bearer <token>' header
+  - [x] - 'profile/update' only updates: name, email
+  - [x] - 'profile/update-password' only updates: password
+  - [ ] - 'profile/update' uses regex
+  - [ ] - 'profile/update-password' uses bcrypt
+  - [ ] - 'profile/update-password' uses regex
+- [x] - Regex validation
+  - [x] - Make regex validations global
 
 ## Business Logic
 
