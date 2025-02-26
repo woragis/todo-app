@@ -118,7 +118,7 @@
 - [x] - Add roles to users model/table
 - [x] - Add profile_picture to users model/table
 - [x] - Add profile CRUD profile_picture handlers
-- [ ] - Handlers
+- [x] - Handlers
   - [x] - Add admin permission to CRUD TODOS and USERS
   - [x] - Add regex validation to REGISTER handler
   - [x] - Add regex validation to profile update handler
