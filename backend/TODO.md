@@ -164,3 +164,9 @@
 - [ ] - Implement **Tests**
 - [ ] - Create Github Action de Testes
 - [ ] - Create Github Action de Deploy automatico para a **Playstore** e **Apple store**
+
+## Monitoring
+
+- [ ] - Implement some form of monitoring the trafic in the backend network
+- [ ] - Implement some form of monitoring the trafic in the database network
+- [ ] - Implement some form of monitoring the trafic in the cache network
