@@ -1,21 +1,40 @@
 # Frontend
 
+## Security
+
+- [ ] - Use SHA512 on login email request
+- [ ] - Use AES256 on login password request
+- [ ] - Use AES256 on register request
+- [ ] - Send productId on purchase operations _(instead of 'amount')_
+
 ## Features
 
 - [x] - Tanstack Router
 - [x] - Redo implementation of Backend connection with RTK Query
 - [ ] - Use Tanstack Form for form handling
+- [ ] - Use Stripe for payments _only in the future_
 
 ## UI
 
-- [ ] - Login Page
-- [ ] - Register Page
-- [ ] - About Page
-- [ ] - Profile Page
-- [x] - Home Page
-- [x] - Todo Page
+- [ ] - Consistency
+  - [ ] - Create a default top-padding
+  - [ ] - Create a not-found page
+  - [ ] - Create a unauthorized page
+  - [ ] - Create a forbiden page
+  - [ ] - Create a too many requests page
+- [ ] - Pages
+  - [ ] - Login
+  - [ ] - Register
+  - [ ] - About
+  - [ ] - Profile
+  - [x] - Home
+  - [x] - Todo
+  - [ ] - Pricing _only in the future_
+  - [ ] - Payment _only in the future_
 
 ### @MUI/Material
+
+Fix some problem that doesn't let me use @mui/material
 
 - [ ] - Loading Component (only on todo/account creation or login and update, delete profile/todo)
 - [ ] - Use <Typography> for h1,h2,h3,h4,h5,h6
