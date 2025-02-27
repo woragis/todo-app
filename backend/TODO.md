@@ -95,6 +95,13 @@
   - [ ] - 'profile/update-password' uses regex
 - [x] - Regex validation
   - [x] - Make regex validations global
+- [ ] - Create CSRF token for forms CRUD
+  - [ ] - Auth
+    - [ ] - Login & Register
+    - [ ] - Profile
+    - [ ] - Profile Picture
+  - [ ] - User
+  - [ ] - Todo
 
 ### Middleware
 
