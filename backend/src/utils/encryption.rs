@@ -35,7 +35,7 @@ pub fn aes_encrypt_string(payload: String) -> Vec<u8> {
     blocks
 }
 
-fn aes_decrypt_string(payload: Vec<u8>) -> String {
+pub fn aes_decrypt_string(payload: Vec<u8>) -> String {
     debug!("Decrypting aes...");
     let key=GenericArray::from([0u8;16]);
     let cipher = Aes128::new(GenericArray::from_slice(&key));
