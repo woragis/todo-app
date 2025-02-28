@@ -6,7 +6,7 @@ use crate::{
         response::{ApiError, ApiResponse, AuthError},
         user::User,
     },
-    utils::{bcrypt::{compare_password, hash_password}, encryption::sha_encrypt_string, regex::{regex_email, regex_password}},
+    utils::{bcrypt::{compare_password, hash_password}, encryption::{aes_encrypt_string, sha_encrypt_string}, regex::{regex_email, regex_password}},
 };
 use actix_web::{
     http::StatusCode,
@@ -17,8 +17,6 @@ use tokio::sync::Mutex;
 use tokio_postgres::Client;
 
 static TABLE: &str = "users";
-static FIELDS: &str = "name, email, password, role";
-static FIELDS_INPUT: &str = "$1, $2, $3, $4";
 
 /// **Login User**
 pub async fn login(
@@ -53,7 +51,7 @@ pub async fn register(
     payload: Json<AuthRequest>,
 ) -> Result<HttpResponse, ApiError> {
     let email_hash = sha_encrypt_string(payload.email.to_owned()).map_err(ApiError::from)?;
-    match test_email(&client, email_hash).await {
+    match test_email(&client, email_hash.clone()).await {
         Ok(None) => {
             regex_email(&payload.email)?;
             regex_password(&payload.password)?;
@@ -61,16 +59,10 @@ pub async fn register(
             let client = client.lock().await;
             let fields = "name, email_hash, email_encrypt, nonce, password, role";
             let inputs = "$1, $2, $3, $4, $5, $6";
+            let email_encrypt = aes_encrypt_string(payload.email.clone());
+            let email_encrypt = hex::encode(email_encrypt);
             let password_hash = hash_password(&payload.password).map_err(ApiError::from)?;
             let role = payload.role.clone().unwrap_or_else(|| "user".to_string());
-            let parameters = Vec::from([
-                &payload.name,
-                &Some(email_hash),
-                &email_encrypt,
-                &nonce,
-                &password_hash,
-                &role,
-            ]);
             let stmt = format!(
                 "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
                 TABLE, fields, inputs
@@ -78,7 +70,14 @@ pub async fn register(
             let row = client
                 .query_one(
                     &stmt,
-                    &parameters,
+                    &[
+                        &payload.name,
+                        &email_hash.to_owned(),
+                        &email_encrypt,
+                        &"null".to_string(),
+                        &password_hash,
+                        &role,
+                    ],
                 )
                 .await
                 .map_err(ApiError::from)?;
