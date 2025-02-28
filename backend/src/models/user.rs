@@ -7,7 +7,9 @@ use uuid::Uuid;
 pub struct User {
     pub id: Uuid,
     pub name: String,
-    pub email: String,
+    pub email_hash: String,
+    pub email_encrypt: String,
+    pub nonce: String,
     pub password: String,
     pub role: String, // 'admin' or 'user'
     pub profile_picture: Option<String>,
@@ -40,7 +42,9 @@ impl User {
         User {
             id: row.get("id"),
             name: row.get("name"),
-            email: row.get("email"),
+            email_hash: row.get("email_hash"),
+            email_encrypt: row.get("email_encrypt"),
+            nonce: row.get("nonce"),
             password: row.get("password"),
             role: row.get("role"),
             profile_picture: row.get("profile_picture"),

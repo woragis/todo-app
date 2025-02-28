@@ -4,7 +4,6 @@ use actix_web::{error::ResponseError, http::StatusCode, HttpResponse, Responder}
 use bcrypt::BcryptError;
 use deadpool_redis::{redis::RedisError, PoolError};
 use jsonwebtoken::errors::Error as JwtError;
-use openssl::ssl::Error as OpenSSLError;
 use serde::Serialize;
 use serde_json::Error as SerdeJsonError;
 use tokio_postgres::Error as PgError;
@@ -50,7 +49,7 @@ impl fmt::Display for AuthError {
 #[derive(Debug)]
 pub enum ApiError {
     Jwt(JwtError),
-    OpenSSL(OpenSSLError),
+    OpenSSL(openssl::error::Error),
     Bcrypt(BcryptError),
     Database(PgError),
     Redis(RedisError),
@@ -150,8 +149,8 @@ impl From<JwtError> for ApiError {
     }
 }
 
-impl From<OpenSSLError> for ApiError {
-    fn from(err: OpenSSLError) -> Self {
+impl From<openssl::error::Error> for ApiError {
+    fn from(err: openssl::error::Error) -> Self {
         log::error!("OpenSSL error: {}", err);
         ApiError::OpenSSL(err)
     }
