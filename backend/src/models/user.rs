@@ -42,10 +42,14 @@ impl User {
         User {
             id: row.get("id"),
             name: row.get("name"),
-            email_hash: row.get("email_hash"),
-            email_encrypt: row.get("email_encrypt"),
-            nonce: row.get("nonce"),
-            password: row.get("password"),
+            // email_hash: row.get("email_hash"),
+            email_hash: String::new(),
+            // email_encrypt: row.get("email_encrypt"),
+            email_encrypt: String::new(),
+            // nonce: row.get("nonce"),
+            nonce: String::new(),
+            // password: row.get("password"),
+            password: String::new(),
             role: row.get("role"),
             profile_picture: row.get("profile_picture"),
         }
