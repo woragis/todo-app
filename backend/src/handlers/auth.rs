@@ -6,7 +6,7 @@ use crate::{
         response::{ApiError, ApiResponse, AuthError},
         user::User,
     },
-    utils::{bcrypt::{compare_password, hash_password}, regex::{regex_email, regex_password}},
+    utils::{bcrypt::{compare_password, hash_password}, encryption::sha_encrypt_string, regex::{regex_email, regex_password}},
 };
 use actix_web::{
     http::StatusCode,
@@ -25,7 +25,8 @@ pub async fn login(
     client: Data<Arc<Mutex<Client>>>,
     payload: Json<AuthRequest>,
 ) -> Result<HttpResponse, ApiError> {
-    match test_email(&client, payload.email.clone()).await {
+    let email_hash = sha_encrypt_string(payload.email.to_owned()).map_err(ApiError::from)?;
+    match test_email(&client, email_hash).await {
         Ok(Some(user)) => {
             // test if password is right
             let is_equal = compare_password(&payload.password, &user.password).map_err(ApiError::from)?;
@@ -51,22 +52,33 @@ pub async fn register(
     client: Data<Arc<Mutex<Client>>>,
     payload: Json<AuthRequest>,
 ) -> Result<HttpResponse, ApiError> {
-    match test_email(&client, payload.email.clone()).await {
+    let email_hash = sha_encrypt_string(payload.email.to_owned()).map_err(ApiError::from)?;
+    match test_email(&client, email_hash).await {
         Ok(None) => {
             regex_email(&payload.email)?;
             regex_password(&payload.password)?;
 
             let client = client.lock().await;
+            let fields = "name, email_hash, email_encrypt, nonce, password, role";
+            let inputs = "$1, $2, $3, $4, $5, $6";
+            let password_hash = hash_password(&payload.password).map_err(ApiError::from)?;
+            let role = payload.role.clone().unwrap_or_else(|| "user".to_string());
+            let parameters = Vec::from([
+                &payload.name,
+                &Some(email_hash),
+                &email_encrypt,
+                &nonce,
+                &password_hash,
+                &role,
+            ]);
             let stmt = format!(
                 "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
-                TABLE, FIELDS, FIELDS_INPUT
+                TABLE, fields, inputs
             );
-            let hash = hash_password(&payload.password).map_err(ApiError::from)?;
-            let role = payload.role.clone().unwrap_or_else(|| "user".to_string());
             let row = client
                 .query_one(
                     &stmt,
-                    &[&payload.name, &payload.email, &hash, &role],
+                    &parameters,
                 )
                 .await
                 .map_err(ApiError::from)?;
@@ -83,10 +95,10 @@ pub async fn register(
     }
 }
 
-async fn test_email(client: &Arc<Mutex<Client>>, email: String) -> Result<Option<User>, ApiError> {
+async fn test_email(client: &Arc<Mutex<Client>>, email_hash: String) -> Result<Option<User>, ApiError> {
     let client = client.lock().await;
-    let stmt = format!("SELECT * FROM {} WHERE email = $1", TABLE);
-    match client.query_opt(&stmt, &[&email]).await {
+    let stmt = format!("SELECT * FROM {} WHERE email_hash = $1", TABLE);
+    match client.query_opt(&stmt, &[&email_hash]).await {
         Ok(Some(row)) => Ok(Some(User::from_row(&row))),
         Ok(None) => Ok(None),
         Err(_) => Err(ApiError::Custom(
