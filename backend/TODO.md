@@ -70,9 +70,11 @@
 
 ## Security
 
-- [ ] - Update model (add hashed_email and encrypted_email and remove email)
-  - [ ] - Encrypt email with SHA512 to hashed_email
-  - [ ] - Encrypt email with AES512 to encrypted_email
+- [x] - Update model (add hashed_email and encrypted_email and remove email)
+  - [x] - Encrypt email with SHA512 to hashed_email
+  - [x] - Encrypt email with AES512 to encrypted_email
+  - [ ] - Implement in Auth Handler
+  - [ ] - Implement in User Handler
 - [x] - Encrypt PASSWORD with bcrypt
 - [x] - JWT
   - [x] - Sub -> user_id as String
