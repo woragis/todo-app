@@ -3,6 +3,8 @@
 ## Code organization
 
 - [x] - Format Imports
+- [ ] - Separate admin routes and handlers
+- [ ] - Review files separation and structures
 - [x] - Padronize **Responses**
 - [ ] - Implement Logging
   - [x] - Configure Logging

@@ -4,10 +4,10 @@ use deadpool_redis::{redis::RedisError, Config, Pool};
 use log::debug;
 
 /// Creates a Redis connection pool.
-/// 
+///
 /// # Returns
 /// A `Result` containing the Redis connection pool or an error if pool creation fails.
-/// 
+///
 /// # Errors
 /// Returns a `RedisError` if the Redis pool cannot be created.
 pub fn pool() -> Result<Pool, RedisError> {

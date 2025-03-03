@@ -6,7 +6,7 @@ pub fn hash_password(password: &str) -> Result<String, BcryptError> {
         Ok(hash) => {
             debug!("Hashed password: {} to {}", password, hash);
             Ok(hash)
-        },
+        }
         Err(e) => {
             error!("Bcrypt error: {}", e);
             Err(e)
@@ -19,10 +19,10 @@ pub fn compare_password(password: &str, hash: &str) -> Result<bool, BcryptError>
         Ok(is_equal) => {
             debug!("comparing password... is equal?: {}", is_equal);
             Ok(is_equal)
-        },
+        }
         Err(e) => {
             error!("Bcrypt error: {}", e);
             Err(e)
-        },
+        }
     }
 }

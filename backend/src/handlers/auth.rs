@@ -1,11 +1,26 @@
 use std::{str::FromStr, sync::Arc};
 
-use actix_web::{http::StatusCode, web::{Data, Json}, HttpRequest, HttpResponse};
+use actix_web::{
+    http::StatusCode,
+    web::{Data, Json},
+    HttpRequest, HttpResponse,
+};
 use tokio::sync::Mutex;
 use tokio_postgres::Client;
 use uuid::Uuid;
 
-use crate::{models::{response::{ApiError, ApiResponse, AuthError}, user::{UpdateProfile, User, UserAuthRequest, UserAuthResponse, UserUpdatePassword}}, utils::{bcrypt::{compare_password, hash_password}, encryption::{aes_encrypt_string, sha_encrypt_string}, jwt::{extract_token, validate_jwt}, regex::{regex_email, regex_password}}};
+use crate::{
+    models::{
+        response::{ApiError, ApiResponse, AuthError},
+        user::{UpdateProfile, User, UserAuthRequest, UserAuthResponse, UserUpdatePassword},
+    },
+    utils::{
+        bcrypt::{compare_password, hash_password},
+        encryption::{aes_encrypt_string, sha_encrypt_string},
+        jwt::{extract_token, validate_jwt},
+        regex::{regex_email, regex_password},
+    },
+};
 
 static TABLE: &str = "users";
 
@@ -18,7 +33,8 @@ pub async fn login(
     match test_email(&client, email_hash).await {
         Ok(Some(user)) => {
             // test if password is right
-            let is_equal = compare_password(&payload.password, &user.password).map_err(ApiError::from)?;
+            let is_equal =
+                compare_password(&payload.password, &user.password).map_err(ApiError::from)?;
             match is_equal {
                 false => Err(ApiError::Auth(AuthError::PasswordWrong)),
                 true => {
@@ -85,7 +101,10 @@ pub async fn register(
     }
 }
 
-async fn test_email(client: &Arc<Mutex<Client>>, email_hash: String) -> Result<Option<User>, ApiError> {
+async fn test_email(
+    client: &Arc<Mutex<Client>>,
+    email_hash: String,
+) -> Result<Option<User>, ApiError> {
     let client = client.lock().await;
     let stmt = format!("SELECT * FROM {} WHERE email_hash = $1", TABLE);
     match client.query_opt(&stmt, &[&email_hash]).await {
@@ -136,10 +155,7 @@ pub async fn update_user_profile(
     let client = client.lock().await;
     let stmt = format!("UPDATE {} SET name = $1, email = $2 WHERE id = $3", TABLE);
     let result = client
-        .execute(
-            &stmt,
-            &[&payload.name, &payload.email, &user_id],
-        )
+        .execute(&stmt, &[&payload.name, &payload.email, &user_id])
         .await
         .map_err(ApiError::from)?;
 
@@ -184,10 +200,7 @@ pub async fn update_user_password(
     let client = client.lock().await;
     let stmt = format!("UPDATE {} SET password = $1 WHERE id = $2", TABLE);
     let result = client
-        .execute(
-            &stmt,
-            &[&hashed_password, &user_id],
-        )
+        .execute(&stmt, &[&hashed_password, &user_id])
         .await
         .map_err(ApiError::from)?;
 
@@ -202,7 +215,6 @@ pub async fn update_user_password(
     }
     Err(ApiError::Custom("Unexpected update count".to_string()))
 }
-
 
 /// **Delete User Profile**
 pub async fn delete_user_profile(

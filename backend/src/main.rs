@@ -9,8 +9,8 @@ use std::{env, process::exit, sync::Arc};
 
 use actix_cors::Cors;
 use actix_web::{
-    middleware::Logger,
     http::header::{AUTHORIZATION, CONTENT_TYPE},
+    middleware::Logger,
     web::{get, Data},
     App, HttpServer,
 };
@@ -20,7 +20,11 @@ use fern::Dispatch;
 use log::{error, info, LevelFilter};
 use middlewares::rate_limiter::rate_limiter;
 use models::rate_limiter::index;
-use routes::{admin::user_routes, auth::{auth_routes, profile_routes}, todo::todo_routes};
+use routes::{
+    admin::user_routes,
+    auth::{auth_routes, profile_routes},
+    todo::todo_routes,
+};
 use tokio::sync::Mutex;
 
 static HOST: &str = "0.0.0.0";
@@ -60,7 +64,7 @@ async fn main() -> std::io::Result<()> {
         Ok(redis_pool) => {
             info!("Redis cache connected");
             Arc::new(redis_pool)
-        },
+        }
         Err(e) => {
             error!("Error connecting to redis cache: {}", e);
             exit(2);
@@ -71,7 +75,7 @@ async fn main() -> std::io::Result<()> {
         Ok(client) => {
             info!("Database client connected");
             Arc::new(Mutex::from(client))
-        },
+        }
         Err(e) => {
             error!("Error connecting to postgres database: {}", e);
             exit(3);
@@ -82,11 +86,11 @@ async fn main() -> std::io::Result<()> {
         Ok(()) => {
             info!("Created tables");
             ()
-        },
+        }
         Err(e) => {
             error!("Error creating tables: {}", e);
             exit(4);
-        },
+        }
     }
 
     HttpServer::new(move || {

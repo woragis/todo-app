@@ -9,13 +9,13 @@ pub static USERS_TABLE: &str = "users";
 pub static TODOS_TABLE: &str = "todos";
 
 /// Creates necessary database tables if they do not exist.
-/// 
+///
 /// # Parameters
 /// - `client`: A shared and synchronized PostgreSQL client.
-/// 
+///
 /// # Returns
 /// A `Result` indicating success or failure in creating the tables.
-/// 
+///
 /// # Errors
 /// Returns an `Error` if any of the table creation queries fail.
 pub async fn create_tables(client: &Arc<Mutex<Client>>) -> Result<(), Error> {
@@ -56,7 +56,6 @@ pub async fn create_tables(client: &Arc<Mutex<Client>>) -> Result<(), Error> {
     ",
         TODOS_TABLE, USERS_TABLE
     );
-
 
     // Lock the database client to execute queries sequentially.
     let client = client.lock().await;
