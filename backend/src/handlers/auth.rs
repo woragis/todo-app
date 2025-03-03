@@ -2,9 +2,8 @@ use std::sync::Arc;
 
 use crate::{
     models::{
-        auth::{AuthRequest, AuthResponse},
         response::{ApiError, ApiResponse, AuthError},
-        user::User,
+        user::{User, UserAuthRequest, UserAuthResponse},
     },
     utils::{bcrypt::{compare_password, hash_password}, encryption::{aes_encrypt_string, sha_encrypt_string}, regex::{regex_email, regex_password}},
 };
@@ -21,7 +20,7 @@ static TABLE: &str = "users";
 /// **Login User**
 pub async fn login(
     client: Data<Arc<Mutex<Client>>>,
-    payload: Json<AuthRequest>,
+    payload: Json<UserAuthRequest>,
 ) -> Result<HttpResponse, ApiError> {
     let email_hash = sha_encrypt_string(payload.email.to_owned()).map_err(ApiError::from)?;
     match test_email(&client, email_hash).await {
@@ -33,7 +32,7 @@ pub async fn login(
                 true => {
                     // generate token
                     Ok(ApiResponse::success(
-                        AuthResponse::user_to_response(user),
+                        UserAuthResponse::user_to_response(user),
                         "Successfully logged in",
                         StatusCode::OK,
                     ))
@@ -48,7 +47,7 @@ pub async fn login(
 /// **Register User**
 pub async fn register(
     client: Data<Arc<Mutex<Client>>>,
-    payload: Json<AuthRequest>,
+    payload: Json<UserAuthRequest>,
 ) -> Result<HttpResponse, ApiError> {
     let email_hash = sha_encrypt_string(payload.email.to_owned()).map_err(ApiError::from)?;
     match test_email(&client, email_hash.clone()).await {
@@ -82,7 +81,7 @@ pub async fn register(
                 .await
                 .map_err(ApiError::from)?;
 
-            let response = AuthResponse::row_to_response(row);
+            let response = UserAuthResponse::row_to_response(row);
             Ok(ApiResponse::success(
                 response,
                 "User registered successfully",

@@ -1,19 +1,12 @@
 use std::{str::FromStr, sync::Arc};
 
-use crate::{
-    models::{
-        auth::UpdatePassword, response::{ApiError, ApiResponse}, user::{UpdateProfile, User}
-    },
-    utils::{bcrypt::hash_password, jwt::{extract_token, validate_jwt}, regex::{regex_email, regex_password}},
-};
-use actix_web::{
-    http::StatusCode,
-    web::{Data, Json},
-    HttpRequest, HttpResponse,
-};
+use actix_web::{http::StatusCode, web::{Data, Json}, HttpRequest, HttpResponse};
 use tokio::sync::Mutex;
 use tokio_postgres::Client;
 use uuid::Uuid;
+
+use crate::{models::{response::{ApiError, ApiResponse}, user::{UpdateProfile, User, UserUpdatePassword}}, utils::{bcrypt::hash_password, jwt::{extract_token, validate_jwt}, regex::{regex_email, regex_password}}};
+
 
 static TABLE: &str = "users";
 
@@ -79,7 +72,7 @@ pub async fn update_user_profile(
 pub async fn update_user_password(
     client: Data<Arc<Mutex<Client>>>,
     request: HttpRequest,
-    payload: Json<UpdatePassword>,
+    payload: Json<UserUpdatePassword>,
 ) -> Result<HttpResponse, ApiError> {
     let token = extract_token(&request.headers()).map_err(ApiError::from)?;
     let claims = validate_jwt(&token).map_err(ApiError::from)?;
