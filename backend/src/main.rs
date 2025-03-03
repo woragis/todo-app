@@ -20,7 +20,7 @@ use fern::Dispatch;
 use log::{error, info, LevelFilter};
 use middlewares::rate_limiter::rate_limiter;
 use models::rate_limiter::index;
-use routes::{auth::auth_routes, profile::profile_routes, todo::todo_routes, admin::user_routes};
+use routes::{admin::user_routes, auth::{auth_routes, profile_routes}, todo::todo_routes};
 use tokio::sync::Mutex;
 
 static HOST: &str = "0.0.0.0";
