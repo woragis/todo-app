@@ -3,7 +3,10 @@ use actix_web::{
     Scope,
 };
 
-use crate::handlers::auth::{login, register, add_or_edit_profile_picture, delete_profile_picture, delete_user_profile, get_profile_picture, get_user_profile, update_user_password, update_user_profile};
+use crate::handlers::auth::{
+    add_or_edit_profile_picture, delete_profile_picture, delete_user_profile, get_profile_picture,
+    get_user_profile, login, register, update_user_password, update_user_profile,
+};
 
 pub fn auth_routes() -> Scope {
     scope("/auth")

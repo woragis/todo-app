@@ -44,7 +44,6 @@ impl fmt::Display for AuthError {
     }
 }
 
-
 // Define a custom error type
 #[derive(Debug)]
 pub enum ApiError {
@@ -97,11 +96,11 @@ impl ResponseError for ApiError {
             ApiError::Auth(auth_error) => match auth_error {
                 AuthError::AdminsOnly => StatusCode::UNAUTHORIZED, // 401
                 AuthError::MissingHeader => StatusCode::UNAUTHORIZED, // 401
-                AuthError::InvalidHeader => StatusCode::BAD_REQUEST,  // 400
-                AuthError::MissingBearer => StatusCode::BAD_REQUEST,  // 400
-                AuthError::PasswordWrong => StatusCode::BAD_REQUEST,  // 400
-                AuthError::EmailTaken => StatusCode::BAD_REQUEST,     // 400
-                AuthError::EmailWrong => StatusCode::BAD_REQUEST,     // 400
+                AuthError::InvalidHeader => StatusCode::BAD_REQUEST, // 400
+                AuthError::MissingBearer => StatusCode::BAD_REQUEST, // 400
+                AuthError::PasswordWrong => StatusCode::BAD_REQUEST, // 400
+                AuthError::EmailTaken => StatusCode::BAD_REQUEST,  // 400
+                AuthError::EmailWrong => StatusCode::BAD_REQUEST,  // 400
             },
             ApiError::TooManyRequests => StatusCode::TOO_MANY_REQUESTS, // 429
             ApiError::RegexValidationError(_) => StatusCode::BAD_REQUEST, // 400

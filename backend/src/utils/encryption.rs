@@ -1,5 +1,5 @@
+use aes::cipher::{BlockDecrypt, BlockEncrypt, KeyInit};
 use aes::Aes128;
-use aes::cipher::{BlockEncrypt, BlockDecrypt, KeyInit};
 use cipher::generic_array::GenericArray;
 use log::debug;
 use openssl::error::Error;
@@ -21,32 +21,43 @@ pub fn sha_encrypt_string(payload: String) -> Result<String, Error> {
 
 pub fn aes_encrypt_string(payload: String) -> Vec<u8> {
     debug!("Encrypting with aes...");
-    let key=GenericArray::from([0u8;16]);
+    let key = GenericArray::from([0u8; 16]);
     let cipher = Aes128::new(&key);
 
-    let blocks: Vec<_> = payload.as_bytes().chunks(16).map(|chunk| {
-        let mut block = [0u8; 16];
-        block[..chunk.len()].copy_from_slice(chunk); // copy data and pad if necessary
-        let mut block = GenericArray::from(block);
-        cipher.encrypt_block(&mut block);
-        block.to_vec()
-    }).flatten().collect();
+    let blocks: Vec<_> = payload
+        .as_bytes()
+        .chunks(16)
+        .map(|chunk| {
+            let mut block = [0u8; 16];
+            block[..chunk.len()].copy_from_slice(chunk); // copy data and pad if necessary
+            let mut block = GenericArray::from(block);
+            cipher.encrypt_block(&mut block);
+            block.to_vec()
+        })
+        .flatten()
+        .collect();
 
     blocks
 }
 
 pub fn aes_decrypt_string(payload: Vec<u8>) -> String {
     debug!("Decrypting aes...");
-    let key=GenericArray::from([0u8;16]);
+    let key = GenericArray::from([0u8; 16]);
     let cipher = Aes128::new(GenericArray::from_slice(&key));
 
-    let decrypted_bytes: Vec<u8> = payload.chunks(16).map(|chunk| {
-        let mut block: GenericArray<u8, _> = GenericArray::clone_from_slice(chunk);
-        cipher.decrypt_block(&mut block);
-        block.to_vec()
-    }).flatten().collect();
+    let decrypted_bytes: Vec<u8> = payload
+        .chunks(16)
+        .map(|chunk| {
+            let mut block: GenericArray<u8, _> = GenericArray::clone_from_slice(chunk);
+            cipher.decrypt_block(&mut block);
+            block.to_vec()
+        })
+        .flatten()
+        .collect();
 
-    String::from_utf8_lossy(&decrypted_bytes).trim_matches('\0').to_string()
+    String::from_utf8_lossy(&decrypted_bytes)
+        .trim_matches('\0')
+        .to_string()
 }
 
 use hex;
@@ -70,12 +81,11 @@ use hex;
 
 // fn decrypt_email(encrypted_email: &str, nonce: &str, key: &[u8]) -> String {
 //     let cipher = GenericArray::from("banana");
-    
+
 //     let decrypted = cipher.decrypt(
-//         Nonce::from_slice(&base64::decode(nonce).expect("Invalid nonce")), 
+//         Nonce::from_slice(&base64::decode(nonce).expect("Invalid nonce")),
 //         &base64::decode(encrypted_email).expect("Invalid ciphertext")[..]
 //     ).expect("decryption failed");
 
 //     String::from_utf8(decrypted).expect("Invalid UTF-8")
 // }
-

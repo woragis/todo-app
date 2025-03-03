@@ -37,7 +37,6 @@ pub struct UpdateUser {
     pub password: String,
 }
 
-
 impl User {
     pub fn from_row(row: &Row) -> Self {
         debug!("Parsing row to user model");
@@ -57,7 +56,6 @@ impl User {
         }
     }
 }
-
 
 #[derive(Debug, Deserialize)]
 pub struct UserAuthRequest {

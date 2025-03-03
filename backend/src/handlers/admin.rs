@@ -1,12 +1,21 @@
 use core::panic;
 use std::sync::Arc;
 
-use crate::{models::{
-    response::{ApiError, ApiResponse, AuthError},
-    user::{CreateUser, UpdateUser, User},
-}, utils::{bcrypt::hash_password, encryption::sha_encrypt_string, jwt::{extract_token, validate_jwt}}};
+use crate::{
+    models::{
+        response::{ApiError, ApiResponse, AuthError},
+        user::{CreateUser, UpdateUser, User},
+    },
+    utils::{
+        bcrypt::hash_password,
+        encryption::sha_encrypt_string,
+        jwt::{extract_token, validate_jwt},
+    },
+};
 use actix_web::{
-    http::StatusCode, web::{self, Data, Json, Path}, HttpRequest, HttpResponse
+    http::StatusCode,
+    web::{self, Data, Json, Path},
+    HttpRequest, HttpResponse,
 };
 use once_cell::sync::Lazy;
 use tokio::sync::Mutex;
@@ -18,9 +27,8 @@ static FIELDS: &str = "name, email, password";
 static UPDATE_FIELDS: &str = "name = $1, email = $2, password = $3";
 static FIELDS_INPUT: &str = "$1, $2, $3";
 
-static ADMIN_ROLE: Lazy<String> = Lazy::new(|| {
-    sha_encrypt_string("admin".to_string()).expect("msg")
-});
+static ADMIN_ROLE: Lazy<String> =
+    Lazy::new(|| sha_encrypt_string("admin".to_string()).expect("msg"));
 
 pub async fn create_user(
     client: Data<Arc<Mutex<Client>>>,
@@ -32,7 +40,7 @@ pub async fn create_user(
     let role = claims.role;
     match role == ADMIN_ROLE.as_ref() {
         true => (),
-        false => return Err(ApiError::Auth(AuthError::AdminsOnly))
+        false => return Err(ApiError::Auth(AuthError::AdminsOnly)),
     }
 
     let hashed_password = hash_password(&payload.password).map_err(ApiError::from)?;
@@ -67,7 +75,7 @@ pub async fn get_user(
     let role = claims.role;
     match role == ADMIN_ROLE.as_ref() {
         true => (),
-        false => return Err(ApiError::Auth(AuthError::AdminsOnly))
+        false => return Err(ApiError::Auth(AuthError::AdminsOnly)),
     }
 
     let client = client.lock().await;
@@ -87,7 +95,8 @@ pub async fn get_user(
 }
 
 /// **Read Users**
-pub async fn get_users(client: web::Data<Arc<Mutex<Client>>>,
+pub async fn get_users(
+    client: web::Data<Arc<Mutex<Client>>>,
     request: HttpRequest,
 ) -> Result<HttpResponse, ApiError> {
     let token = extract_token(&request.headers()).map_err(ApiError::from)?;
@@ -97,7 +106,7 @@ pub async fn get_users(client: web::Data<Arc<Mutex<Client>>>,
     println!("admin hashed role: {}", ADMIN_ROLE.to_string());
     match role == ADMIN_ROLE.as_ref() {
         true => (),
-        false => return Err(ApiError::Auth(AuthError::AdminsOnly))
+        false => return Err(ApiError::Auth(AuthError::AdminsOnly)),
     }
 
     let client = client.lock().await;
@@ -125,7 +134,7 @@ pub async fn update_user(
     let role = claims.role;
     match role == ADMIN_ROLE.as_ref() {
         true => (),
-        false => return Err(ApiError::Auth(AuthError::AdminsOnly))
+        false => return Err(ApiError::Auth(AuthError::AdminsOnly)),
     }
 
     let hashed_password = hash_password(&payload.password).map_err(ApiError::from)?;
@@ -141,20 +150,28 @@ pub async fn update_user(
         .map_err(ApiError::from);
 
     match result {
-        Ok(1) => Ok(ApiResponse::success(*user_id, "User updated successfully", StatusCode::OK)),
+        Ok(1) => Ok(ApiResponse::success(
+            *user_id,
+            "User updated successfully",
+            StatusCode::OK,
+        )),
         // update response
         _ => panic!("Error in update user"),
     }
 }
 
 /// **Delete User**
-pub async fn delete_user(client: Data<Arc<Mutex<Client>>>, request: HttpRequest, user_id: Path<Uuid>) -> Result<HttpResponse, ApiError> {
+pub async fn delete_user(
+    client: Data<Arc<Mutex<Client>>>,
+    request: HttpRequest,
+    user_id: Path<Uuid>,
+) -> Result<HttpResponse, ApiError> {
     let token = extract_token(&request.headers()).map_err(ApiError::from)?;
     let claims = validate_jwt(&token).map_err(ApiError::from)?;
     let role = claims.role;
     match role == ADMIN_ROLE.as_ref() {
         true => (),
-        false => return Err(ApiError::Auth(AuthError::AdminsOnly))
+        false => return Err(ApiError::Auth(AuthError::AdminsOnly)),
     }
 
     let client = client.lock().await;

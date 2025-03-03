@@ -37,12 +37,10 @@ pub fn generate_jwt(user_id: Uuid, role: String) -> Result<String, jsonwebtoken:
 pub fn extract_token(header: &HeaderMap) -> Result<String, AuthError> {
     match header.get("Authorization") {
         Some(auth_header) => match auth_header.to_str() {
-            Ok(auth_str) => {
-                match auth_str.strip_prefix("Bearer ") {
-                    Some(token) => Ok(token.to_string()),
-                    None => Err(AuthError::MissingBearer),
-                }
-            }
+            Ok(auth_str) => match auth_str.strip_prefix("Bearer ") {
+                Some(token) => Ok(token.to_string()),
+                None => Err(AuthError::MissingBearer),
+            },
             Err(_) => Err(AuthError::InvalidHeader),
         },
         None => Err(AuthError::MissingHeader),
