@@ -75,6 +75,7 @@
 - [x] - Update model (add hashed_email and encrypted_email and remove email)
   - [x] - Encrypt email with SHA512 to hashed_email
   - [x] - Encrypt email with AES512 to encrypted_email
+    - [ ] - Test new email encryption changes
   - [ ] - Implement in Auth Handler
   - [ ] - Implement in User Handler
 - [x] - Encrypt PASSWORD with bcrypt
@@ -140,6 +141,12 @@
 - [x] - Implement **JWT** on todos CRUD
 - [x] - Implement **Cache** _with_ **REDIS**
 - [ ] - Implement **Cache** for USERS CRUD
+
+### New routes
+
+- [ ] - Reset password
+- [ ] - Change password
+- [ ] - Delet account (with some sort of confirmation)
 
 ### Cache
 
