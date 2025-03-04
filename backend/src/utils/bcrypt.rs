@@ -1,7 +1,9 @@
-use bcrypt::{hash, verify, BcryptError};
+use bcrypt::{hash, verify};
 use log::{debug, error};
 
-pub fn hash_password(password: &str) -> Result<String, BcryptError> {
+use crate::models::response::ApiError;
+
+pub fn hash_password(password: &str) -> Result<String, ApiError> {
     match hash(password, 12) {
         Ok(hash) => {
             debug!("Hashed password: {} to {}", password, hash);
@@ -9,20 +11,21 @@ pub fn hash_password(password: &str) -> Result<String, BcryptError> {
         }
         Err(e) => {
             error!("Bcrypt error: {}", e);
-            Err(e)
+            Err(ApiError::Bcrypt(e))
         }
     }
 }
 
-pub fn compare_password(password: &str, hash: &str) -> Result<bool, BcryptError> {
+pub fn compare_password(password: &str, hash: &str) -> Result<bool, ApiError> {
     match verify(password, hash) {
         Ok(is_equal) => {
             debug!("comparing password... is equal?: {}", is_equal);
             Ok(is_equal)
         }
         Err(e) => {
+            debug!("comparing passwords: '{}' and '{}'\nError: {}", password, hash, e);
             error!("Bcrypt error: {}", e);
-            Err(e)
+            Err(ApiError::Bcrypt(e))
         }
     }
 }

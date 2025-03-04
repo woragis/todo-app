@@ -32,13 +32,13 @@ static PORT: u16 = 8080;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let log_level = env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string());
+    let log_level = env::var("RUST_LOG").unwrap_or_else(|_| "debug".to_string());
     let level_filter = match log_level.to_lowercase().as_str() {
         "debug" => LevelFilter::Debug,
         "info" => LevelFilter::Info,
         "warn" => LevelFilter::Warn,
         "error" => LevelFilter::Error,
-        _ => LevelFilter::Info,
+        _ => LevelFilter::Debug,
     };
 
     Dispatch::new()
