@@ -50,8 +50,8 @@ pub async fn create_tables(client: &Arc<Mutex<Client>>) -> Result<(), Error> {
         title TEXT NOT NULL,
         description TEXT,
         completed BOOLEAN NOT NULL DEFAULT false,
-        author_id UUID NOT NULL,
-        FOREIGN KEY (author_id) REFERENCES {}(id) ON DELETE CASCADE
+        user_id UUID NOT NULL,
+        FOREIGN KEY (user_id) REFERENCES {}(id) ON DELETE CASCADE
     );
     ",
         TODOS_TABLE, USERS_TABLE
