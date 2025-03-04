@@ -182,21 +182,14 @@ pub async fn update_user_password(
     let claims = validate_jwt(&token).map_err(ApiError::from)?;
     let user_id = Uuid::from_str(&claims.sub).map_err(ApiError::from)?;
 
-    // let is_equal = compare_password(&payload.oldpassword, &user.password).map_err(ApiError::from)?;
-    // match is_equal {
-    //     false => Err(ApiError::Auth(AuthError::PasswordWrong)),
-    //     true => {
-    //         // generate token
-    //         Ok(ApiResponse::success(
-    //             AuthResponse::user_to_response(user),
-    //             "Successfully logged in",
-    //             StatusCode::OK,
-    //         ))
-    //     }
-    // }
+    let is_equal = compare_password(&payload.old_password, &payload.new_password)?;
+    match is_equal {
+        false => return Err(ApiError::Auth(AuthError::PasswordWrong)),
+        true => ()
+    }
 
     regex_password(&payload.new_password)?;
-    let hashed_password = hash_password(&payload.new_password).map_err(ApiError::from)?;
+    let hashed_password = hash_password(&payload.new_password)?;
 
     let client = client.lock().await;
     let stmt = format!("UPDATE {} SET password = $1 WHERE id = $2", TABLE);
