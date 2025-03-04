@@ -33,8 +33,9 @@ pub async fn login(
     match test_email(&client, email_hash).await {
         Ok(Some(user)) => {
             // test if password is right
-            let is_equal =
-                compare_password(&payload.password, &user.password).map_err(ApiError::from)?;
+            log::debug!("User password: {}", &payload.password);
+            log::debug!("DB password: {}", &user.password);
+            let is_equal = compare_password(&payload.password, &user.password)?;
             match is_equal {
                 false => Err(ApiError::Auth(AuthError::PasswordWrong)),
                 true => {
@@ -68,7 +69,7 @@ pub async fn register(
             let inputs = "$1, $2, $3, $4, $5, $6";
             let email_encrypt = aes_encrypt_string(payload.email.clone());
             let email_encrypt = hex::encode(email_encrypt);
-            let password_hash = hash_password(&payload.password).map_err(ApiError::from)?;
+            let password_hash = hash_password(&payload.password)?;
             let role = payload.role.clone().unwrap_or_else(|| "user".to_string());
             let stmt = format!(
                 "INSERT INTO {} ({}) VALUES ({}) RETURNING *",
