@@ -12,7 +12,7 @@ pub struct Todo {
     pub title: String,
     pub description: String,
     pub completed: bool,
-    pub author_id: Uuid,
+    pub user_id: Uuid,
 }
 
 #[derive(Debug, Deserialize)]
@@ -36,7 +36,7 @@ impl Todo {
             title: row.get("title"),
             description: row.get("description"),
             completed: row.get("completed"),
-            author_id: row.get("author_id"),
+            user_id: row.get("user_id"),
         }
     }
 

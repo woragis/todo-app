@@ -18,8 +18,8 @@ use tokio_postgres::Client;
 use uuid::Uuid;
 
 static TABLE: &str = "todos";
-static FIELDS: &str = "title, description, completed, author_id";
-static UPDATE_FIELDS: &str = "title = $1, description = $2, completed = $3, author_id = $4";
+static FIELDS: &str = "title, description, completed, user_id";
+static UPDATE_FIELDS: &str = "title = $1, description = $2, completed = $3, user_id = $4";
 static FIELDS_INPUT: &str = "$1, $2, $3, $4";
 
 /// **Create Todo**
@@ -78,7 +78,7 @@ pub async fn get_todo(
     }
 
     let client = client.lock().await;
-    let stmt = format!("SELECT * FROM {} WHERE id = $1 AND author_id = $2", TABLE);
+    let stmt = format!("SELECT * FROM {} WHERE id = $1 AND user_id = $2", TABLE);
     let row = client
         .query_one(&stmt, &[&id, &user_id])
         .await
@@ -106,7 +106,7 @@ pub async fn get_todos(
     let user_id = Uuid::from_str(&claims.sub).map_err(ApiError::from)?;
 
     let client = client.lock().await;
-    let stmt = format!("SELECT * FROM {} WHERE author_id = $1", TABLE);
+    let stmt = format!("SELECT * FROM {} WHERE user_id = $1", TABLE);
     let rows = client
         .query(&stmt, &[&user_id])
         .await
@@ -140,7 +140,7 @@ pub async fn update_todo(
 
     let client = client.lock().await;
     let stmt = format!(
-        "UPDATE {} SET {} WHERE id = $5 AND author_id = $4",
+        "UPDATE {} SET {} WHERE id = $5 AND user_id = $4",
         TABLE, UPDATE_FIELDS
     );
     let result = client
@@ -163,7 +163,7 @@ pub async fn update_todo(
             title: payload.title.to_owned(),
             description: payload.description.to_owned(),
             completed: payload.completed,
-            author_id: user_id,
+            user_id,
         };
 
         // ✅ Remove old cache
@@ -196,7 +196,7 @@ pub async fn delete_todo(
     let user_id = Uuid::from_str(&claims.sub).map_err(ApiError::from)?;
 
     let client = client.lock().await;
-    let stmt = format!("DELETE FROM {} WHERE id = $1 AND author_id = $2", TABLE);
+    let stmt = format!("DELETE FROM {} WHERE id = $1 AND user_id = $2", TABLE);
     let result = client
         .execute(&stmt, &[&*id, &user_id])
         .await
